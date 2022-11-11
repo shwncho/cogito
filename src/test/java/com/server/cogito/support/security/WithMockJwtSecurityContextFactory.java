@@ -1,0 +1,37 @@
+package com.server.cogito.support.security;
+
+import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.user.domain.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithSecurityContextFactory;
+
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
+
+
+final class WithMockJwtSecurityContextFactory implements WithSecurityContextFactory<WithMockJwt> {
+
+    public SecurityContext createSecurityContext(WithMockJwt annotation) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        AuthUser.of(createUser(annotation.id(), annotation.email())),
+                        null,
+                        createAuthorityList(annotation.authority().toString()));
+        context.setAuthentication(authentication);
+        return context;
+    }
+
+    private User createUser(Long id,String email){
+        return User.builder()
+                .id(id)
+                .email(email)
+                .name("테스트")
+                .nickname("심플")
+                .build();
+    }
+
+
+}

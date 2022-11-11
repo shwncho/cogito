@@ -1,0 +1,23 @@
+= 심플 API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 회원가입
+
+=== 요청
+include::{snippets}/auth-controller-test/sign-in_success/http-request.adoc[]
+
+include::{snippets}/auth-controller-test/sign-in_success/request-fields.adoc[]
+
+
+=== 응답
+include::{snippets}/auth-controller-test/sign-in_success/http-response.adoc[]
+
+include::{snippets}/auth-controller-test/sign-in_success/response-fields.adoc[]
+
+
+
