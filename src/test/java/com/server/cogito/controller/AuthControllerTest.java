@@ -1,13 +1,13 @@
 package com.server.cogito.controller;
 
-import com.server.cogito.auth.AuthController;
-import com.server.cogito.auth.AuthService;
-import com.server.cogito.auth.dto.request.SignInRequest;
-import com.server.cogito.auth.dto.response.SignInResponse;
+import com.server.cogito.domain.auth.AuthController;
+import com.server.cogito.domain.auth.AuthService;
+import com.server.cogito.domain.auth.dto.request.SignInRequest;
+import com.server.cogito.domain.auth.dto.response.SignInResponse;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
-import com.server.cogito.user.UserRepository;
-import com.server.cogito.user.domain.Provider;
+import com.server.cogito.domain.user.UserRepository;
+import com.server.cogito.domain.user.domain.Provider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

@@ -1,7 +1,7 @@
 package com.server.cogito.support.security;
 
-import com.server.cogito.common.security.AuthUser;
-import com.server.cogito.user.domain.User;
+import com.server.cogito.global.common.security.AuthUser;
+import com.server.cogito.domain.user.domain.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +28,6 @@ final class WithMockJwtSecurityContextFactory implements WithSecurityContextFact
         return User.builder()
                 .id(id)
                 .email(email)
-                .name("테스트")
                 .nickname("심플")
                 .build();
     }

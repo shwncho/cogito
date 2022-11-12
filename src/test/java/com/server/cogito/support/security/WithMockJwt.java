@@ -1,6 +1,6 @@
 package com.server.cogito.support.security;
 
-import com.server.cogito.user.domain.Authority;
+import com.server.cogito.domain.user.domain.Authority;
 import org.springframework.security.test.context.support.WithSecurityContext;
 
 import java.lang.annotation.*;
