@@ -2,7 +2,6 @@ package com.server.cogito.domain.auth;
 
 import com.server.cogito.domain.auth.dto.TokenResponse;
 import com.server.cogito.domain.auth.dto.request.SignInRequest;
-import com.server.cogito.domain.auth.dto.request.SignOutRequest;
 import com.server.cogito.domain.auth.dto.response.SignInResponse;
 import com.server.cogito.global.common.entity.Status;
 import com.server.cogito.global.common.exception.ApplicationException;
@@ -31,7 +30,6 @@ import static com.server.cogito.global.common.exception.user.UserErrorCode.USER_
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final RedisTemplate redisTemplate;
 
@@ -51,6 +49,8 @@ public class AuthService {
                         .provider(Provider.KAKAO)
                         .build()));
 
+        user.addScore();
+
         AuthUser authUser = AuthUser.of(user);
 
         TokenResponse tokenResponse = jwtProvider.createToken(authUser);
@@ -66,7 +66,7 @@ public class AuthService {
 
     }
 
-    public void signOut(String email, SignOutRequest dto){
+    public void signOut(String email, String accessToken){
         User user = userRepository.findByEmailAndStatus(email, Status.ACTIVE)
                 .orElseThrow(() -> new ApplicationException(USER_NOT_EXIST));
 
@@ -77,42 +77,36 @@ public class AuthService {
         }
 
         // Access Token 유효시간 가지고 와서 BlackList 로 저장하기
-        Long expiration = jwtProvider.getExpiration(dto.getAccessToken());
+        Long expiration = jwtProvider.getExpiration(accessToken);
         redisTemplate.opsForValue()
-                .set(dto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+                .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
 
 
     }
 
-    public TokenResponse reissue(TokenResponse tokenResponse){
+    public TokenResponse reissue(String refreshToken, AuthUser authUser){
 
         //Refresh Token 검증
-        if(!jwtProvider.validateToken(tokenResponse.getRefreshToken())){
+        if(!jwtProvider.validateToken(refreshToken)){
             log.error("유효하지않은 refreshToken 입니다.");
             throw new ApplicationException(USER_INVALID_REFRESH_TOKEN);
         }
 
-        String userEmail = jwtProvider.getUserEmail(tokenResponse.getAccessToken());
-        User user = userRepository.findByEmailAndStatus(userEmail, Status.ACTIVE)
-                .orElseThrow(() -> new ApplicationException(USER_NOT_EXIST));
-        AuthUser authUser = AuthUser.of(user);
-
-        //Redis에서 User email 가져오기
-        String refreshToken = (String)redisTemplate.opsForValue().get("RT:" + userEmail);
+        String redisRefreshToken = (String)redisTemplate.opsForValue().get("RT:" + authUser.getUsername());
 
         //Redis에 Refresh Token이 존재하지 않을 경우
-        if(ObjectUtils.isEmpty(refreshToken)){
+        if(ObjectUtils.isEmpty(redisRefreshToken)){
             log.error("Redis에 refreshToken이 존재하지 않습니다.");
             throw new ApplicationException(USER_INVALID_REFRESH_TOKEN);
         }
-        if(!refreshToken.equals(tokenResponse.getRefreshToken())){
+        if(!redisRefreshToken.equals(refreshToken)){
             log.error("not equal");
             throw new ApplicationException(USER_INVALID_REFRESH_TOKEN);
         }
 
         TokenResponse result = jwtProvider.createToken(authUser);
         redisTemplate.opsForValue()
-                .set("RT:" + userEmail, result.getRefreshToken(), REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+                .set("RT:" + authUser.getUsername(), result.getRefreshToken(), REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
 
         return result;
 

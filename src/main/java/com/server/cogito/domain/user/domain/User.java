@@ -47,5 +47,8 @@ public class User extends BaseEntity {
         this.provider = provider;
     }
 
+    public void addScore(){
+        this.score++;
+    }
 
 }
