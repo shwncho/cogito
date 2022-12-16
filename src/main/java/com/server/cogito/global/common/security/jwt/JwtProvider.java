@@ -27,6 +27,7 @@ public class JwtProvider implements InitializingBean {
     private final String USERNAME = "username";
     private final long ACCESS_TOKEN_EXPIRE_TIME;
     private final long REFRESH_TOKEN_EXPIRE_TIME;
+    private final String BEARER_PREFIX = "Bearer ";
     private Key key;
 
 
@@ -123,5 +124,9 @@ public class JwtProvider implements InitializingBean {
         // 현재 시간
         Long now = new Date().getTime();
         return (expiration.getTime() - now);
+    }
+
+    public boolean isStartWithBearer(String bearerToken) {
+        return bearerToken.startsWith(BEARER_PREFIX);
     }
 }

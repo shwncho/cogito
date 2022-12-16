@@ -66,8 +66,8 @@ public class AuthService {
 
     }
 
-    public void signOut(String email, String accessToken){
-        User user = userRepository.findByEmailAndStatus(email, Status.ACTIVE)
+    public void signOut(AuthUser authUser, String accessToken){
+        User user = userRepository.findByEmailAndStatus(authUser.getUsername(), Status.ACTIVE)
                 .orElseThrow(() -> new ApplicationException(USER_NOT_EXIST));
 
         // Redis 에서 해당 User email 로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
@@ -84,7 +84,7 @@ public class AuthService {
 
     }
 
-    public TokenResponse reissue(String refreshToken, AuthUser authUser){
+    public TokenResponse reissue(AuthUser authUser, String refreshToken){
 
         //Refresh Token 검증
         if(!jwtProvider.validateToken(refreshToken)){

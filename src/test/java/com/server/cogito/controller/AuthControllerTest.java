@@ -4,28 +4,30 @@ import com.server.cogito.domain.auth.AuthController;
 import com.server.cogito.domain.auth.AuthService;
 import com.server.cogito.domain.auth.dto.request.SignInRequest;
 import com.server.cogito.domain.auth.dto.response.SignInResponse;
-import com.server.cogito.support.restdocs.RestDocsSupport;
-import com.server.cogito.support.security.WithMockJwt;
 import com.server.cogito.domain.user.UserRepository;
 import com.server.cogito.domain.user.domain.Provider;
+import com.server.cogito.support.restdocs.RestDocsSupport;
+import com.server.cogito.support.security.WithMockJwt;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static com.server.cogito.support.restdocs.RestDocsConfig.field;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @WebMvcTest(AuthController.class)
@@ -79,6 +81,25 @@ public class AuthControllerTest extends RestDocsSupport{
                                 fieldWithPath("userId").type(JsonFieldType.NUMBER).description("회원가입 완료된 유저 idx"),
                                 fieldWithPath("accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
                                 fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공")
+    public void signOut_success() throws Exception{
+
+        //given
+        String accessToken = "Bearer testAccessToken";
+
+        //expected, docs
+        mockMvc.perform(post("/api/auth/sign-out")
+                .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+
                         )
                 ));
     }

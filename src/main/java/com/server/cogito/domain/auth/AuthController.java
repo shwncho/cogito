@@ -28,7 +28,7 @@ public class AuthController {
             @AuthenticationPrincipal AuthUser authUser,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken
     ){
-        authService.signOut(authUser.getUsername(), removeType(accessToken));
+        authService.signOut(authUser, removeType(accessToken));
     }
 
     private String removeType(String token) {
@@ -36,9 +36,10 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public TokenResponse reissue(@RequestHeader(HttpHeaders.AUTHORIZATION) String refreshToken,
-                                 @AuthenticationPrincipal AuthUser authUser){
-        return authService.reissue(removeType(refreshToken), authUser);
+    public TokenResponse reissue(@AuthenticationPrincipal AuthUser authUser,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String refreshToken
+    ){
+        return authService.reissue(authUser, removeType(refreshToken));
     }
 
 
