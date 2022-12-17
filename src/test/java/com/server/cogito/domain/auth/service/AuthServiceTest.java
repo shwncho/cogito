@@ -1,34 +1,29 @@
 package com.server.cogito.domain.auth.service;
 
 import com.server.cogito.domain.auth.dto.TokenResponse;
-import com.server.cogito.domain.auth.dto.request.SignInRequest;
 import com.server.cogito.domain.auth.dto.response.KaKaoUser;
 import com.server.cogito.domain.user.entity.User;
 import com.server.cogito.domain.user.enums.Provider;
 import com.server.cogito.domain.user.repository.UserRepository;
-import com.server.cogito.global.common.entity.Status;
 import com.server.cogito.global.common.security.AuthUser;
 import com.server.cogito.global.common.security.jwt.JwtProvider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -104,6 +99,7 @@ class AuthServiceTest {
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
         given(valueOperations.get("RT:"+user.getEmail())).willReturn(tokenResponse.getRefreshToken());
 
+
         //when
         authService.signOut(AuthUser.of(user),ACCESS_TOKEN);
 
@@ -119,13 +115,14 @@ class AuthServiceTest {
         User user = mockUser();
         TokenResponse tokenResponse = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        given(valueOperations.get("RT:"+user.getEmail())).willReturn(isNull());
+        given(valueOperations.get(any())).willReturn(null);
 
         //when
         authService.signOut(AuthUser.of(user),ACCESS_TOKEN);
 
         //then
-        assertEquals(tokenResponse.getAccessToken(),ACCESS_TOKEN);
+        assertThat(valueOperations.get(any())).isEqualTo(null);
+        assertThat(tokenResponse.getAccessToken()).isEqualTo(ACCESS_TOKEN);
     }
 
     @Test

@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,7 @@ public class AuthService {
 
 
     //로그인
+    @Transactional
     public TokenResponse signIn(SignInRequest dto){
         KaKaoUser oauthUser = CreateKaKaoUser.createKaKaoUserInfo(dto.getToken());
 
@@ -62,7 +64,7 @@ public class AuthService {
 
 
     }
-
+    @Transactional
     public void signOut(AuthUser authUser, String accessToken){
         // Redis 에서 해당 User email 로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
         if (redisTemplate.opsForValue().get("RT:" + authUser.getUsername()) != null) {
@@ -77,7 +79,7 @@ public class AuthService {
 
 
     }
-
+    @Transactional
     public TokenResponse reissue(AuthUser authUser, String refreshToken){
 
         //Refresh Token 검증

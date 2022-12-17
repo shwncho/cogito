@@ -64,7 +64,6 @@ public class AuthControllerTest extends RestDocsSupport{
         //then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId",is(1)))
                 .andExpect(jsonPath("$.accessToken",is("testAccessToken")))
                 .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
                 .andDo(restDocs.document(

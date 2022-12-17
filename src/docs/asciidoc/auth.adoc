@@ -1,0 +1,44 @@
+= 인증(로그인, 로그아웃, 토큰 재발급) API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 소셜 로그인
+
+=== 요청
+include::{snippets}/auth-controller-test/sign-in_success/http-request.adoc[]
+
+include::{snippets}/auth-controller-test/sign-in_success/request-fields.adoc[]
+
+
+=== 응답
+include::{snippets}/auth-controller-test/sign-in_success/http-response.adoc[]
+
+include::{snippets}/auth-controller-test/sign-in_success/response-fields.adoc[]
+
+=== 소셜 로그인 예외
+
+=== A009 (카카오 로그인에 실패했습니다.)
+
+== 로그아웃
+
+=== 요청
+include::{snippets}/auth-controller-test/sign-out_success/http-request.adoc[]
+
+include::{snippets}/auth-controller-test/sign-out_success/request-headers.adoc[]
+
+
+== 토큰 재발급
+
+=== 요청
+include::{snippets}/auth-controller-test/reissue_success/http-request.adoc[]
+include::{snippets}/auth-controller-test/reissue_success/request-headers.adoc[]
+
+=== 응답
+include::{snippets}/auth-controller-test/reissue_success/response-fields.adoc[]
+
+=== 토큰 재발급 예외
+=== U006(유효하지않은 Refresh Token 입니다.)
