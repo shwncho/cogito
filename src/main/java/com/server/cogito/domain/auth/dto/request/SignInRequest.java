@@ -1,6 +1,6 @@
 package com.server.cogito.domain.auth.dto.request;
 
-import com.server.cogito.domain.user.domain.Provider;
+import com.server.cogito.domain.user.enums.Provider;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;

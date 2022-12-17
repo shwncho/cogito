@@ -1,6 +1,6 @@
 package com.server.cogito.domain.auth.dto.response;
 
-import com.server.cogito.domain.user.domain.User;
+import com.server.cogito.domain.user.entity.User;
 import lombok.*;
 
 @Getter

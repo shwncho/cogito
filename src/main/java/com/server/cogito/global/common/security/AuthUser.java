@@ -1,7 +1,7 @@
 package com.server.cogito.global.common.security;
 
-import com.server.cogito.domain.user.domain.Provider;
-import com.server.cogito.domain.user.domain.User;
+import com.server.cogito.domain.user.enums.Provider;
+import com.server.cogito.domain.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -2,8 +2,8 @@ package com.server.cogito.global.common.security;
 
 import com.server.cogito.global.common.entity.Status;
 import com.server.cogito.global.common.exception.ApplicationException;
-import com.server.cogito.domain.user.domain.User;
-import com.server.cogito.domain.user.UserRepository;
+import com.server.cogito.domain.user.entity.User;
+import com.server.cogito.domain.user.repository.UserRepository;
 import com.server.cogito.global.common.exception.user.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
