@@ -47,9 +47,6 @@ public class User extends BaseEntity {
         this.nickname = nickname;
         this.authority = Authority.ROLE_USER;
         this.provider = provider;
-    }
-
-    public void addScore(){
         this.score++;
     }
 

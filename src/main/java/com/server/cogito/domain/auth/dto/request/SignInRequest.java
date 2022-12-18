@@ -13,10 +13,10 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class SignInRequest {
 
-    @NotBlank
+    @NotNull(message = "oauth token을 입력해주세요.")
     private String token;
 
-    @NotNull
+    @NotNull(message = "oauth 제공자를 입력해주세요.")
     private Provider provider;
 
 }

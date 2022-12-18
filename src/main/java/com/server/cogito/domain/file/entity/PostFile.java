@@ -2,10 +2,7 @@ package com.server.cogito.domain.file.entity;
 
 import com.server.cogito.domain.post.entity.Post;
 import com.server.cogito.global.common.entity.BaseEntity;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -20,10 +17,18 @@ public class PostFile extends BaseEntity {
     @Column(name = "post_file_id")
     private Long id;
 
-    private String URL;
+    private String url;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     @JoinColumn(name="post_id")
     private Post post;
 
+    public PostFile(String url) {
+        this.url = url;
+    }
+
+    public void changePost(Post post){
+        this.post=post;
+        this.post.getFiles().add(this);
+    }
 }

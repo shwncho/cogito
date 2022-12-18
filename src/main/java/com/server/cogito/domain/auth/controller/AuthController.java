@@ -19,8 +19,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign-in")
-    public TokenResponse signIn(@RequestBody @Valid SignInRequest signInRequest){
-        return authService.signIn(signInRequest);
+    public TokenResponse signIn(@RequestBody @Valid SignInRequest request){
+        return authService.signIn(request);
     }
 
     @PostMapping("/sign-out")

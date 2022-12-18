@@ -2,9 +2,11 @@ package com.server.cogito.domain.auth.service;
 
 import com.server.cogito.domain.auth.dto.TokenResponse;
 import com.server.cogito.domain.auth.dto.request.SignInRequest;
+import com.server.cogito.global.common.entity.BaseEntity;
 import com.server.cogito.global.common.entity.Status;
 import com.server.cogito.global.common.exception.ApplicationException;
 import com.server.cogito.global.common.security.AuthUser;
+import com.server.cogito.global.common.security.CustomUserDetailsService;
 import com.server.cogito.global.common.security.jwt.JwtProvider;
 import com.server.cogito.domain.user.repository.UserRepository;
 import com.server.cogito.domain.auth.dto.response.KaKaoUser;
@@ -14,12 +16,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.server.cogito.global.common.entity.BaseEntity.Status.*;
 import static com.server.cogito.global.common.exception.user.UserErrorCode.USER_INVALID_REFRESH_TOKEN;
 import static com.server.cogito.global.common.exception.user.UserErrorCode.USER_NOT_EXIST;
 
@@ -40,16 +46,10 @@ public class AuthService {
     //로그인
     @Transactional
     public TokenResponse signIn(SignInRequest dto){
-        KaKaoUser oauthUser = CreateKaKaoUser.createKaKaoUserInfo(dto.getToken());
-
-        User user = userRepository.findByEmailAndStatus(oauthUser.getEmail(), Status.ACTIVE)
-                .orElse(userRepository.save(User.builder()
-                        .email(oauthUser.getEmail())
-                        .nickname(oauthUser.getNickname())
-                        .provider(Provider.KAKAO)
-                        .build()));
-
-        user.addScore();
+        KaKaoUser oauthUser = //CreateKaKaoUser.createKaKaoUserInfo(dto.getToken());
+                KaKaoUser.of("test@test.com","test");
+        User user = userRepository.findByEmailAndStatus(oauthUser.getEmail(), ACTIVE)
+                .orElseGet(() -> createUser(oauthUser));
 
         AuthUser authUser = AuthUser.of(user);
 
@@ -61,9 +61,16 @@ public class AuthService {
                         REFRESH_TOKEN_EXPIRE_TIME,
                         TimeUnit.MILLISECONDS);
         return response;
-
-
     }
+
+    private User createUser(KaKaoUser oauthUser) {
+        return userRepository.save(User.builder()
+                .email(oauthUser.getEmail())
+                .nickname(oauthUser.getNickname())
+                .provider(Provider.KAKAO)
+                .build());
+    }
+
     @Transactional
     public void signOut(AuthUser authUser, String accessToken){
         // Redis 에서 해당 User email 로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.

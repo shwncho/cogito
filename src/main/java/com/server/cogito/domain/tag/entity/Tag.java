@@ -2,10 +2,7 @@ package com.server.cogito.domain.tag.entity;
 
 import com.server.cogito.domain.post.entity.Post;
 import com.server.cogito.global.common.entity.BaseEntity;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -22,8 +19,16 @@ public class Tag extends BaseEntity {
 
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     @JoinColumn(name = "post_id")
     private Post post;
 
+    public Tag(String content) {
+        this.content = content;
+    }
+
+    public void changePost(Post post){
+        this.post=post;
+        this.post.getTags().add(this);
+    }
 }

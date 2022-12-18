@@ -1,6 +1,6 @@
 package com.server.cogito.global.common.security;
 
-import com.server.cogito.global.common.entity.Status;
+import com.server.cogito.global.common.entity.BaseEntity;
 import com.server.cogito.global.common.exception.ApplicationException;
 import com.server.cogito.domain.user.entity.User;
 import com.server.cogito.domain.user.repository.UserRepository;
@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        User user = userRepository.findByEmailAndStatus(email, Status.ACTIVE)
+        User user = userRepository.findByEmailAndStatus(email, BaseEntity.Status.ACTIVE)
                 .orElseThrow(() -> new ApplicationException(UserErrorCode.USER_NOT_EXIST));
         return AuthUser.of(user);
     }
