@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(AuthController.class)
 @MockBean(JpaMetamodelMappingContext.class)
 @WithMockJwt
-public class AuthControllerTest extends RestDocsSupport{
+class AuthControllerTest extends RestDocsSupport{
 
     @MockBean
     private AuthService authService;

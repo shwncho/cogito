@@ -24,13 +24,13 @@ public class PostService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createPost(AuthUser authUser, CreatePostRequest request){
+    public Long createPost(AuthUser authUser, CreatePostRequest request){
         User user = userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE)
                 .orElseThrow(()-> new ApplicationException(USER_NOT_EXIST));
 
         Post post = Post.of(request.getTitle(), request.getContent(), user);
         savePostFilesAndTags(request, post);
-        postRepository.save(post);
+        return postRepository.save(post).getId();
     }
 
     private static void savePostFilesAndTags(CreatePostRequest request, Post post) {

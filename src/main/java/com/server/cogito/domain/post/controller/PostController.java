@@ -1,6 +1,7 @@
 package com.server.cogito.domain.post.controller;
 
 import com.server.cogito.domain.post.dto.request.CreatePostRequest;
+import com.server.cogito.domain.post.dto.response.CreatePostResponse;
 import com.server.cogito.domain.post.service.PostService;
 import com.server.cogito.global.common.security.AuthUser;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("")
-    public void createPost(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid CreatePostRequest request){
-        postService.createPost(authUser,request);
+    public CreatePostResponse createPost(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid CreatePostRequest request){
+        return CreatePostResponse.from(postService.createPost(authUser,request));
     }
 }
