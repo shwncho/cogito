@@ -18,6 +18,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -44,7 +45,7 @@ class AuthControllerTest extends RestDocsSupport{
         //given
         SignInRequest request = SignInRequest.builder()
                 .token("kakaoToken")
-                .provider(Provider.KAKAO)
+                .provider("KAKAO")
                 .build();
 
         TokenResponse response = TokenResponse.builder()
@@ -76,6 +77,27 @@ class AuthControllerTest extends RestDocsSupport{
                                 fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 / 입력 조건을 지키지 않았을 경우")
+    void signIn_fail_not_valid() throws Exception{
+        //given
+        SignInRequest request = SignInRequest.builder()
+                .token(null)
+                .provider(null)
+                .build();
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                post("/api/auth/sign-in")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)));
+
+        //then, docs
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors",hasSize(2)));
     }
 
     @Test

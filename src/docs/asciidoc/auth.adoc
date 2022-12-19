@@ -19,6 +19,10 @@ include::{snippets}/auth-controller-test/sign-in_success/http-response.adoc[]
 
 include::{snippets}/auth-controller-test/sign-in_success/response-fields.adoc[]
 
+=== V001 (입력 조건에 대한 예외)
+include::{snippets}/auth-controller-test/sign-in_fail_not_valid/http-request.adoc[]
+include::{snippets}/auth-controller-test/sign-in_fail_not_valid/http-response.adoc[]
+
 === 소셜 로그인 예외
 
 === A009 (카카오 로그인에 실패했습니다.)
