@@ -11,4 +11,6 @@ include::overview.adoc[]
 === Auth
 * link:auth.html[Auth API, window=_blank]
 
+=== Post
+* link:post.html[Post API, window=_blank]
 
