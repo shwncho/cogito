@@ -23,6 +23,9 @@ include::{snippets}/auth-controller-test/sign-in_success/response-fields.adoc[]
 include::{snippets}/auth-controller-test/sign-in_fail_not_valid/http-request.adoc[]
 include::{snippets}/auth-controller-test/sign-in_fail_not_valid/http-response.adoc[]
 
+=== V001 (지원하지 않는 oauth provider)
+include::{snippets}/auth-controller-test/sign-in_fail_not_provider/http-request.adoc[]
+include::{snippets}/auth-controller-test/sign-in_fail_not_provider/http-response.adoc[]
 === 소셜 로그인 예외
 
 === A009 (카카오 로그인에 실패했습니다.)

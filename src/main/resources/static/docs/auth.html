@@ -450,6 +450,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_요청">요청</a></li>
 <li><a href="#_응답">응답</a></li>
+<li><a href="#_v001_입력_조건에_대한_예외">V001 (입력 조건에 대한 예외)</a></li>
+<li><a href="#_v001_지원하지_않는_oauth_provider">V001 (지원하지 않는 oauth provider)</a></li>
 <li><a href="#_소셜_로그인_예외">소셜 로그인 예외</a></li>
 <li><a href="#_a009_카카오_로그인에_실패했습니다">A009 (카카오 로그인에 실패했습니다.)</a></li>
 </ul>
@@ -484,7 +486,7 @@ Content-Length: 52
 Host: api.simple.com
 
 {
-  "token" : "kakaoToken",
+  "token" : "oauthToken",
   "provider" : "KAKAO"
 }</code></pre>
 </div>
@@ -574,6 +576,100 @@ Content-Length: 78
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect2">
+<h3 id="_v001_입력_조건에_대한_예외"><a class="link" href="#_v001_입력_조건에_대한_예외">V001 (입력 조건에 대한 예외)</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /api/auth/sign-in HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 41
+Host: api.simple.com
+
+{
+  "token" : null,
+  "provider" : null
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 400 Bad Request
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json;charset=UTF-8
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+X-Frame-Options: SAMEORIGIN
+Content-Length: 381
+
+{
+  "time" : "2022-12-20T01:25:35.964336",
+  "status" : 400,
+  "message" : "입력 조건에 대한 예외입니다.",
+  "code" : "V001",
+  "errors" : [ {
+    "field" : "provider",
+    "value" : null,
+    "reason" : "지원하지 않는 소셜 로그인 방식입니다."
+  }, {
+    "field" : "token",
+    "value" : null,
+    "reason" : "oauth token을 입력해주세요."
+  } ]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_v001_지원하지_않는_oauth_provider"><a class="link" href="#_v001_지원하지_않는_oauth_provider">V001 (지원하지 않는 oauth provider)</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /api/auth/sign-in HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 52
+Host: api.simple.com
+
+{
+  "token" : "oauthToken",
+  "provider" : "NAVER"
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 400 Bad Request
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json;charset=UTF-8
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+X-Frame-Options: SAMEORIGIN
+Content-Length: 282
+
+{
+  "time" : "2022-12-20T01:25:36.296025",
+  "status" : 400,
+  "message" : "입력 조건에 대한 예외입니다.",
+  "code" : "V001",
+  "errors" : [ {
+    "field" : "provider",
+    "value" : "NAVER",
+    "reason" : "지원하지 않는 소셜 로그인 방식입니다."
+  } ]
+}</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_소셜_로그인_예외"><a class="link" href="#_소셜_로그인_예외">소셜 로그인 예외</a></h3>
@@ -692,7 +788,7 @@ Host: api.simple.com</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2022-12-17 18:25:34 +0900
+Last updated 2022-12-20 01:25:08 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

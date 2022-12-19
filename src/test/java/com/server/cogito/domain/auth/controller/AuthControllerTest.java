@@ -44,7 +44,7 @@ class AuthControllerTest extends RestDocsSupport{
     public void signIn_success() throws Exception {
         //given
         SignInRequest request = SignInRequest.builder()
-                .token("kakaoToken")
+                .token("oauthToken")
                 .provider("KAKAO")
                 .build();
 
@@ -99,6 +99,28 @@ class AuthControllerTest extends RestDocsSupport{
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors",hasSize(2)));
     }
+
+    @Test
+    @DisplayName("로그인 실패 / KAKAO,GITHUB 이 외 oauth provider일 경우")
+    void signIn_fail_not_provider() throws Exception{
+        //given
+        SignInRequest request = SignInRequest.builder()
+                .token("oauthToken")
+                .provider("NAVER")
+                .build();
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                post("/api/auth/sign-in")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)));
+
+        //then, docs
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors",hasSize(1)));
+    }
+
 
     @Test
     @DisplayName("로그아웃 성공")
