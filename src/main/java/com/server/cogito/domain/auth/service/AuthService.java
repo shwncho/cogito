@@ -2,11 +2,8 @@ package com.server.cogito.domain.auth.service;
 
 import com.server.cogito.domain.auth.dto.TokenResponse;
 import com.server.cogito.domain.auth.dto.request.SignInRequest;
-import com.server.cogito.global.common.entity.BaseEntity;
-import com.server.cogito.global.common.entity.Status;
 import com.server.cogito.global.common.exception.ApplicationException;
 import com.server.cogito.global.common.security.AuthUser;
-import com.server.cogito.global.common.security.CustomUserDetailsService;
 import com.server.cogito.global.common.security.jwt.JwtProvider;
 import com.server.cogito.domain.user.repository.UserRepository;
 import com.server.cogito.domain.auth.dto.response.KaKaoUser;
@@ -16,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -27,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.server.cogito.global.common.entity.BaseEntity.Status.*;
 import static com.server.cogito.global.common.exception.user.UserErrorCode.USER_INVALID_REFRESH_TOKEN;
-import static com.server.cogito.global.common.exception.user.UserErrorCode.USER_NOT_EXIST;
 
 
 @Slf4j
@@ -37,6 +30,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RedisTemplate redisTemplate;
+    private final KaKaoService kaKaoService;
 
 
     @Value("${jwt.refresh-expiration-time}")
@@ -46,8 +40,8 @@ public class AuthService {
     //로그인
     @Transactional
     public TokenResponse signIn(SignInRequest dto){
-        KaKaoUser oauthUser = //CreateKaKaoUser.createKaKaoUserInfo(dto.getToken());
-                KaKaoUser.of("test@test.com","test");
+        KaKaoUser oauthUser = kaKaoService.createKaKaoUserInfo(dto.getToken());
+                //KaKaoUser.of("test@test.com","test");
         User user = userRepository.findByEmailAndStatus(oauthUser.getEmail(), ACTIVE)
                 .orElseGet(() -> createUser(oauthUser));
 

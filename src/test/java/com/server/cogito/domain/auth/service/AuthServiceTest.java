@@ -1,10 +1,12 @@
 package com.server.cogito.domain.auth.service;
 
 import com.server.cogito.domain.auth.dto.TokenResponse;
+import com.server.cogito.domain.auth.dto.request.SignInRequest;
 import com.server.cogito.domain.auth.dto.response.KaKaoUser;
 import com.server.cogito.domain.user.entity.User;
 import com.server.cogito.domain.user.enums.Provider;
 import com.server.cogito.domain.user.repository.UserRepository;
+import com.server.cogito.global.common.entity.BaseEntity;
 import com.server.cogito.global.common.security.AuthUser;
 import com.server.cogito.global.common.security.jwt.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Optional;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -31,12 +36,15 @@ class AuthServiceTest {
     private final String RENEWAL_ACCESS_TOKEN = "refreshedTestAccessToken";
     private final String RENEWAL_REFRESH_TOKEN = "refreshedTestRefreshToken";
 
+
     @Mock
     UserRepository userRepository;
     @Mock
     JwtProvider jwtProvider;
     @Mock
     RedisTemplate redisTemplate;
+    @Mock
+    KaKaoService kaKaoService;
 
     @Mock
     ValueOperations<String, Object> valueOperations;
@@ -44,28 +52,61 @@ class AuthServiceTest {
     @InjectMocks
     AuthService authService;
 
-//    @Test
-//    @DisplayName("로그인 성공 / 회원가입이 되지 않은 유저일 경우")
-//    void signIn_success_notExistUser() throws Exception{
-//
-//        //given
-//        KaKaoUser oauthUser = createKaKaoUser();
-//        when(userRepository.findByEmailAndStatus(oauthUser.getEmail(), Status.ACTIVE)
-//                .orElse(userRepository.save(User.builder().email("kakao@kakao.com").nickname("kakao").provider(Provider.KAKAO).build())))
-//                .thenReturn(mockUser());
-//
-//        //when
-//        User user = mockUser();
-//        user.addScore();
-//        when(jwtProvider.createToken(any())).thenReturn(mockJwtProvider());
-//
-//
-//        //then
-//        assertAll(
-//                ()->verify(userRepository).save(any(User.class)),
-//                ()->verify(jwtProvider).createToken(any(AuthUser.class))
-//        );
-//    }
+    @Test
+    @DisplayName("로그인 성공 / 회원가입이 되지 않은 유저일 경우")
+    void signIn_success_notExistUser() throws Exception{
+
+        //given
+        SignInRequest request = SignInRequest.builder()
+                .token("oauthToken")
+                .provider("KAKAO")
+                .build();
+        KaKaoUser oauthUser = createKaKaoUser();
+        given(kaKaoService.createKaKaoUserInfo(any())).willReturn(oauthUser);
+        given(userRepository.findByEmailAndStatus(oauthUser.getEmail(), BaseEntity.Status.ACTIVE)
+                .orElseGet(()->userRepository.save(any())))
+                .willReturn(mockUser());
+        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+
+        //when
+        TokenResponse response = authService.signIn(request);
+
+        //then
+        assertAll(
+                ()->verify(userRepository).save(any(User.class)),
+                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
+                ()->verify(valueOperations).set("RT:"+oauthUser.getEmail(),REFRESH_TOKEN,0, MILLISECONDS)
+
+        );
+    }
+
+    @Test
+    @DisplayName("로그인 성공 / 회원가입이 되어있는 유저일 경우")
+    void signIn_success_existUser() throws Exception{
+        //given
+        SignInRequest request = SignInRequest.builder()
+                .token("oauthToken")
+                .provider("KAKAO")
+                .build();
+        KaKaoUser oauthUser = createKaKaoUser();
+        given(kaKaoService.createKaKaoUserInfo(any())).willReturn(oauthUser);
+        given(userRepository.findByEmailAndStatus(oauthUser.getEmail(), BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.of(mockUser()));
+        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+
+        //when
+        TokenResponse response = authService.signIn(request);
+
+        //then
+        assertAll(
+                ()->verify(userRepository).findByEmailAndStatus(oauthUser.getEmail(), BaseEntity.Status.ACTIVE),
+                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
+                ()->verify(valueOperations).set("RT:"+oauthUser.getEmail(),REFRESH_TOKEN,0, MILLISECONDS)
+
+        );
+    }
 
     private KaKaoUser createKaKaoUser(){
         return  KaKaoUser.of("kakao@kakao.com","kakao");
@@ -95,13 +136,16 @@ class AuthServiceTest {
         TokenResponse tokenResponse = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
         given(valueOperations.get("RT:"+user.getEmail())).willReturn(tokenResponse.getRefreshToken());
-
+        given(jwtProvider.getExpiration(any())).willReturn(1L);
 
         //when
         authService.signOut(AuthUser.of(user),ACCESS_TOKEN);
 
         //then
-        verify(redisTemplate).delete("RT:"+user.getEmail());
+        assertAll(
+                ()->verify(redisTemplate).delete("RT:"+user.getEmail()),
+                ()->verify(valueOperations).set(ACCESS_TOKEN,"logout",1L,MILLISECONDS)
+        );
     }
 
     @Test
@@ -112,14 +156,14 @@ class AuthServiceTest {
         User user = mockUser();
         TokenResponse tokenResponse = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        given(valueOperations.get(any())).willReturn(null);
+        given(jwtProvider.getExpiration(any())).willReturn(1L);
 
         //when
         authService.signOut(AuthUser.of(user),ACCESS_TOKEN);
 
         //then
-        assertThat(valueOperations.get(any())).isEqualTo(null);
-        assertThat(tokenResponse.getAccessToken()).isEqualTo(ACCESS_TOKEN);
+        verify(valueOperations).set(ACCESS_TOKEN,"logout",1L,MILLISECONDS);
+
     }
 
     @Test

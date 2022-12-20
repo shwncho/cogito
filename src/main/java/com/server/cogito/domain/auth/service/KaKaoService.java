@@ -13,9 +13,9 @@ import java.net.URL;
 import static com.server.cogito.global.common.exception.auth.AuthErrorCode.KAKAO_LOGIN;
 
 
-public class CreateKaKaoUser {
+public class KaKaoService {
 
-    public static KaKaoUser createKaKaoUserInfo(String token){
+    public  KaKaoUser createKaKaoUserInfo(String token){
 
         String reqURL = "https://kapi.kakao.com/v2/user/me";
 
