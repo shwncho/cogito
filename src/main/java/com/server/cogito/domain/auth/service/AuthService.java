@@ -49,11 +49,7 @@ public class AuthService {
 
         TokenResponse response = jwtProvider.createToken(authUser);
 
-        redisTemplate.opsForValue()
-                .set("RT:" + authUser.getUsername(),
-                        response.getRefreshToken(),
-                        REFRESH_TOKEN_EXPIRE_TIME,
-                        TimeUnit.MILLISECONDS);
+        saveRefreshToken(authUser.getUsername(), response.getRefreshToken(), REFRESH_TOKEN_EXPIRE_TIME);
         return response;
     }
 
@@ -75,8 +71,7 @@ public class AuthService {
 
         // Access Token 유효시간 가지고 와서 BlackList 로 저장하기
         Long expiration = jwtProvider.getExpiration(accessToken);
-        redisTemplate.opsForValue()
-                .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+        saveAccessTokenInBlackList(accessToken,expiration);
 
 
     }
@@ -102,14 +97,23 @@ public class AuthService {
         }
 
         TokenResponse result = jwtProvider.createToken(authUser);
-        redisTemplate.opsForValue()
-                .set("RT:" + authUser.getUsername(),
-                        result.getRefreshToken(),
-                        REFRESH_TOKEN_EXPIRE_TIME,
-                        TimeUnit.MILLISECONDS);
+        saveRefreshToken(authUser.getUsername(),result.getRefreshToken(),REFRESH_TOKEN_EXPIRE_TIME);
 
         return result;
 
+    }
+
+    private void saveRefreshToken(String key, String value, long expiration) {
+        redisTemplate.opsForValue()
+                .set("RT:" + key,
+                        value,
+                        expiration,
+                        TimeUnit.MILLISECONDS);
+    }
+
+    private void saveAccessTokenInBlackList(String key, long expiration){
+        redisTemplate.opsForValue()
+                .set(key, "logout",expiration, TimeUnit.MILLISECONDS);
     }
 
 
