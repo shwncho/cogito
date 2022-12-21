@@ -16,3 +16,7 @@ include::{snippets}/post-controller-test/create-post_success/request-fields.adoc
 === 응답
 include::{snippets}/post-controller-test/create-post_success/http-response.adoc[]
 include::{snippets}/post-controller-test/create-post_success/response-fields.adoc[]
+
+=== V001 (입력 조건에 대한 예외)
+include::{snippets}/post-controller-test/create-post_fail_not_valid/http-request.adoc[]
+include::{snippets}/post-controller-test/create-post_fail_not_valid/http-response.adoc[]

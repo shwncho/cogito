@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.server.cogito.global.common.exception.ApplicationException;
 import com.server.cogito.domain.auth.dto.response.KaKaoUser;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -12,7 +13,7 @@ import java.net.URL;
 
 import static com.server.cogito.global.common.exception.auth.AuthErrorCode.KAKAO_LOGIN;
 
-
+@Service
 public class KaKaoService {
 
     public  KaKaoUser createKaKaoUserInfo(String token){
