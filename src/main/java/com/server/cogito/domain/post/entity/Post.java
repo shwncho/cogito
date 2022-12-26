@@ -7,6 +7,7 @@ import com.server.cogito.domain.tag.entity.Tag;
 import com.server.cogito.domain.user.entity.User;
 import com.server.cogito.global.common.entity.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
@@ -41,6 +42,7 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private List<PostFile> files = new ArrayList<>();
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private List<Tag> tags = new ArrayList<>();
 
