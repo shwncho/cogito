@@ -40,8 +40,8 @@ public class AuthService {
     //로그인
     @Transactional
     public TokenResponse signIn(SignInRequest dto){
-        KaKaoUser oauthUser = kaKaoService.createKaKaoUserInfo(dto.getToken());
-                //KaKaoUser.of("test@test.com","test");
+        KaKaoUser oauthUser = //kaKaoService.createKaKaoUserInfo(dto.getToken());
+                KaKaoUser.of("test@test.com","test");
         User user = userRepository.findByEmailAndStatus(oauthUser.getEmail(), ACTIVE)
                 .orElseGet(() -> createUser(oauthUser));
 

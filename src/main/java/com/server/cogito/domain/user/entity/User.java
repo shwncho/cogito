@@ -50,4 +50,8 @@ public class User extends BaseEntity {
         this.score++;
     }
 
+    public void addScore(int num){
+        this.score+=num;
+    }
+
 }

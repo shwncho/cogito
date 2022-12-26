@@ -30,6 +30,7 @@ public class PostService {
 
         Post post = Post.of(request.getTitle(), request.getContent(), user);
         savePostFilesAndTags(request, post);
+        user.addScore(2);
         return postRepository.save(post).getId();
     }
 

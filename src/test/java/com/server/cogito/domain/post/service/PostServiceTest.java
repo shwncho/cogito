@@ -1,11 +1,8 @@
 package com.server.cogito.domain.post.service;
 
-import com.server.cogito.domain.file.entity.PostFile;
-import com.server.cogito.domain.like.entity.Likes;
 import com.server.cogito.domain.post.dto.request.CreatePostRequest;
 import com.server.cogito.domain.post.entity.Post;
 import com.server.cogito.domain.post.repository.PostRepository;
-import com.server.cogito.domain.tag.entity.Tag;
 import com.server.cogito.domain.user.entity.User;
 import com.server.cogito.domain.user.enums.Provider;
 import com.server.cogito.domain.user.repository.UserRepository;
@@ -18,15 +15,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -59,7 +55,8 @@ class PostServiceTest {
         //then
         assertAll(
                 ()->verify(userRepository).findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE),
-                ()->verify(postRepository).save(any(Post.class))
+                ()->verify(postRepository).save(any(Post.class)),
+                ()->assertEquals(3,user.getScore())
         );
     }
 
