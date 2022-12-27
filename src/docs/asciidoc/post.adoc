@@ -20,3 +20,13 @@ include::{snippets}/post-controller-test/create-post_success/response-fields.ado
 === V001 (입력 조건에 대한 예외)
 include::{snippets}/post-controller-test/create-post_fail_not_valid/http-request.adoc[]
 include::{snippets}/post-controller-test/create-post_fail_not_valid/http-response.adoc[]
+
+= 게시물 조회
+
+=== 요청
+include::{snippets}/post-controller-test/get-posts_success_latest/http-request.adoc[]
+include::{snippets}/post-controller-test/get-posts_success_latest/request-parameters.adoc[]
+
+=== 응답
+include::{snippets}/post-controller-test/get-posts_success_latest/http-response.adoc[]
+include::{snippets}/post-controller-test/get-posts_success_latest/response-fields.adoc[]

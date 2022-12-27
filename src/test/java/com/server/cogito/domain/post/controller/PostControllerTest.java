@@ -16,9 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
@@ -28,10 +26,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -161,7 +160,7 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("posts[].content").type(JsonFieldType.STRING).description("게시물 본문"),
                                 fieldWithPath("posts[].tags[]").type(JsonFieldType.ARRAY).description("게시물 태그들"),
                                 fieldWithPath("posts[].nickname").type(JsonFieldType.STRING).description("게시물 작성자 닉네임"),
-                                fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
+                                fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일 (yyyy-MM-dd HH:mm:ss)"),
                                 fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수")
                         )
                 ));
