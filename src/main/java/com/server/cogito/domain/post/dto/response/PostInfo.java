@@ -5,6 +5,7 @@ import com.server.cogito.domain.post.entity.Post;
 import com.server.cogito.domain.tag.entity.Tag;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,8 +27,8 @@ public class PostInfo {
 
     private int score;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
     public static PostInfo from (Post post){
         return PostInfo.builder()

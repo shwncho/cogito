@@ -1,6 +1,7 @@
 package com.server.cogito.domain.post.service;
 
 import com.server.cogito.domain.post.dto.request.CreatePostRequest;
+import com.server.cogito.domain.post.dto.response.PostPageResponse;
 import com.server.cogito.domain.post.entity.Post;
 import com.server.cogito.domain.post.repository.PostRepository;
 import com.server.cogito.domain.user.entity.User;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,5 +78,27 @@ class PostServiceTest {
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
                 .build();
+    }
+
+    @Test
+    @DisplayName("게시물 조회 성공 / 최신순")
+    void getPosts_success_latest() throws Exception {
+
+        //given
+        User user = mockUser();
+        Pageable pageable = PageRequest.of(1,10,Sort.by("createdAt").descending());
+        List<Post> posts = List.of(Post.of("테스트 제목1","테스트 본문1", user),
+                Post.of("테스트 제목2","테스트 본문2", user));
+        Page<Post> postPage = new PageImpl<>(posts);
+        given(postRepository.findAll(any(PageRequest.class))).willReturn(postPage);
+
+        //when
+        PostPageResponse response = postService.getPosts(pageable);
+
+        assertAll(
+                ()->verify(postRepository).findAll(any(PageRequest.class)),
+                ()->assertEquals(2,response.getPosts().size())
+        );
+
     }
 }
