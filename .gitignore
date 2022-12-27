@@ -38,3 +38,5 @@ out/
 
 **/application.yml
 
+### Rest Docs HTML File ###
+/src/main/resources/static/docs/**
