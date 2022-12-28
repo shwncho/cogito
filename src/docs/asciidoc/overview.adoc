@@ -8,7 +8,7 @@
 | 환경 | Host
 
 | Dev
-|
+| dev.cogito.shop
 
 | Production
 |
