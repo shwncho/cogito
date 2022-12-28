@@ -44,7 +44,7 @@ class AuthControllerTest extends RestDocsSupport{
     public void signIn_success() throws Exception {
         //given
         SignInRequest request = SignInRequest.builder()
-                .token("oauthToken")
+                .accessToken("oauthToken")
                 .provider("KAKAO")
                 .build();
 
@@ -84,7 +84,7 @@ class AuthControllerTest extends RestDocsSupport{
     void signIn_fail_not_valid() throws Exception{
         //given
         SignInRequest request = SignInRequest.builder()
-                .token(null)
+                .accessToken(null)
                 .provider(null)
                 .build();
 
@@ -105,7 +105,7 @@ class AuthControllerTest extends RestDocsSupport{
     void signIn_fail_not_provider() throws Exception{
         //given
         SignInRequest request = SignInRequest.builder()
-                .token("oauthToken")
+                .accessToken("oauthToken")
                 .provider("NAVER")
                 .build();
 

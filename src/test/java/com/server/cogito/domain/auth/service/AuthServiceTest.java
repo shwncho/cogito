@@ -58,11 +58,11 @@ class AuthServiceTest {
 
         //given
         SignInRequest request = SignInRequest.builder()
-                .token("oauthToken")
+                .accessToken("oauthToken")
                 .provider("KAKAO")
                 .build();
         KaKaoUser oauthUser = createKaKaoUser();
-        given(kaKaoService.createKaKaoUserInfo(any())).willReturn(oauthUser);
+        given(kaKaoService.getKaKaoUser(any())).willReturn(oauthUser);
         given(userRepository.findByEmailAndStatus(oauthUser.getEmail(), BaseEntity.Status.ACTIVE)
                 .orElseGet(()->userRepository.save(any())))
                 .willReturn(mockUser());
@@ -86,11 +86,11 @@ class AuthServiceTest {
     void signIn_success_existUser() throws Exception{
         //given
         SignInRequest request = SignInRequest.builder()
-                .token("oauthToken")
+                .accessToken("oauthToken")
                 .provider("KAKAO")
                 .build();
         KaKaoUser oauthUser = createKaKaoUser();
-        given(kaKaoService.createKaKaoUserInfo(any())).willReturn(oauthUser);
+        given(kaKaoService.getKaKaoUser(any())).willReturn(oauthUser);
         given(userRepository.findByEmailAndStatus(oauthUser.getEmail(), BaseEntity.Status.ACTIVE))
                 .willReturn(Optional.of(mockUser()));
         given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());

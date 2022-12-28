@@ -5,6 +5,7 @@ import com.server.cogito.domain.auth.dto.response.KaKaoUser;
 import com.server.cogito.global.common.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -13,11 +14,15 @@ import org.springframework.web.client.RestTemplate;
 import static com.server.cogito.global.common.exception.auth.AuthErrorCode.KAKAO_LOGIN;
 
 @Service
-@RequiredArgsConstructor
 public class KaKaoService {
 
     private final RestTemplate restTemplate;
     private final Gson gson;
+
+    public KaKaoService(RestTemplateBuilder builder,Gson gson){
+        this.restTemplate=builder.build();
+        this.gson=gson;
+    }
 
     @Value("${spring.kakao.profile}")
     private String kakaoProfileUrl;
