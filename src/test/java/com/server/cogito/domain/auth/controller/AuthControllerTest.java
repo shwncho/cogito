@@ -69,7 +69,7 @@ class AuthControllerTest extends RestDocsSupport{
                 .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
                 .andDo(restDocs.document(
                         requestFields(
-                                fieldWithPath("token").type(JsonFieldType.STRING).description("oauth 요청 토큰"),
+                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("oauth 요청 토큰"),
                                 fieldWithPath("provider").type(JsonFieldType.STRING).description("oauth 주체, ex) KAKAO")
                         ),
                         responseFields(
