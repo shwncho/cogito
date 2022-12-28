@@ -1,0 +1,17 @@
+#blue
+version: '3'
+services:
+  cogito-api:
+    build: .
+    ports:
+      - "8081:8080"
+    container_name: spring-blue
+
+  redisdb:
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
+    container_name: cogito-redis
+    volumes:
+      - redisdb:/var/lib/redis

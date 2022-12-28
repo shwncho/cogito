@@ -4,7 +4,7 @@ name: Cogito Deploy
 on:
   push:
     branches: [ "dev" ]
-    
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -37,28 +37,39 @@ jobs:
           touch ./application.yml
           echo "${{ secrets.APPLICATION_DEV }}" > ./application.yml
         shell: bash
-        
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew build
-        
+
       - name: Make zip file
         run: |
           mkdir deploy
+          cp ./docker-compose.blue.yml ./deploy/
+          cp ./docker-compose.green.yml ./deploy/
+          cp ./appspec.yml ./deploy/
+          cp ./Dockerfile ./deploy/
+          cp ./scripts/*.sh ./deploy/
           cp ./build/libs/*.jar ./deploy/
           zip -r -qq -j ./spring-build.zip ./deploy
-          
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
-        
+
       - name: Upload to S3
         run: |
           aws s3 cp \
             --region ap-northeast-2 \
             ./spring-build.zip s3://cogito-bucket
+
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name cogito-deploy
+          --deployment-config-name CodeDeployDefault.OneAtATime
+          --deployment-group-name cogito-deploy-group
+          --s3-location bucket=cogito-bucket,bundleType=zip,key=spring-build.zip
