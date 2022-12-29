@@ -42,7 +42,10 @@ public class AuthController {
         return authService.reissue(authUser, removeType(refreshToken));
     }
 
-
+    @GetMapping("/{provider}")
+    public TokenResponse login(@PathVariable String provider, @RequestParam String code) {
+        return authService.login(provider,code);
+    }
 
 
 }

@@ -52,6 +52,20 @@ public class AuthService {
         return response;
     }
 
+    @Transactional
+    public TokenResponse login(String provider, String code){
+        KaKaoUser oauthUser = kaKaoService.getKaKaoUser(kaKaoService.getKaKaoAccessToken(code));
+        User user = userRepository.findByEmailAndStatus(oauthUser.getEmail(), ACTIVE)
+                .orElseGet(() -> createUser(oauthUser));
+
+        AuthUser authUser = AuthUser.of(user);
+
+        TokenResponse response = jwtProvider.createToken(authUser);
+
+        saveRefreshToken(authUser.getUsername(), response.getRefreshToken(), REFRESH_TOKEN_EXPIRE_TIME);
+        return response;
+    }
+
     private User createUser(KaKaoUser oauthUser) {
         return userRepository.save(User.builder()
                 .email(oauthUser.getEmail())

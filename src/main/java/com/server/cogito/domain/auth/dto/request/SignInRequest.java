@@ -24,8 +24,8 @@ public class SignInRequest {
     @AllArgsConstructor
     public enum SocialLoginProvider {
 
-        KAKAO("KAKAO"),
-        GITHUB("GITHUB"),
+        KAKAO("kakao"),
+        GITHUB("github"),
         ;
 
         private final String providerValue;

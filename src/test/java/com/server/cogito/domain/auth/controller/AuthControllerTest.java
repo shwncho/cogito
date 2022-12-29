@@ -1,9 +1,8 @@
 package com.server.cogito.domain.auth.controller;
 
-import com.server.cogito.domain.auth.service.AuthService;
 import com.server.cogito.domain.auth.dto.TokenResponse;
 import com.server.cogito.domain.auth.dto.request.SignInRequest;
-import com.server.cogito.domain.user.enums.Provider;
+import com.server.cogito.domain.auth.service.AuthService;
 import com.server.cogito.global.common.security.AuthUser;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
