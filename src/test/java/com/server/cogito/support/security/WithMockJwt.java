@@ -1,6 +1,6 @@
 package com.server.cogito.support.security;
 
-import com.server.cogito.domain.user.enums.Authority;
+import com.server.cogito.user.enums.Authority;
 import org.springframework.security.test.context.support.WithSecurityContext;
 
 import java.lang.annotation.*;

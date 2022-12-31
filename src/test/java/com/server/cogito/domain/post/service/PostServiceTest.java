@@ -1,14 +1,15 @@
 package com.server.cogito.domain.post.service;
 
-import com.server.cogito.domain.post.dto.request.CreatePostRequest;
-import com.server.cogito.domain.post.dto.response.PostPageResponse;
-import com.server.cogito.domain.post.entity.Post;
-import com.server.cogito.domain.post.repository.PostRepository;
-import com.server.cogito.domain.user.entity.User;
-import com.server.cogito.domain.user.enums.Provider;
-import com.server.cogito.domain.user.repository.UserRepository;
-import com.server.cogito.global.common.entity.BaseEntity;
-import com.server.cogito.global.common.security.AuthUser;
+import com.server.cogito.post.dto.request.CreatePostRequest;
+import com.server.cogito.post.dto.response.PostPageResponse;
+import com.server.cogito.post.entity.Post;
+import com.server.cogito.post.repository.PostRepository;
+import com.server.cogito.post.service.PostService;
+import com.server.cogito.user.entity.User;
+import com.server.cogito.user.enums.Provider;
+import com.server.cogito.user.repository.UserRepository;
+import com.server.cogito.common.entity.BaseEntity;
+import com.server.cogito.common.security.AuthUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

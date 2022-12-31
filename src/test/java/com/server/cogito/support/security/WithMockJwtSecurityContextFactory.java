@@ -1,7 +1,7 @@
 package com.server.cogito.support.security;
 
-import com.server.cogito.global.common.security.AuthUser;
-import com.server.cogito.domain.user.entity.User;
+import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.user.entity.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

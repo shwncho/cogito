@@ -1,14 +1,16 @@
 package com.server.cogito.domain.auth.service;
 
-import com.server.cogito.domain.auth.dto.TokenResponse;
-import com.server.cogito.domain.auth.dto.request.SignInRequest;
-import com.server.cogito.domain.auth.dto.response.KaKaoUser;
-import com.server.cogito.domain.user.entity.User;
-import com.server.cogito.domain.user.enums.Provider;
-import com.server.cogito.domain.user.repository.UserRepository;
-import com.server.cogito.global.common.entity.BaseEntity;
-import com.server.cogito.global.common.security.AuthUser;
-import com.server.cogito.global.common.security.jwt.JwtProvider;
+import com.server.cogito.auth.dto.TokenResponse;
+import com.server.cogito.auth.dto.request.SignInRequest;
+import com.server.cogito.auth.dto.response.KaKaoUser;
+import com.server.cogito.auth.service.AuthService;
+import com.server.cogito.auth.service.KaKaoService;
+import com.server.cogito.user.entity.User;
+import com.server.cogito.user.enums.Provider;
+import com.server.cogito.user.repository.UserRepository;
+import com.server.cogito.common.entity.BaseEntity;
+import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.common.security.jwt.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
