@@ -1,4 +1,4 @@
-package com.server.cogito.domain.post.controller;
+package com.server.cogito.post.controller;
 
 import com.server.cogito.post.controller.PostController;
 import com.server.cogito.post.dto.request.CreatePostRequest;

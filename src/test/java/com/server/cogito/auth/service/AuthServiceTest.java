@@ -1,4 +1,4 @@
-package com.server.cogito.domain.auth.service;
+package com.server.cogito.auth.service;
 
 import com.server.cogito.auth.dto.TokenResponse;
 import com.server.cogito.auth.service.AuthService;
@@ -105,9 +105,9 @@ class AuthServiceTest {
 //        );
 //    }
 
-    private KaKaoUser createKaKaoUser(){
-        return  KaKaoUser.of("kakao@kakao.com","kakao");
-    }
+//    private KaKaoUser createKaKaoUser(){
+//        return  KaKaoUser.of("kakao@kakao.com","kakao");
+//    }
 
     private User mockUser(){
         return User.builder()

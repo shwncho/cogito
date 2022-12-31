@@ -1,4 +1,4 @@
-package com.server.cogito.domain.auth.controller;
+package com.server.cogito.auth.controller;
 
 import com.server.cogito.auth.controller.AuthController;
 import com.server.cogito.auth.dto.TokenResponse;
@@ -90,7 +90,7 @@ class AuthControllerTest extends RestDocsSupport{
         String accessToken = "Bearer testAccessToken";
 
         //expected, docs
-        mockMvc.perform(post("/api/auth/sign-out")
+        mockMvc.perform(post("/api/auth/logout")
                 .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
