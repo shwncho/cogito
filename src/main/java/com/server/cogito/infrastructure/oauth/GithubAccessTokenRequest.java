@@ -1,4 +1,4 @@
-package com.server.cogito.auth.dto.request;
+package com.server.cogito.infrastructure.oauth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

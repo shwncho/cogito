@@ -1,10 +1,10 @@
-package com.server.cogito.auth.service;
+package com.server.cogito.infrastructure.oauth;
 
-import com.server.cogito.auth.dto.request.GithubAccessTokenRequest;
-import com.server.cogito.auth.dto.response.GithubTokenResponse;
-import com.server.cogito.auth.dto.response.GithubUser;
 import com.server.cogito.common.exception.ApplicationException;
 import com.server.cogito.common.exception.auth.AuthErrorCode;
+import com.server.cogito.oauth.GithubOAuthClient;
+import com.server.cogito.oauth.OAuthClient;
+import com.server.cogito.user.enums.Provider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,16 +12,16 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Objects;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class GithubService {
+public class GithubRequester implements OAuthRequester{
 
     @Value("${spring.github.client.id}")
     private String CLIENT_ID;
@@ -34,9 +34,15 @@ public class GithubService {
 
     private final RestTemplate restTemplate;
 
-    public GithubUser getGithubUser(String code){
+    @Override
+    public boolean supports(Provider provider) {return provider.isSameAs(Provider.GITHUB);
+    }
+
+    @Override
+    public OAuthClient getUserInfoByCode(String code) {
         return getGithubProfile(getAccessToken(code));
     }
+
 
     private String getAccessToken(String code) {
         GithubAccessTokenRequest request = new GithubAccessTokenRequest(code, CLIENT_ID, CLIENT_SECRET);
@@ -55,12 +61,12 @@ public class GithubService {
         return response.getAccessToken();
     }
 
-    private GithubUser getGithubProfile(String accessToken) {
+    private GithubOAuthClient getGithubProfile(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
         HttpEntity<?> httpEntity = new HttpEntity<>(headers);
-        return exchangeRestTemplateBody(PROFILE_URL, HttpMethod.GET, httpEntity, GithubUser.class);
+        return exchangeRestTemplateBody(PROFILE_URL, HttpMethod.GET, httpEntity, GithubOAuthClient.class);
     }
 
 

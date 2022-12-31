@@ -2,7 +2,6 @@ package com.server.cogito.domain.auth.controller;
 
 import com.server.cogito.auth.controller.AuthController;
 import com.server.cogito.auth.dto.TokenResponse;
-import com.server.cogito.auth.dto.request.SignInRequest;
 import com.server.cogito.auth.service.AuthService;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.support.restdocs.RestDocsSupport;
@@ -39,92 +38,53 @@ class AuthControllerTest extends RestDocsSupport{
     private AuthService authService;
 
 
-    @Test
-    @DisplayName("로그인 성공")
-    public void signIn_success() throws Exception {
-        //given
-        SignInRequest request = SignInRequest.builder()
-                .accessToken("oauthToken")
-                .provider("KAKAO")
-                .build();
+//    @Test
+//    @DisplayName("로그인 성공")
+//    public void login_success() throws Exception {
+//        //given
+//        SignInRequest request = SignInRequest.builder()
+//                .accessToken("oauthToken")
+//                .provider("KAKAO")
+//                .build();
+//
+//        TokenResponse response = TokenResponse.builder()
+//                .accessToken("testAccessToken")
+//                .refreshToken("testRefreshToken")
+//                .build();
+//
+//        when(authService.signIn(any()))
+//                .thenReturn(response);
+//
+//        //when
+//        ResultActions resultActions = mockMvc.perform(
+//                post("/api/auth/sign-in")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request)));
+//
+//        //then
+//        resultActions
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.accessToken",is("testAccessToken")))
+//                .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
+//                .andDo(restDocs.document(
+//                        requestFields(
+//                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("oauth 요청 토큰"),
+//                                fieldWithPath("provider").type(JsonFieldType.STRING).description("oauth 주체, ex) KAKAO")
+//                        ),
+//                        responseFields(
+//                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
+//                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
+//                        )
+//                ));
+//    }
 
-        TokenResponse response = TokenResponse.builder()
-                .accessToken("testAccessToken")
-                .refreshToken("testRefreshToken")
-                .build();
+    //로그인 실패 없는 provider
 
-        when(authService.signIn(any()))
-                .thenReturn(response);
-
-        //when
-        ResultActions resultActions = mockMvc.perform(
-                post("/api/auth/sign-in")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)));
-
-        //then
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken",is("testAccessToken")))
-                .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
-                .andDo(restDocs.document(
-                        requestFields(
-                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("oauth 요청 토큰"),
-                                fieldWithPath("provider").type(JsonFieldType.STRING).description("oauth 주체, ex) KAKAO")
-                        ),
-                        responseFields(
-                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
-                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
-                        )
-                ));
-    }
-
-    @Test
-    @DisplayName("로그인 실패 / 입력 조건을 지키지 않았을 경우")
-    void signIn_fail_not_valid() throws Exception{
-        //given
-        SignInRequest request = SignInRequest.builder()
-                .accessToken(null)
-                .provider(null)
-                .build();
-
-        //when
-        ResultActions resultActions = mockMvc.perform(
-                post("/api/auth/sign-in")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)));
-
-        //then, docs
-        resultActions
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors",hasSize(2)));
-    }
-
-    @Test
-    @DisplayName("로그인 실패 / KAKAO,GITHUB 이 외 oauth provider일 경우")
-    void signIn_fail_not_provider() throws Exception{
-        //given
-        SignInRequest request = SignInRequest.builder()
-                .accessToken("oauthToken")
-                .provider("NAVER")
-                .build();
-
-        //when
-        ResultActions resultActions = mockMvc.perform(
-                post("/api/auth/sign-in")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)));
-
-        //then, docs
-        resultActions
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors",hasSize(1)));
-    }
 
 
     @Test
     @DisplayName("로그아웃 성공")
-    public void signOut_success() throws Exception{
+    public void logout_success() throws Exception{
 
         //given
         String accessToken = "Bearer testAccessToken";

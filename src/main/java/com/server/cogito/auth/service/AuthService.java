@@ -1,15 +1,13 @@
 package com.server.cogito.auth.service;
 
 import com.server.cogito.auth.dto.TokenResponse;
-import com.server.cogito.auth.dto.response.GithubUser;
-import com.server.cogito.auth.dto.request.SignInRequest;
-import com.server.cogito.auth.dto.response.KaKaoUser;
-import com.server.cogito.user.entity.User;
-import com.server.cogito.user.enums.Provider;
-import com.server.cogito.user.repository.UserRepository;
 import com.server.cogito.common.exception.ApplicationException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.common.security.jwt.JwtProvider;
+import com.server.cogito.infrastructure.oauth.OAuthHandler;
+import com.server.cogito.oauth.OAuthClient;
+import com.server.cogito.user.entity.User;
+import com.server.cogito.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.server.cogito.common.entity.BaseEntity.Status.ACTIVE;
 import static com.server.cogito.common.exception.user.UserErrorCode.USER_INVALID_REFRESH_TOKEN;
+import static com.server.cogito.user.enums.Provider.toEnum;
 
 
 @Slf4j
@@ -31,8 +30,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RedisTemplate redisTemplate;
-    private final KaKaoService kaKaoService;
-    private final GithubService githubService;
+    private final OAuthHandler oAuthHandler;
 
 
     @Value("${jwt.refresh-expiration-time}")
@@ -41,32 +39,11 @@ public class AuthService {
 
     //로그인
     @Transactional
-    public TokenResponse signIn(SignInRequest dto){
-        KaKaoUser oauthUser = kaKaoService.getKaKaoUser(dto.getAccessToken());
-        User user = userRepository.findByEmailAndStatus(oauthUser.getEmail(), ACTIVE)
-                .orElseGet(() -> createKaKaoUser(oauthUser));
-
-        AuthUser authUser = AuthUser.of(user);
-
-        TokenResponse response = jwtProvider.createToken(authUser);
-
-        saveRefreshToken(authUser.getUsername(), response.getRefreshToken(), REFRESH_TOKEN_EXPIRE_TIME);
-        return response;
-    }
-
-    @Transactional
     public TokenResponse login(String provider, String code){
-        User user = User.builder().build();
-        if(provider.equals("kakao")){
-            KaKaoUser kakaoUser = kaKaoService.getKaKaoUser(kaKaoService.getKaKaoAccessToken(code));
-            user = userRepository.findByEmailAndStatus(kakaoUser.getEmail(), ACTIVE)
-                    .orElseGet(() -> createKaKaoUser(kakaoUser));
-        }
-        else{
-            GithubUser githubUser = githubService.getGithubUser(code);
-            user = userRepository.findByEmailAndStatus(githubUser.getEmail(), ACTIVE)
-                    .orElseGet(() -> createGithubUser(githubUser));
-        }
+
+        OAuthClient oAuthClient = oAuthHandler.getUserInfoFromCode(toEnum(provider),code);
+        User user = userRepository.findByEmailAndStatus(oAuthClient.getEmail(), ACTIVE)
+                .orElseGet(()-> createOauthUser(oAuthClient));
 
         AuthUser authUser = AuthUser.of(user);
 
@@ -76,23 +53,16 @@ public class AuthService {
         return response;
     }
 
-    private User createKaKaoUser(KaKaoUser kakaoUser) {
+    private User createOauthUser(OAuthClient client){
         return userRepository.save(User.builder()
-                .email(kakaoUser.getEmail())
-                .nickname(kakaoUser.getNickname())
-                .provider(Provider.KAKAO)
-                .build());
-    }
-
-    private User createGithubUser(GithubUser githubUser){
-        return userRepository.save(User.builder()
-                .email(githubUser.getEmail())
-                .provider(Provider.GITHUB)
+                .email(client.getEmail())
+                .nickname(client.getNickname())
+                .provider(client.getProvider())
                 .build());
     }
 
     @Transactional
-    public void signOut(AuthUser authUser, String accessToken){
+    public void logout(AuthUser authUser, String accessToken){
         // Redis 에서 해당 User email 로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
         if (redisTemplate.opsForValue().get("RT:" + authUser.getUsername()) != null) {
             // Refresh Token 삭제

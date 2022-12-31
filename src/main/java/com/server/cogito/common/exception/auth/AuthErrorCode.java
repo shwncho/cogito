@@ -17,6 +17,7 @@ public enum AuthErrorCode implements ErrorEnumCode {
     UNAUTHORIZED("A008","인증되지 않은 유저입니다."),
     KAKAO_LOGIN("A009","카카오 로그인에 실패했습니다."),
     GITHUB_LOGIN("A010","깃허브 로그인에 실패했습니다."),
+    INVALID_OAUTH("A011","지원하지않는 oauth 입니다."),
     ;
 
     private final String code;
