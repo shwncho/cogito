@@ -1,10 +1,10 @@
 package com.server.cogito.infrastructure.oauth;
 
-import com.server.cogito.oauth.OAuthClient;
+import com.server.cogito.oauth.OauthUserInfo;
 import com.server.cogito.user.enums.Provider;
 
-public interface OAuthRequester {
+public interface OauthRequester {
     boolean supports(Provider provider);
 
-    OAuthClient getUserInfoByCode(String code);
+    OauthUserInfo getUserInfoByCode(String code);
 }

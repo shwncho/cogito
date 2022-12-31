@@ -2,8 +2,7 @@ package com.server.cogito.oauth;
 
 import com.server.cogito.user.enums.Provider;
 
-public interface OAuthClient {
-
+public interface OauthUserInfo {
     String getEmail();
     String getNickname();
     Provider getProvider();

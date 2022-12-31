@@ -1,32 +1,24 @@
 package com.server.cogito.infrastructure.oauth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.server.cogito.common.exception.ApplicationException;
-import com.server.cogito.oauth.KakaoOAuthClient;
-import com.server.cogito.oauth.OAuthClient;
+import com.server.cogito.oauth.KakaoOauthUserInfo;
+import com.server.cogito.oauth.OauthUserInfo;
 import com.server.cogito.user.enums.Provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Map;
 
 import static com.server.cogito.common.exception.auth.AuthErrorCode.KAKAO_LOGIN;
 
 @Component
 @RequiredArgsConstructor
-public class KaKaoRequester implements OAuthRequester{
-
-    private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
+public class KaKaoRequester implements OauthRequester {
 
     @Value("${spring.kakao.client}")
     private String CLIENT_ID;
@@ -40,59 +32,71 @@ public class KaKaoRequester implements OAuthRequester{
     @Value("${spring.kakao.profile}")
     private String PROFILE_URL;
 
+    private final WebClient kakaoOauthLoginClient;
+    private final WebClient kakaoUserClient;
+
     @Override
     public boolean supports(Provider provider) {
         return provider.isSameAs(Provider.KAKAO);
     }
 
     @Override
-    public OAuthClient getUserInfoByCode(String code) {
-        return getKaKaoProfile(getAccessToken(code));
+    public OauthUserInfo getUserInfoByCode(String code) {
+        return getUserInfo(getAccessToken(code));
     }
 
-    public String getAccessToken(String code){
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    private String getAccessToken(String code){
+        Map<String, Object> responseBody = requestAccessToken(kakaoOauthLoginClient)
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .queryParam("grant_type","authorization_code")
+                        .queryParam("client_id",CLIENT_ID)
+                        .queryParam("redirect_uri",REDIRECT_URI)
+                        .queryParam("code", code)
+                        .build())
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+                .blockOptional()
+                .orElseThrow(()->new ApplicationException(KAKAO_LOGIN));
+        validateResponseBody(responseBody);
+        return responseBody.get("access_token").toString();
 
-        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id",CLIENT_ID);
-        params.add("redirect_uri",REDIRECT_URI);
-        params.add("code", code);
+    }
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(TOKEN_URL, request, String.class);
-
-        try {
-            return objectMapper.readValue(response.getBody(), KaKaoTokenResponse.class).getAccess_token();
-        } catch (JsonProcessingException e) {
+    private void validateResponseBody(Map<String, Object> responseBody) {
+        if (!responseBody.containsKey("access_token")) {
             throw new ApplicationException(KAKAO_LOGIN);
         }
     }
 
-    public KakaoOAuthClient getKaKaoProfile(String accessToken){
+    public KakaoOauthUserInfo getUserInfo(String accessToken){
+        Map<String, Object> responseBody = requestKaKaoClient(kakaoUserClient)
+                .get()
+                .header(HttpHeaders.AUTHORIZATION,"Bearer "+accessToken)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+                .blockOptional()
+                .orElseThrow(()->new ApplicationException(KAKAO_LOGIN));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("Authorization", "Bearer "+accessToken);
+        return KakaoOauthUserInfo.from(responseBody);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
+    }
 
-        try {
-            ResponseEntity<String> response = restTemplate.postForEntity(PROFILE_URL, request, String.class);
-            JsonParser parser = new JsonParser();
-            JsonElement element = parser.parse(response.getBody());
-            return KakaoOAuthClient.builder()
-                    .email(element.getAsJsonObject().get("kakao_account")
-                            .getAsJsonObject().get("email").getAsString())
-                    .nickname(element.getAsJsonObject().get("kakao_account")
-                            .getAsJsonObject().get("profile")
-                            .getAsJsonObject().get("nickname").getAsString())
-                    .build();
-        } catch (Exception e) {
-            throw new ApplicationException(KAKAO_LOGIN);
-        }
+
+    private WebClient requestAccessToken(WebClient webClient) {
+        return webClient.mutate()
+                .baseUrl(TOKEN_URL)
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
+    private WebClient requestKaKaoClient(WebClient webClient) {
+        return webClient.mutate()
+                .baseUrl(PROFILE_URL)
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .build();
     }
 
 }

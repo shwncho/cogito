@@ -4,8 +4,8 @@ import com.server.cogito.auth.dto.TokenResponse;
 import com.server.cogito.common.exception.ApplicationException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.common.security.jwt.JwtProvider;
-import com.server.cogito.infrastructure.oauth.OAuthHandler;
-import com.server.cogito.oauth.OAuthClient;
+import com.server.cogito.infrastructure.oauth.OauthHandler;
+import com.server.cogito.oauth.OauthUserInfo;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RedisTemplate redisTemplate;
-    private final OAuthHandler oAuthHandler;
+    private final OauthHandler oauthHandler;
 
 
     @Value("${jwt.refresh-expiration-time}")
@@ -41,9 +41,9 @@ public class AuthService {
     @Transactional
     public TokenResponse login(String provider, String code){
 
-        OAuthClient oAuthClient = oAuthHandler.getUserInfoFromCode(toEnum(provider),code);
-        User user = userRepository.findByEmailAndStatus(oAuthClient.getEmail(), ACTIVE)
-                .orElseGet(()-> createOauthUser(oAuthClient));
+        OauthUserInfo oauthUserInfo = oauthHandler.getUserInfoFromCode(toEnum(provider),code);
+        User user = userRepository.findByEmailAndStatus(oauthUserInfo.getEmail(), ACTIVE)
+                .orElseGet(()-> createOauthUser(oauthUserInfo));
 
         AuthUser authUser = AuthUser.of(user);
 
@@ -53,7 +53,7 @@ public class AuthService {
         return response;
     }
 
-    private User createOauthUser(OAuthClient client){
+    private User createOauthUser(OauthUserInfo client){
         return userRepository.save(User.builder()
                 .email(client.getEmail())
                 .nickname(client.getNickname())
