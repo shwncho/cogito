@@ -13,10 +13,6 @@ public class TokenAuthenticationException extends ApplicationException {
         super(errorEnumCode, message);
     }
 
-    public TokenAuthenticationException() {
-        this(AUTH_ERROR_CODE, MESSAGE);
-    }
-
     public TokenAuthenticationException(ErrorEnumCode errorEnumCode) {
         this(errorEnumCode, MESSAGE);
     }

@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 @Configuration
 @Slf4j
-public class WebConfig {
+public class WebClientConfig {
 
     @Bean
     public WebClient webClient() {

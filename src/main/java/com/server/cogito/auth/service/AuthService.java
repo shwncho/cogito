@@ -1,7 +1,9 @@
 package com.server.cogito.auth.service;
 
 import com.server.cogito.auth.dto.TokenResponse;
-import com.server.cogito.common.exception.ApplicationException;
+import com.server.cogito.common.exception.auth.RefreshTokenInvalidException;
+import com.server.cogito.common.exception.auth.RefreshTokenNotEqualException;
+import com.server.cogito.common.exception.auth.RefreshTokenNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.common.security.jwt.JwtProvider;
 import com.server.cogito.infrastructure.oauth.OauthHandler;
@@ -19,7 +21,6 @@ import org.springframework.util.ObjectUtils;
 import java.util.concurrent.TimeUnit;
 
 import static com.server.cogito.common.entity.BaseEntity.Status.ACTIVE;
-import static com.server.cogito.common.exception.user.UserErrorCode.USER_INVALID_REFRESH_TOKEN;
 import static com.server.cogito.user.enums.Provider.toEnum;
 
 
@@ -63,13 +64,11 @@ public class AuthService {
 
     @Transactional
     public void logout(AuthUser authUser, String accessToken){
-        // Redis 에서 해당 User email 로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
         if (redisTemplate.opsForValue().get("RT:" + authUser.getUsername()) != null) {
-            // Refresh Token 삭제
             redisTemplate.delete("RT:" + authUser.getUsername());
         }
 
-        // Access Token 유효시간 가지고 와서 BlackList 로 저장하기
+        // 기존 accessToken을 blackList로 지정
         Long expiration = jwtProvider.getExpiration(accessToken);
         saveAccessTokenInBlackList(accessToken,expiration);
 
@@ -78,29 +77,32 @@ public class AuthService {
     @Transactional
     public TokenResponse reissue(AuthUser authUser, String refreshToken){
 
-        //Refresh Token 검증
-        if(!jwtProvider.validateToken(refreshToken)){
-            log.error("유효하지않은 refreshToken 입니다.");
-            throw new ApplicationException(USER_INVALID_REFRESH_TOKEN);
-        }
+        validateRefreshToken(refreshToken);
 
         String redisRefreshToken = (String)redisTemplate.opsForValue().get("RT:" + authUser.getUsername());
 
-        //Redis에 Refresh Token이 존재하지 않을 경우
-        if(ObjectUtils.isEmpty(redisRefreshToken)){
-            log.error("Redis에 refreshToken이 존재하지 않습니다.");
-            throw new ApplicationException(USER_INVALID_REFRESH_TOKEN);
-        }
-        if(!redisRefreshToken.equals(refreshToken)){
-            log.error("not equal");
-            throw new ApplicationException(USER_INVALID_REFRESH_TOKEN);
-        }
+        validateRefreshTokenIsAndEqual(refreshToken, redisRefreshToken);
 
         TokenResponse result = jwtProvider.createToken(authUser);
         saveRefreshToken(authUser.getUsername(),result.getRefreshToken(),REFRESH_TOKEN_EXPIRE_TIME);
 
         return result;
 
+    }
+
+    private static void validateRefreshTokenIsAndEqual(String refreshToken, String redisRefreshToken) {
+        if(ObjectUtils.isEmpty(redisRefreshToken)){
+            throw new RefreshTokenNotFoundException();
+        }
+        if(!redisRefreshToken.equals(refreshToken)){
+            throw new RefreshTokenNotEqualException();
+        }
+    }
+
+    private void validateRefreshToken(String refreshToken) {
+        if(!jwtProvider.validateToken(refreshToken)){
+            throw new RefreshTokenInvalidException();
+        }
     }
 
     private void saveRefreshToken(String key, String value, long expiration) {

@@ -1,5 +1,9 @@
 package com.server.cogito.post.service;
 
+import com.server.cogito.common.entity.BaseEntity;
+import com.server.cogito.common.exception.ApplicationException;
+import com.server.cogito.common.exception.user.UserNotFoundException;
+import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.file.entity.PostFile;
 import com.server.cogito.post.dto.request.CreatePostRequest;
 import com.server.cogito.post.dto.response.PostInfo;
@@ -9,9 +13,6 @@ import com.server.cogito.post.repository.PostRepository;
 import com.server.cogito.tag.entity.Tag;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.repository.UserRepository;
-import com.server.cogito.common.entity.BaseEntity;
-import com.server.cogito.common.exception.ApplicationException;
-import com.server.cogito.common.security.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
-import static com.server.cogito.common.exception.user.UserErrorCode.USER_NOT_EXIST;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class PostService {
     @Transactional
     public Long createPost(AuthUser authUser, CreatePostRequest request){
         User user = userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE)
-                .orElseThrow(()-> new ApplicationException(USER_NOT_EXIST));
+                .orElseThrow(UserNotFoundException::new);
 
         Post post = Post.of(request.getTitle(), request.getContent(), user);
         savePostFilesAndTags(request, post);
