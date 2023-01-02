@@ -8,3 +8,4 @@ public interface OauthRequester {
 
     OauthUserInfo getUserInfoByCode(String code);
 }
+
