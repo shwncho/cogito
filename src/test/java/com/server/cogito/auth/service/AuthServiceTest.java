@@ -1,13 +1,16 @@
 package com.server.cogito.auth.service;
 
 import com.server.cogito.auth.dto.TokenResponse;
-import com.server.cogito.auth.service.AuthService;
+import com.server.cogito.common.entity.BaseEntity;
+import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.common.security.jwt.JwtProvider;
+import com.server.cogito.infrastructure.oauth.GithubRequester;
 import com.server.cogito.infrastructure.oauth.KaKaoRequester;
+import com.server.cogito.infrastructure.oauth.OauthHandler;
+import com.server.cogito.oauth.OauthUserInfo;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
 import com.server.cogito.user.repository.UserRepository;
-import com.server.cogito.common.security.AuthUser;
-import com.server.cogito.common.security.jwt.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,11 +20,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
+import java.util.Optional;
+
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 
@@ -41,7 +47,11 @@ class AuthServiceTest {
     @Mock
     RedisTemplate redisTemplate;
     @Mock
-    KaKaoRequester kaKaoRequester;
+    KaKaoRequester kakaoRequester;
+    @Mock
+    GithubRequester githubRequester;
+    @Mock
+    OauthHandler oauthHandler;
 
     @Mock
     ValueOperations<String, Object> valueOperations;
@@ -49,71 +59,140 @@ class AuthServiceTest {
     @InjectMocks
     AuthService authService;
 
-//    @Test
-//    @DisplayName("로그인 성공 / 회원가입이 되지 않은 유저일 경우")
-//    void login_success_notExistUser() throws Exception{
-//
-//        //given
-//        SignInRequest request = SignInRequest.builder()
-//                .accessToken("oauthToken")
-//                .provider("KAKAO")
-//                .build();
-//        KaKaoUser oauthUser = createKaKaoUser();
-//        given(kaKaoRequester.getKaKaoUser(any())).willReturn(oauthUser);
-//        given(userRepository.findByEmailAndStatus(oauthUser.getEmail(), BaseEntity.Status.ACTIVE)
-//                .orElseGet(()->userRepository.save(any())))
-//                .willReturn(mockUser());
-//        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
-//        given(redisTemplate.opsForValue()).willReturn(valueOperations);
-//
-//        //when
-//        TokenResponse response = authService.login(request);
-//
-//        //then
-//        assertAll(
-//                ()->verify(userRepository).save(any(User.class)),
-//                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
-//                ()->verify(valueOperations).set("RT:"+oauthUser.getEmail(),REFRESH_TOKEN,0, MILLISECONDS)
-//
-//        );
-//    }
-//
-//    @Test
-//    @DisplayName("로그인 성공 / 회원가입이 되어있는 유저일 경우")
-//    void login_success_existUser() throws Exception{
-//        //given
-//        SignInRequest request = SignInRequest.builder()
-//                .accessToken("oauthToken")
-//                .provider("KAKAO")
-//                .build();
-//        KaKaoUser oauthUser = createKaKaoUser();
-//        given(kaKaoRequester.getKaKaoUser(any())).willReturn(oauthUser);
-//        given(userRepository.findByEmailAndStatus(oauthUser.getEmail(), BaseEntity.Status.ACTIVE))
-//                .willReturn(Optional.of(mockUser()));
-//        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
-//        given(redisTemplate.opsForValue()).willReturn(valueOperations);
-//
-//        //when
-//        TokenResponse response = authService.login(request);
-//
-//        //then
-//        assertAll(
-//                ()->verify(userRepository).findByEmailAndStatus(oauthUser.getEmail(), BaseEntity.Status.ACTIVE),
-//                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
-//                ()->verify(valueOperations).set("RT:"+oauthUser.getEmail(),REFRESH_TOKEN,0, MILLISECONDS)
-//
-//        );
-//    }
+    @Test
+    @DisplayName("로그인 성공 / 처음 가입 유저 kakao")
+    void login_success_notFoundUser_kakao() throws Exception{
 
-//    private KaKaoUser createKaKaoUser(){
-//        return  KaKaoUser.of("kakao@kakao.com","kakao");
-//    }
+        //given
+        String provider = "kakao";
+        String code = "code";
+        OauthUserInfo oauthUserInfo = mock(OauthUserInfo.class);
 
-    private User mockUser(){
+        given(oauthHandler.getUserInfoFromCode(Provider.toEnum(provider),code))
+                .willReturn(oauthUserInfo);
+        given(userRepository.findByEmailAndStatus("kakao@kakao.com", BaseEntity.Status.ACTIVE)
+                .orElseGet(()->userRepository.save(any())))
+                .willReturn(mockKakaoUser());
+        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+
+        //when
+        TokenResponse response = authService.login(provider,code);
+
+        //then
+        assertAll(
+                ()->verify(oauthHandler).getUserInfoFromCode(Provider.toEnum(provider),code),
+                ()->verify(userRepository).save(any(User.class)),
+                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
+                ()->verify(valueOperations).set("RT:"+"kakao@kakao.com",REFRESH_TOKEN,0, MILLISECONDS)
+
+        );
+    }
+
+    @Test
+    @DisplayName("로그인 성공 / 처음 가입 유저 github")
+    void login_success_notFoundUser_github() throws Exception{
+
+        //given
+        String provider = "github";
+        String code = "code";
+        OauthUserInfo oauthUserInfo = mock(OauthUserInfo.class);
+
+        given(oauthHandler.getUserInfoFromCode(Provider.toEnum(provider),code))
+                .willReturn(oauthUserInfo);
+        given(userRepository.findByEmailAndStatus("github@github.com", BaseEntity.Status.ACTIVE)
+                .orElseGet(()->userRepository.save(any())))
+                .willReturn(mockGithubUser());
+        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+
+        //when
+        TokenResponse response = authService.login(provider,code);
+
+        //then
+        assertAll(
+                ()->verify(oauthHandler).getUserInfoFromCode(Provider.toEnum(provider),code),
+                ()->verify(userRepository).save(any(User.class)),
+                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
+                ()->verify(valueOperations).set("RT:"+"github@github.com",REFRESH_TOKEN,0, MILLISECONDS)
+
+        );
+    }
+
+    @Test
+    @DisplayName("로그인 성공 / 가입되어있는 유저 kakao")
+    void login_success_kakao() throws Exception{
+
+        //given
+        String provider = "kakao";
+        String code = "code";
+        OauthUserInfo oauthUserInfo = mock(OauthUserInfo.class);
+
+        given(oauthHandler.getUserInfoFromCode(Provider.toEnum(provider),code))
+                .willReturn(oauthUserInfo);
+        given(userRepository.findByEmailAndStatus(any(), any()))
+                .willReturn(Optional.of(mockKakaoUser()));
+        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+
+        //when
+        TokenResponse response = authService.login(provider,code);
+
+        //then
+        assertAll(
+                ()->verify(oauthHandler).getUserInfoFromCode(Provider.toEnum(provider),code),
+                ()->verify(userRepository).findByEmailAndStatus(any(), any()),
+                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
+                ()->verify(valueOperations).set("RT:"+"kakao@kakao.com",REFRESH_TOKEN,0, MILLISECONDS)
+
+        );
+    }
+
+    @Test
+    @DisplayName("로그인 성공 / 가입되어있는 유저 github")
+    void login_success_github() throws Exception{
+
+        //given
+        String provider = "github";
+        String code = "code";
+        OauthUserInfo oauthUserInfo = mock(OauthUserInfo.class);
+
+        given(oauthHandler.getUserInfoFromCode(Provider.toEnum(provider),code))
+                .willReturn(oauthUserInfo);
+        given(userRepository.findByEmailAndStatus(any(), any()))
+                .willReturn(Optional.of(mockGithubUser()));
+        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+
+        //when
+        TokenResponse response = authService.login(provider,code);
+
+        //then
+        assertAll(
+                ()->verify(oauthHandler).getUserInfoFromCode(Provider.toEnum(provider),code),
+                ()->verify(userRepository).findByEmailAndStatus(any(), any()),
+                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
+                ()->verify(valueOperations).set("RT:"+"github@github.com",REFRESH_TOKEN,0, MILLISECONDS)
+
+        );
+    }
+
+
+
+
+    private User mockKakaoUser(){
         return User.builder()
                 .email("kakao@kakao.com")
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
+                .build();
+    }
+
+    private User mockGithubUser(){
+        return User.builder()
+                .email("github@github.com")
+                .nickname("github")
+                .provider(Provider.GITHUB)
                 .build();
     }
 
@@ -129,7 +208,7 @@ class AuthServiceTest {
     void logout_success_existRefreshToken() throws Exception{
 
         //given
-        User user = mockUser();
+        User user = mockKakaoUser();
         TokenResponse tokenResponse = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
         given(valueOperations.get("RT:"+user.getEmail())).willReturn(tokenResponse.getRefreshToken());
@@ -150,7 +229,7 @@ class AuthServiceTest {
     void logout_success_notExistRefreshToken() throws Exception{
 
         //given
-        User user = mockUser();
+        User user = mockKakaoUser();
         TokenResponse tokenResponse = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
         given(jwtProvider.getExpiration(any())).willReturn(1L);
@@ -168,7 +247,7 @@ class AuthServiceTest {
     void reissue_success() throws Exception{
 
         //given
-        User user = mockUser();
+        User user = mockKakaoUser();
         AuthUser authUser = AuthUser.of(user);
         TokenResponse tokenResponse = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);

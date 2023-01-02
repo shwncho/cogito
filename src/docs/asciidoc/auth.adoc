@@ -9,33 +9,26 @@
 == 소셜 로그인
 
 === 요청
-include::{snippets}/auth-controller-test/sign-in_success/http-request.adoc[]
-
-include::{snippets}/auth-controller-test/sign-in_success/request-fields.adoc[]
+include::{snippets}/auth-controller-test/login_success_github/http-request.adoc[]
+include::{snippets}/auth-controller-test/login_success_github/path-parameters.adoc[]
+include::{snippets}/auth-controller-test/login_success_github/request-parameters.adoc[]
 
 
 === 응답
-include::{snippets}/auth-controller-test/sign-in_success/http-response.adoc[]
+include::{snippets}/auth-controller-test/login_success_github/http-response.adoc[]
+include::{snippets}/auth-controller-test/login_success_github/response-fields.adoc[]
 
-include::{snippets}/auth-controller-test/sign-in_success/response-fields.adoc[]
 
-=== V001 (입력 조건에 대한 예외)
-include::{snippets}/auth-controller-test/sign-in_fail_not_valid/http-request.adoc[]
-include::{snippets}/auth-controller-test/sign-in_fail_not_valid/http-response.adoc[]
-
-=== V001 (지원하지 않는 oauth provider)
-include::{snippets}/auth-controller-test/sign-in_fail_not_provider/http-request.adoc[]
-include::{snippets}/auth-controller-test/sign-in_fail_not_provider/http-response.adoc[]
 === 소셜 로그인 예외
 
 === A009 (카카오 로그인에 실패했습니다.)
+=== A010 (깃허브 로그인에 실패했습니다.)
 
 == 로그아웃
 
 === 요청
-include::{snippets}/auth-controller-test/sign-out_success/http-request.adoc[]
-
-include::{snippets}/auth-controller-test/sign-out_success/request-headers.adoc[]
+include::{snippets}/auth-controller-test/logout_success/http-request.adoc[]
+include::{snippets}/auth-controller-test/logout_success/request-headers.adoc[]
 
 
 == 토큰 재발급
@@ -48,4 +41,6 @@ include::{snippets}/auth-controller-test/reissue_success/request-headers.adoc[]
 include::{snippets}/auth-controller-test/reissue_success/response-fields.adoc[]
 
 === 토큰 재발급 예외
-=== U006(유효하지않은 Refresh Token 입니다.)
+=== A011(유효하지않은 Refresh Token 입니다.)
+=== A012(존재하지 않는 Refresh Token 입니다.)
+=== A013(동일하지 않은 Refresh Token 입니다.)

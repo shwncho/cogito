@@ -1,6 +1,5 @@
 package com.server.cogito.auth.controller;
 
-import com.server.cogito.auth.controller.AuthController;
 import com.server.cogito.auth.dto.TokenResponse;
 import com.server.cogito.auth.service.AuthService;
 import com.server.cogito.common.security.AuthUser;
@@ -12,22 +11,22 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import static org.mockito.BDDMockito.given;
 
 @WebMvcTest(AuthController.class)
 @MockBean(JpaMetamodelMappingContext.class)
@@ -38,47 +37,75 @@ class AuthControllerTest extends RestDocsSupport{
     private AuthService authService;
 
 
-//    @Test
-//    @DisplayName("로그인 성공")
-//    public void login_success() throws Exception {
-//        //given
-//        SignInRequest request = SignInRequest.builder()
-//                .accessToken("oauthToken")
-//                .provider("KAKAO")
-//                .build();
-//
-//        TokenResponse response = TokenResponse.builder()
-//                .accessToken("testAccessToken")
-//                .refreshToken("testRefreshToken")
-//                .build();
-//
-//        when(authService.signIn(any()))
-//                .thenReturn(response);
-//
-//        //when
-//        ResultActions resultActions = mockMvc.perform(
-//                post("/api/auth/sign-in")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(request)));
-//
-//        //then
-//        resultActions
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.accessToken",is("testAccessToken")))
-//                .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
-//                .andDo(restDocs.document(
-//                        requestFields(
-//                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("oauth 요청 토큰"),
-//                                fieldWithPath("provider").type(JsonFieldType.STRING).description("oauth 주체, ex) KAKAO")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
-//                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
-//                        )
-//                ));
-//    }
+    @Test
+    @DisplayName("로그인 성공 / kakao")
+    public void login_success_kakao() throws Exception {
+        //given
+        String code = "code";
+        String provider = "kakao";
+        TokenResponse response = TokenResponse.builder()
+                .accessToken("testAccessToken")
+                .refreshToken("testRefreshToken")
+                .build();
+        given(authService.login(any(),any()))
+                .willReturn(response);
 
-    //로그인 실패 없는 provider
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/auth/{provider}/login/token?code="+code,provider));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken",is("testAccessToken")))
+                .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
+                .andDo(restDocs.document(
+                        pathParameters(parameterWithName("provider").description("oauth provider( kakao or github )"))
+                        ,
+                        requestParameters(parameterWithName("code").description("Authorization code"))
+                        ,
+                        responseFields(
+                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
+                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("로그인 성공 / github")
+    public void login_success_github() throws Exception {
+        //given
+        String code = "code";
+        String provider = "github";
+        TokenResponse response = TokenResponse.builder()
+                .accessToken("testAccessToken")
+                .refreshToken("testRefreshToken")
+                .build();
+        given(authService.login(any(),any()))
+                .willReturn(response);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/auth/{provider}/login/token?code="+code,provider));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken",is("testAccessToken")))
+                .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
+                .andDo(restDocs.document(
+                        pathParameters(parameterWithName("provider").description("oauth provider"))
+                        ,
+                        requestParameters(parameterWithName("code").description("Authorization code"))
+                        ,
+                        responseFields(
+                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
+                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
+                        )
+                ));
+    }
+
+    //로그인 실패 case ( other provider)
 
 
 

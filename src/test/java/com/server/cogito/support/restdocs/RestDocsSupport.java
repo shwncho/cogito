@@ -37,7 +37,7 @@ public abstract class RestDocsSupport extends SecuritySupport {
                 .apply(documentationConfiguration(restDocumentationContextProvider)
                     .uris()
                     .withScheme("https")
-                    .withHost("api.simple.com")
+                    .withHost("dev.cogito.shop")
                     .withPort(443))
                 .apply(springSecurity())
                 .alwaysDo(print())
