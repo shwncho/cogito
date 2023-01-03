@@ -1,6 +1,5 @@
 package com.server.cogito.post.controller;
 
-import com.server.cogito.post.controller.PostController;
 import com.server.cogito.post.dto.request.CreatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostInfo;

@@ -1,10 +1,12 @@
 package com.server.cogito.user.entity;
 
 import com.server.cogito.post.entity.Post;
+import com.server.cogito.user.dto.request.UserRequest;
 import com.server.cogito.user.enums.Authority;
 import com.server.cogito.user.enums.Provider;
 import com.server.cogito.common.entity.BaseEntity;
 import lombok.*;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ public class User extends BaseEntity {
 
     private String nickname;
 
+    @Column(columnDefinition = "TEXT")
     private String profileImgUrl;
 
     private String introduce;
@@ -51,6 +54,29 @@ public class User extends BaseEntity {
 
     public void addScore(int num){
         this.score+=num;
+    }
+
+    public void change(UserRequest userRequest){
+        changeNickname(userRequest.getNickname());
+        changeProfileImgUrl(userRequest.getProfileImgUrl());
+        changeIntroduce(userRequest.getIntroduce());
+    }
+
+    private void changeNickname(String nickname){
+        if(!nickname.isBlank()){
+            this.nickname=nickname;
+        }
+    }
+
+    private void changeProfileImgUrl(String profileImgUrl){
+        if(profileImgUrl!=null){
+            this.profileImgUrl=profileImgUrl;
+        }
+
+    }
+
+    private void changeIntroduce(String introduce){
+        this.introduce=introduce;
     }
 
 }

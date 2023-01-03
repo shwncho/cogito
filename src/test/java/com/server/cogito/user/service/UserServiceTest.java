@@ -1,6 +1,7 @@
 package com.server.cogito.user.service;
 
 import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.user.dto.request.UserRequest;
 import com.server.cogito.user.dto.response.UserResponse;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
@@ -11,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -19,7 +21,7 @@ class UserServiceTest {
     UserService userService;
 
     @Test
-    @DisplayName("유저 프로필 조회")
+    @DisplayName("유저 프로필 조회 성공")
     public void getMe_success() throws Exception {
         //given
         User user = mockKakaoUser();
@@ -30,10 +32,10 @@ class UserServiceTest {
 
         //then
         assertAll(
-                ()->assertEquals(user.getNickname(),response.getNickname()),
-                ()->assertEquals(user.getProfileImgUrl(),response.getProfileImgUrl()),
-                ()->assertEquals(user.getScore(),response.getScore()),
-                ()->assertEquals(user.getIntroduce(),response.getIntroduce())
+                ()->assertThat(user.getNickname()).isEqualTo(response.getNickname()),
+                ()->assertThat(user.getProfileImgUrl()).isEqualTo(response.getProfileImgUrl()),
+                ()->assertThat(user.getScore()).isEqualTo(response.getScore()),
+                ()->assertThat(user.getIntroduce()).isEqualTo(response.getIntroduce())
         );
     }
 
@@ -43,5 +45,32 @@ class UserServiceTest {
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
                 .build();
+    }
+
+    @Test
+    @DisplayName("유저 프로필 수정 성공")
+    public void updateMe_success() throws Exception {
+        //given
+        User user = mockKakaoUser();
+        String originNickname = user.getNickname();
+        String originProfileImgUrl = user.getProfileImgUrl();
+        String originIntroduce = user.getIntroduce();
+
+        AuthUser authUser = AuthUser.of(user);
+        UserRequest request = UserRequest.builder()
+                .nickname("수정")
+                .profileImgUrl("수정")
+                .introduce("수정")
+                .build();
+
+        //when
+        userService.updateMe(authUser, request);
+
+        //then
+        assertAll(
+                ()->assertThat(originNickname).isNotEqualTo(request.getNickname()),
+                ()->assertThat(originProfileImgUrl).isNotEqualTo(request.getProfileImgUrl()),
+                ()->assertThat(originIntroduce).isNotEqualTo(request.getIntroduce())
+        );
     }
 }

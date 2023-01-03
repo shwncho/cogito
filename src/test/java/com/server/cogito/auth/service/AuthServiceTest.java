@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -273,7 +274,7 @@ class AuthServiceTest {
         TokenResponse response = authService.reissue(authUser,REFRESH_TOKEN);
 
         //then
-        assertNotEquals(REFRESH_TOKEN, response.getRefreshToken());
+        assertThat(REFRESH_TOKEN).isNotEqualTo(response.getRefreshToken());
 
 
 

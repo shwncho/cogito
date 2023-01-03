@@ -2,6 +2,7 @@ package com.server.cogito.user.controller;
 
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
+import com.server.cogito.user.dto.request.UserRequest;
 import com.server.cogito.user.dto.response.UserResponse;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -20,14 +22,16 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 
 @WebMvcTest(UserController.class)
 @MockBean(JpaMetamodelMappingContext.class)
@@ -78,5 +82,36 @@ class UserControllerTest extends RestDocsSupport {
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
                 .build();
+    }
+
+    @Test
+    public void updateMe_success() throws Exception {
+        //given
+        UserRequest request = UserRequest.builder()
+                .nickname("수정")
+                .profileImgUrl("수정")
+                .introduce("수정")
+                .build();
+        willDoNothing().given(userService).updateMe(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/users/me")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        requestFields(
+                                fieldWithPath("nickname").type(JsonFieldType.STRING).description("변경할 닉네임"),
+                                fieldWithPath("profileImgUrl").type(JsonFieldType.STRING).description("변경할 프로필 사진 URL"),
+                                fieldWithPath("introduce").type(JsonFieldType.STRING).description("변경할 유저 소개")
+                        )
+                ));
     }
 }
