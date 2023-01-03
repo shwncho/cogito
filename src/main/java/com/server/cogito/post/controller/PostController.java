@@ -22,7 +22,7 @@ public class PostController {
 
     @PostMapping("")
     public CreatePostResponse createPost(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid CreatePostRequest request){
-        return CreatePostResponse.from(postService.createPost(authUser,request));
+        return postService.createPost(authUser,request);
     }
 
     @GetMapping("")

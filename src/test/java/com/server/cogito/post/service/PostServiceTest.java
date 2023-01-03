@@ -1,6 +1,7 @@
 package com.server.cogito.post.service;
 
 import com.server.cogito.post.dto.request.CreatePostRequest;
+import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
@@ -47,17 +48,14 @@ class PostServiceTest {
         CreatePostRequest request = createPostRequest();
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        given(userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE))
-                .willReturn(Optional.of(user));
         Post post = Post.of(request.getTitle(),request.getContent(),user);
         given(postRepository.save(any(Post.class))).willReturn(post);
 
         //when
-        Long postId = postService.createPost(authUser,request);
+        CreatePostResponse response = postService.createPost(authUser,request);
 
         //then
         assertAll(
-                ()->verify(userRepository).findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE),
                 ()->verify(postRepository).save(any(Post.class)),
                 ()->assertEquals(3,user.getScore())
         );

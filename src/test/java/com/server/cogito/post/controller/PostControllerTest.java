@@ -2,6 +2,7 @@ package com.server.cogito.post.controller;
 
 import com.server.cogito.post.controller.PostController;
 import com.server.cogito.post.dto.request.CreatePostRequest;
+import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostInfo;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.service.PostService;
@@ -48,7 +49,7 @@ class PostControllerTest extends RestDocsSupport {
     void createPost_success() throws Exception{
         //given
         CreatePostRequest request = createPostRequest();
-        given(postService.createPost(any(),any())).willReturn(1L);
+        given(postService.createPost(any(),any())).willReturn(CreatePostResponse.from(1L));
 
         //when
         ResultActions resultActions = mockMvc.perform(post("/api/posts")

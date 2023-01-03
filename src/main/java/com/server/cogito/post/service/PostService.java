@@ -6,6 +6,7 @@ import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.file.entity.PostFile;
 import com.server.cogito.post.dto.request.CreatePostRequest;
+import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostInfo;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.entity.Post;
@@ -32,14 +33,12 @@ public class PostService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long createPost(AuthUser authUser, CreatePostRequest request){
-        User user = userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE)
-                .orElseThrow(UserNotFoundException::new);
-
+    public CreatePostResponse createPost(AuthUser authUser, CreatePostRequest request){
+        User user = authUser.getUser();
         Post post = Post.of(request.getTitle(), request.getContent(), user);
         savePostFilesAndTags(request, post);
         user.addScore(2);
-        return postRepository.save(post).getId();
+        return CreatePostResponse.from(postRepository.save(post).getId());
     }
 
     private static void savePostFilesAndTags(CreatePostRequest request, Post post) {
