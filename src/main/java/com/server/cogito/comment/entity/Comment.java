@@ -1,13 +1,9 @@
 package com.server.cogito.comment.entity;
 
-import com.server.cogito.like.entity.Likes;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.common.entity.BaseEntity;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -39,14 +35,13 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @OneToMany(mappedBy = "comment")
-    private List<Likes> likes = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
     private List<Comment> child = new ArrayList<>();
+
+    private int likeCnt;
 
 }

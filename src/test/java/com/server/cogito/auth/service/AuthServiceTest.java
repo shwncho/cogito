@@ -2,6 +2,7 @@ package com.server.cogito.auth.service;
 
 import com.server.cogito.auth.dto.TokenResponse;
 import com.server.cogito.common.entity.BaseEntity;
+import com.server.cogito.common.exception.infrastructure.UnsupportedOauthProviderException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.common.security.jwt.JwtProvider;
 import com.server.cogito.infrastructure.oauth.GithubRequester;
@@ -23,8 +24,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -201,6 +201,19 @@ class AuthServiceTest {
                 .accessToken(ACCESS_TOKEN)
                 .refreshToken(REFRESH_TOKEN)
                 .build();
+    }
+
+    @Test
+    @DisplayName("로그인 실패 / 제공하지 않는 oauth provider")
+    void login_fail_no_oauth_provider() throws Exception{
+
+        //given
+        String provider = "naver";
+        String code = "code";
+
+        //expected
+        assertThrows(UnsupportedOauthProviderException.class,
+                ()->authService.login(provider,code));
     }
 
     @Test

@@ -1,11 +1,9 @@
 package com.server.cogito.post.entity;
 
-import com.server.cogito.comment.entity.Comment;
+import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.file.entity.PostFile;
-import com.server.cogito.like.entity.Likes;
 import com.server.cogito.tag.entity.Tag;
 import com.server.cogito.user.entity.User;
-import com.server.cogito.common.entity.BaseEntity;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
@@ -45,11 +43,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private List<Tag> tags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
-    private List<Likes> likes = new ArrayList<>();
+    private int linkCnt;
 
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
-    private List<Comment> comments = new ArrayList<>();
 
     @Builder
     public Post(String title, String content, User user) {

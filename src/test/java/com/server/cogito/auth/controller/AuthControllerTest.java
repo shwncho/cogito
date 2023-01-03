@@ -134,8 +134,8 @@ class AuthControllerTest extends RestDocsSupport{
 
         //given
         String refreshToken = "Bearer testRefreshToken";
-        when(authService.reissue(any(AuthUser.class),any()))
-                .thenReturn(TokenResponse.builder()
+        given(authService.reissue(any(AuthUser.class),any()))
+                .willReturn(TokenResponse.builder()
                         .accessToken("testAccessToken")
                         .refreshToken("testRefreshToken")
                         .build());
