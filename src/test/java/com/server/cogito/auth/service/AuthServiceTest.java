@@ -24,6 +24,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -213,8 +214,8 @@ class AuthServiceTest {
         String code = "code";
 
         //expected
-        assertThrows(UnsupportedOauthProviderException.class,
-                ()->authService.login(provider,code));
+        assertThatThrownBy(()->authService.login(provider,code))
+                .isExactlyInstanceOf(UnsupportedOauthProviderException.class);
     }
 
     @Test

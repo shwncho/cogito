@@ -1,21 +1,29 @@
 package com.server.cogito.user.service;
 
+import com.server.cogito.common.exception.user.UserNicknameExistException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.user.dto.request.UserRequest;
 import com.server.cogito.user.dto.response.UserResponse;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
+import com.server.cogito.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+
+    @Mock
+    UserRepository userRepository;
 
     @InjectMocks
     UserService userService;
@@ -72,5 +80,26 @@ class UserServiceTest {
                 ()->assertThat(originProfileImgUrl).isNotEqualTo(request.getProfileImgUrl()),
                 ()->assertThat(originIntroduce).isNotEqualTo(request.getIntroduce())
         );
+    }
+
+    @Test
+    public void updateMe_fail_existNickname() throws Exception {
+        //given
+        User user = mockKakaoUser();
+        String originNickname = user.getNickname();
+        String originProfileImgUrl = user.getProfileImgUrl();
+        String originIntroduce = user.getIntroduce();
+
+        AuthUser authUser = AuthUser.of(user);
+        UserRequest request = UserRequest.builder()
+                .nickname("카카오")
+                .profileImgUrl("수정")
+                .introduce("수정")
+                .build();
+        given(userRepository.existsByNickname(request.getNickname())).willReturn(true);
+
+        //expected
+        assertThatThrownBy(()->userService.updateMe(authUser,request))
+                .isExactlyInstanceOf(UserNicknameExistException.class);
     }
 }

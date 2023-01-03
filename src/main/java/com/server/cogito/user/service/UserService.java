@@ -1,5 +1,7 @@
 package com.server.cogito.user.service;
 
+import com.server.cogito.common.exception.user.UserErrorCode;
+import com.server.cogito.common.exception.user.UserNicknameExistException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.user.dto.request.UserRequest;
 import com.server.cogito.user.dto.response.UserResponse;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final UserRepository userRepository;
+
     @Transactional(readOnly = true)
     public UserResponse getMe(AuthUser authUser){
         return UserResponse.from(authUser.getUser());
@@ -21,6 +25,9 @@ public class UserService {
     @Transactional
     public void updateMe(AuthUser authUser, UserRequest userRequest){
         User user = authUser.getUser();
+        if(userRepository.existsByNickname(userRequest.getNickname())){
+            throw new UserNicknameExistException(UserErrorCode.USER_NICKNAME_EXIST);
+        }
         user.change(userRequest);
     }
 }

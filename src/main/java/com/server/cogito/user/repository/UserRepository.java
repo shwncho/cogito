@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndStatus(String email, BaseEntity.Status status);
-
+    boolean existsByNickname(String nickname);
 }

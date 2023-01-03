@@ -1,16 +1,14 @@
 package com.server.cogito.post.service;
 
+import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.dto.request.CreatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
-import com.server.cogito.post.service.PostService;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
 import com.server.cogito.user.repository.UserRepository;
-import com.server.cogito.common.entity.BaseEntity;
-import com.server.cogito.common.security.AuthUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,13 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -96,7 +94,7 @@ class PostServiceTest {
 
         assertAll(
                 ()->verify(postRepository).findAll(any(PageRequest.class)),
-                ()->assertEquals(2,response.getPosts().size())
+                ()->assertThat(2).isEqualTo(response.getPosts().size())
         );
 
     }
