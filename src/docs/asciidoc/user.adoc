@@ -1,0 +1,17 @@
+= 유저 API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+= 마이프로필
+
+=== 요청
+include::{snippets}/user-controller-test/get-me_success/http-request.adoc[]
+include::{snippets}/user-controller-test/get-me_success/request-headers.adoc[]
+
+=== 응답
+include::{snippets}/user-controller-test/get-me_success/http-response.adoc[]
+include::{snippets}/user-controller-test/get-me_success/response-body.adoc[]
