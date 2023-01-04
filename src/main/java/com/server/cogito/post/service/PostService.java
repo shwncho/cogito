@@ -1,11 +1,8 @@
 package com.server.cogito.post.service;
 
-import com.server.cogito.common.entity.BaseEntity;
-import com.server.cogito.common.exception.ApplicationException;
-import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.file.entity.PostFile;
-import com.server.cogito.post.dto.request.CreatePostRequest;
+import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostInfo;
 import com.server.cogito.post.dto.response.PostPageResponse;
@@ -33,7 +30,7 @@ public class PostService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CreatePostResponse createPost(AuthUser authUser, CreatePostRequest request){
+    public CreatePostResponse createPost(AuthUser authUser, PostRequest request){
         User user = authUser.getUser();
         Post post = Post.of(request.getTitle(), request.getContent(), user);
         savePostFilesAndTags(request, post);
@@ -41,7 +38,7 @@ public class PostService {
         return CreatePostResponse.from(postRepository.save(post).getId());
     }
 
-    private static void savePostFilesAndTags(CreatePostRequest request, Post post) {
+    private static void savePostFilesAndTags(PostRequest request, Post post) {
         request.getFiles().forEach(s -> {
             PostFile postFile = new PostFile(s);
             postFile.changePost(post);

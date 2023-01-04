@@ -3,8 +3,6 @@ package com.server.cogito.post.dto.request;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -12,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreatePostRequest {
+public class PostRequest {
 
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;

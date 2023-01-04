@@ -1,6 +1,6 @@
 package com.server.cogito.post.controller;
 
-import com.server.cogito.post.dto.request.CreatePostRequest;
+import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.service.PostService;
@@ -21,7 +21,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("")
-    public CreatePostResponse createPost(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid CreatePostRequest request){
+    public CreatePostResponse createPost(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid PostRequest request){
         return postService.createPost(authUser,request);
     }
 

@@ -44,4 +44,12 @@ public class Comment extends BaseEntity {
 
     private int likeCnt;
 
+    @Builder
+    public Comment(String content, User user, Post post, Comment parent) {
+        this.post = post;
+        this.parent = parent;
+        this.content = content;
+        this.user = user;
+
+    }
 }

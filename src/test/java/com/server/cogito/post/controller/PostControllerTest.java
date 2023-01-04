@@ -1,6 +1,6 @@
 package com.server.cogito.post.controller;
 
-import com.server.cogito.post.dto.request.CreatePostRequest;
+import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostInfo;
 import com.server.cogito.post.dto.response.PostPageResponse;
@@ -47,7 +47,7 @@ class PostControllerTest extends RestDocsSupport {
     @DisplayName("게시물 생성 성공")
     void createPost_success() throws Exception{
         //given
-        CreatePostRequest request = createPostRequest();
+        PostRequest request = createPostRequest();
         given(postService.createPost(any(),any())).willReturn(CreatePostResponse.from(1L));
 
         //when
@@ -79,8 +79,8 @@ class PostControllerTest extends RestDocsSupport {
 
     }
 
-    private static CreatePostRequest createPostRequest() {
-        CreatePostRequest request = CreatePostRequest.builder()
+    private static PostRequest createPostRequest() {
+        PostRequest request = PostRequest.builder()
                 .title("테스트")
                 .content("테스트")
                 .build();
@@ -89,8 +89,8 @@ class PostControllerTest extends RestDocsSupport {
         return request;
     }
 
-    private static CreatePostRequest createPostNullRequest() {
-        CreatePostRequest request = CreatePostRequest.builder()
+    private static PostRequest createPostNullRequest() {
+        PostRequest request = PostRequest.builder()
                 .title(null)
                 .content(null)
                 .build();
@@ -104,7 +104,7 @@ class PostControllerTest extends RestDocsSupport {
     void createPost_fail_not_valid() throws Exception{
 
         //given
-        CreatePostRequest request = createPostNullRequest();
+        PostRequest request = createPostNullRequest();
 
 
         //when

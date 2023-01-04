@@ -1,7 +1,7 @@
 package com.server.cogito.post.service;
 
 import com.server.cogito.common.security.AuthUser;
-import com.server.cogito.post.dto.request.CreatePostRequest;
+import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.entity.Post;
@@ -43,7 +43,7 @@ class PostServiceTest {
     void createPost_success() throws Exception{
 
         //given
-        CreatePostRequest request = createPostRequest();
+        PostRequest request = createPostRequest();
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
         Post post = Post.of(request.getTitle(),request.getContent(),user);
@@ -59,8 +59,8 @@ class PostServiceTest {
         );
     }
 
-    private static CreatePostRequest createPostRequest() {
-        CreatePostRequest request = CreatePostRequest.builder()
+    private static PostRequest createPostRequest() {
+        PostRequest request = PostRequest.builder()
                 .title("테스트")
                 .content("테스트")
                 .build();
