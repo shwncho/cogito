@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment,Long> {
+public interface CommentRepository extends JpaRepository<Comment,Long>, CommentRepositoryCustom {
 
     Optional<Comment> findByIdAndStatus(Long commentId, BaseEntity.Status status);
 }

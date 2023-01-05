@@ -23,7 +23,7 @@ public class Comment extends BaseEntity {
 
     private String content;
 
-    private boolean selected;
+    private int selected;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

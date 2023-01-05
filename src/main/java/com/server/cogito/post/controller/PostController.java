@@ -3,6 +3,7 @@ package com.server.cogito.post.controller;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
+import com.server.cogito.post.dto.response.PostResponse;
 import com.server.cogito.post.service.PostService;
 import com.server.cogito.common.security.AuthUser;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,10 @@ public class PostController {
     @GetMapping("")
     public PostPageResponse getPosts(@PageableDefault(page = 1) Pageable pageable){
         return postService.getPosts(pageable);
+    }
+
+    @GetMapping("{postId}")
+    public PostResponse getPost(@PathVariable Long postId){
+        return postService.getPost(postId);
     }
 }
