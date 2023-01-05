@@ -30,3 +30,13 @@ include::{snippets}/post-controller-test/get-posts_success_latest/request-parame
 === 응답
 include::{snippets}/post-controller-test/get-posts_success_latest/http-response.adoc[]
 include::{snippets}/post-controller-test/get-posts_success_latest/response-fields.adoc[]
+
+= 게시물 단건 조회
+
+=== 요청
+include::{snippets}/post-controller-test/get-post_success/http-request.adoc[]
+include::{snippets}/post-controller-test/get-post_success/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/post-controller-test/get-post_success/http-response.adoc[]
+include::{snippets}/post-controller-test/get-post_success/response-fields.adoc[]

@@ -3,7 +3,6 @@ package com.server.cogito.comment.service;
 import com.server.cogito.comment.dto.request.CommentRequest;
 import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.comment.repository.CommentRepository;
-import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.comment.CommentNotFoundException;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserErrorCode;
@@ -16,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
-import static com.server.cogito.common.entity.BaseEntity.Status.*;
+import static com.server.cogito.common.entity.BaseEntity.Status.ACTIVE;
 
 @Service
 @RequiredArgsConstructor

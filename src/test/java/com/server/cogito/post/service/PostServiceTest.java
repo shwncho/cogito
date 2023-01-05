@@ -1,9 +1,13 @@
 package com.server.cogito.post.service;
 
+import com.server.cogito.comment.dto.response.CommentResponse;
+import com.server.cogito.comment.repository.CommentRepository;
+import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
+import com.server.cogito.post.dto.response.PostResponse;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
 import com.server.cogito.user.entity.User;
@@ -17,7 +21,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,6 +40,9 @@ class PostServiceTest {
 
     @Mock
     PostRepository postRepository;
+
+    @Mock
+    CommentRepository commentRepository;
 
     @InjectMocks
     PostService postService;
@@ -97,5 +106,19 @@ class PostServiceTest {
                 ()->assertThat(2).isEqualTo(response.getPosts().size())
         );
 
+    }
+
+    @Test
+    @DisplayName("게시물 단건 조회 성공")
+    public void getPost_success() throws Exception {
+        //given
+        User user = mockUser();
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findPostByIdAndStatus(1L, BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.of(post));
+        //when
+        PostResponse response = postService.getPost(1L);
+        //then
+        verify(commentRepository).findCommentsByPostId(any());
     }
 }

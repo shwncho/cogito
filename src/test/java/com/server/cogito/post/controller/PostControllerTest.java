@@ -1,9 +1,11 @@
 package com.server.cogito.post.controller;
 
+import com.server.cogito.comment.dto.response.CommentResponse;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostInfo;
 import com.server.cogito.post.dto.response.PostPageResponse;
+import com.server.cogito.post.dto.response.PostResponse;
 import com.server.cogito.post.service.PostService;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
@@ -18,20 +20,19 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -125,7 +126,7 @@ class PostControllerTest extends RestDocsSupport {
     void getPosts_success_latest() throws Exception {
 
         //given
-        PostPageResponse response = PostPageResponse.from(createPostInfo());
+        PostPageResponse response = PostPageResponse.from(getPostInfo());
         given(postService.getPosts(any())).willReturn(response);
 
         //when
@@ -159,9 +160,9 @@ class PostControllerTest extends RestDocsSupport {
                         responseFields(
                                 fieldWithPath("posts[].title").type(JsonFieldType.STRING).description("게시물 제목"),
                                 fieldWithPath("posts[].content").type(JsonFieldType.STRING).description("게시물 본문"),
-                                fieldWithPath("posts[].tags[]").type(JsonFieldType.ARRAY).description("게시물 태그들"),
+                                fieldWithPath("posts[].tags[]").type(JsonFieldType.ARRAY).description("게시물 태그"),
                                 fieldWithPath("posts[].nickname").type(JsonFieldType.STRING).description("게시물 작성자 닉네임"),
-                                fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일 (yyyy-MM-dd HH:mm:ss)"),
+                                fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
                                 fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수")
                         )
                 ));
@@ -169,7 +170,7 @@ class PostControllerTest extends RestDocsSupport {
     }
 
 
-    private static List<PostInfo> createPostInfo(){
+    private static List<PostInfo> getPostInfo(){
         return List.of(PostInfo.builder()
                 .title("테스트 제목1")
                 .content("테스트 본문1")
@@ -188,4 +189,131 @@ class PostControllerTest extends RestDocsSupport {
                         .build());
     }
 
+    @Test
+    @DisplayName("게시물 단건 조회 성공")
+    public void getPost_success() throws Exception {
+        //given
+        PostResponse response = getPostResponse();
+        given(postService.getPost(anyLong())).willReturn(response);
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/api/posts/{postId}",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title",is("테스트 제목")))
+                .andExpect(jsonPath("$.content",is("테스트 본문")))
+                .andExpect(jsonPath("$.tags[0]",is("태그1")))
+                .andExpect(jsonPath("$.files[0]",is("파일1")))
+                .andExpect(jsonPath("$.nickname",is("테스트")))
+                .andExpect(jsonPath("$.profileImgUrl",is("testUrl")))
+                .andExpect(jsonPath("$.score",is(1)))
+                .andExpect(jsonPath("$.createdAt",is(LocalDateTime.of(2022, 1, 5,0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))))
+                .andExpect(jsonPath("$.commentResponses[0].commentId",is(1)))
+                .andExpect(jsonPath("$.commentResponses[0].content",is("테스트 댓글")))
+                .andExpect(jsonPath("$.commentResponses[0].selected",is(0)))
+                .andExpect(jsonPath("$.commentResponses[0].likeCnt",is(0)))
+                .andExpect(jsonPath("$.commentResponses[0].userId",is(2)))
+                .andExpect(jsonPath("$.commentResponses[0].nickname",is("테스트2")))
+                .andExpect(jsonPath("$.commentResponses[0].score",is(4)))
+                .andExpect(jsonPath("$.commentResponses[0].profileImgUrl",is("testUrl2")))
+                .andExpect(jsonPath("$.commentResponses[0].createdAt",is(LocalDateTime.of(2022, 1, 5,0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].commentId",is(2)))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].content",is("테스트 대댓글")))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].selected",is(0)))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].likeCnt",is(0)))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].userId",is(3)))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].nickname",is("테스트3")))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].score",is(4)))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].profileImgUrl",is("testUrl3")))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].createdAt",is(LocalDateTime.of(2022, 1, 5,0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].children",is(empty())))
+
+
+
+
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 id")
+                        ),
+                        responseFields(
+                                fieldWithPath("title").type(JsonFieldType.STRING).description("게시물 제목"),
+                                fieldWithPath("content").type(JsonFieldType.STRING).description("게시물 본문"),
+                                fieldWithPath("tags[]").type(JsonFieldType.ARRAY).description("게시물 태그"),
+                                fieldWithPath("files[]").type(JsonFieldType.ARRAY).description("게시물 파일 URL"),
+                                fieldWithPath("nickname").type(JsonFieldType.STRING).description("게시물 작성자 닉네임"),
+                                fieldWithPath("profileImgUrl").type(JsonFieldType.STRING).description("게시물 작성자 프로필 이미지 URL"),
+                                fieldWithPath("score").type(JsonFieldType.NUMBER).description("게시물 작성자 score"),
+                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시물 작성 시간"),
+                                fieldWithPath("commentResponses[].commentId").type(JsonFieldType.NUMBER).description("댓글 id"),
+                                fieldWithPath("commentResponses[].content").type(JsonFieldType.STRING).description("댓글 내용"),
+                                fieldWithPath("commentResponses[].selected").type(JsonFieldType.NUMBER).description("댓글 채택 여부 0 or 1"),
+                                fieldWithPath("commentResponses[].likeCnt").type(JsonFieldType.NUMBER).description("댓글 좋아요 개수"),
+                                fieldWithPath("commentResponses[].userId").type(JsonFieldType.NUMBER).description("댓글 작성자 유저 id"),
+                                fieldWithPath("commentResponses[].nickname").type(JsonFieldType.STRING).description("댓글 작성자 닉네임"),
+                                fieldWithPath("commentResponses[].score").type(JsonFieldType.NUMBER).description("댓글 작성자 score"),
+                                fieldWithPath("commentResponses[].profileImgUrl").type(JsonFieldType.STRING).description("댓글 작성자 프로필 이미지 URL"),
+                                fieldWithPath("commentResponses[].createdAt").type(JsonFieldType.STRING).description("댓글 작성 시간"),
+                                fieldWithPath("commentResponses[].children[]").type(JsonFieldType.ARRAY).description("대댓글이 없을경우 빈 리스트"),
+                                fieldWithPath("commentResponses[].children[].commentId").type(JsonFieldType.NUMBER).description("대댓글 id"),
+                                fieldWithPath("commentResponses[].children[].content").type(JsonFieldType.STRING).description("대댓글 내용"),
+                                fieldWithPath("commentResponses[].children[].selected").type(JsonFieldType.NUMBER).description("대댓글은 채택 없음"),
+                                fieldWithPath("commentResponses[].children[].likeCnt").type(JsonFieldType.NUMBER).description("대댓글은 좋아요 없음"),
+                                fieldWithPath("commentResponses[].children[].userId").type(JsonFieldType.NUMBER).description("대댓글 작성자 유저 id"),
+                                fieldWithPath("commentResponses[].children[].nickname").type(JsonFieldType.STRING).description("대댓글 작성자 닉네임"),
+                                fieldWithPath("commentResponses[].children[].score").type(JsonFieldType.NUMBER).description("대댓글 작성자 score"),
+                                fieldWithPath("commentResponses[].children[].profileImgUrl").type(JsonFieldType.STRING).description("대댓글 작성자 프로필 이미지 URL"),
+                                fieldWithPath("commentResponses[].children[].createdAt").type(JsonFieldType.STRING).description("대댓글 작성 시간"),
+                                fieldWithPath("commentResponses[].children[].children[]").type(JsonFieldType.ARRAY).description("대댓글의 children[]은 무조건 빈 리스트")
+                        )
+                ));
+    }
+
+
+
+    private PostResponse getPostResponse(){
+        return PostResponse.builder()
+                .title("테스트 제목")
+                .content("테스트 본문")
+                .tags(List.of("태그1"))
+                .files(List.of("파일1"))
+                .nickname("테스트")
+                .profileImgUrl("testUrl")
+                .score(1)
+                .createdAt(LocalDateTime.of(2022, 1, 5,0,0,0))
+                .commentResponses(List.of(getCommentResponse()))
+                .build();
+
+    }
+
+    private CommentResponse getCommentResponse(){
+        return CommentResponse.builder()
+                .commentId(1L)
+                .content("테스트 댓글")
+                .selected(0)
+                .likeCnt(0)
+                .userId(2L)
+                .nickname("테스트2")
+                .score(4)
+                .profileImgUrl("testUrl2")
+                .createdAt(LocalDateTime.of(2022, 1, 5,0,0,0))
+                .children(List.of(CommentResponse.builder()
+                        .commentId(2L)
+                        .content("테스트 대댓글")
+                        .selected(0)
+                        .likeCnt(0)
+                        .userId(3L)
+                        .nickname("테스트3")
+                        .score(4)
+                        .profileImgUrl("testUrl3")
+                        .createdAt(LocalDateTime.of(2022, 1, 5,0,0,0))
+                        .build()))
+                .build();
+    }
+
+    //게시물 단건 조회 실패 (존재하지 않는 게시물)
 }

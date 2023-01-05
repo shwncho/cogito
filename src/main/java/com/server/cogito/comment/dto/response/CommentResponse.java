@@ -23,8 +23,9 @@ public class CommentResponse {
     private String nickname;
     private int score;
     private String profileImgUrl;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
+    @Builder.Default
     private List<CommentResponse> children = new ArrayList<>();
 
     @Builder

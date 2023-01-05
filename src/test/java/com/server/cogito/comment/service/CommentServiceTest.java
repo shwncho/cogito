@@ -3,6 +3,7 @@ package com.server.cogito.comment.service;
 import com.server.cogito.comment.dto.request.CommentRequest;
 import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.comment.repository.CommentRepository;
+import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
