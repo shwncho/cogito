@@ -1,0 +1,28 @@
+= 댓글 API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+= 댓글 생성
+
+=== 요청
+include::{snippets}/comment-controller-test/create-post_success/http-request.adoc[]
+include::{snippets}/comment-controller-test/create-post_success/request-headers.adoc[]
+include::{snippets}/comment-controller-test/create-post_success/request-fields.adoc[]
+
+=== 응답
+include::{snippets}/comment-controller-test/create-post_success/http-response.adoc[]
+
+= 댓글 삭제
+
+=== 요청
+include::{snippets}/comment-controller-test/delete-comment_success/http-request.adoc[]
+include::{snippets}/comment-controller-test/delete-comment_success/request-headers.adoc[]
+include::{snippets}/comment-controller-test/delete-comment_success/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/comment-controller-test/delete-comment_success/http-response.adoc[]
+

@@ -78,4 +78,26 @@ class CommentServiceTest {
                 .build();
     }
 
+    @Test
+    @DisplayName("댓글 삭제 성공")
+    public void deleteComment_success() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        Comment comment = getComment();
+        given(commentRepository.findByIdAndStatus(comment.getId(), BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.of(comment));
+        //when
+        commentService.deleteComment(authUser,comment.getId());
+        //then
+        assertThat(comment.getStatus()).isEqualTo(BaseEntity.Status.INACTIVE);
+    }
+
+    private Comment getComment(){
+        return Comment.builder()
+                .user(mockUser())
+                .content("테스트")
+                .post(createPost(mockUser()))
+                .build();
+    }
 }

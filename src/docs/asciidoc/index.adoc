@@ -16,3 +16,6 @@ include::overview.adoc[]
 
 === Post
 * link:post.html[Post API, window=_blank]
+
+=== Comment
+* link:comment.html[Comment API, window=_blank]

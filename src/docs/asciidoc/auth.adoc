@@ -30,6 +30,9 @@ include::{snippets}/auth-controller-test/login_success_github/response-fields.ad
 include::{snippets}/auth-controller-test/logout_success/http-request.adoc[]
 include::{snippets}/auth-controller-test/logout_success/request-headers.adoc[]
 
+=== 응답
+include::{snippets}/auth-controller-test/logout_success/http-response.adoc[]
+
 
 == 토큰 재발급
 
