@@ -52,4 +52,8 @@ public class Comment extends BaseEntity {
         this.user = user;
 
     }
+
+    public void deleteComment(){
+        this.setStatus(Status.INACTIVE);
+    }
 }

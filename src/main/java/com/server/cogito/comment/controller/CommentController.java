@@ -18,4 +18,9 @@ public class CommentController {
     public void createComment(@AuthenticationPrincipal AuthUser authUser, @RequestBody CommentRequest commentRequest){
         commentService.createComment(authUser,commentRequest);
     }
+
+    @PatchMapping("{commentId}")
+    public void deleteComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId){
+        commentService.deleteComment(authUser,commentId);
+    }
 }
