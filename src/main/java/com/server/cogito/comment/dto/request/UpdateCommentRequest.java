@@ -9,12 +9,8 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CommentRequest {
+public class UpdateCommentRequest {
 
-    private Long postId;
-
-    private Long parentId;
-
-    @NotBlank(message = "댓글 내용을 입력해주세요.")
+    @NotBlank(message = "수정할 댓글 내용을 입력해주세요.")
     private String content;
 }

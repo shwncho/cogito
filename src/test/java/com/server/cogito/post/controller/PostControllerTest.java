@@ -314,6 +314,4 @@ class PostControllerTest extends RestDocsSupport {
                         .build()))
                 .build();
     }
-
-    //게시물 단건 조회 실패 (존재하지 않는 게시물)
 }

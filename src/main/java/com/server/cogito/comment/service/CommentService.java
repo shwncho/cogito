@@ -1,6 +1,7 @@
 package com.server.cogito.comment.service;
 
 import com.server.cogito.comment.dto.request.CommentRequest;
+import com.server.cogito.comment.dto.request.UpdateCommentRequest;
 import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.comment.repository.CommentRepository;
 import com.server.cogito.common.exception.comment.CommentNotFoundException;
@@ -36,6 +37,18 @@ public class CommentService {
                         .user(authUser.getUser())
                         .build()
         );
+    }
+
+    @Transactional
+    public void updateComment(AuthUser authUser, Long commentId, UpdateCommentRequest updateCommentRequest){
+        Comment comment = commentRepository.findByIdAndStatus(commentId,ACTIVE)
+                .orElseThrow(CommentNotFoundException::new);
+
+        if(!Objects.equals(authUser.getUserId(), comment.getUser().getId())){
+            throw new UserInvalidException(UserErrorCode.USER_INVALID);
+        }
+
+        comment.changeComment(updateCommentRequest.getContent());
     }
 
     @Transactional

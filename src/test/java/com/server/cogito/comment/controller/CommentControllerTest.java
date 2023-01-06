@@ -1,6 +1,7 @@
 package com.server.cogito.comment.controller;
 
 import com.server.cogito.comment.dto.request.CommentRequest;
+import com.server.cogito.comment.dto.request.UpdateCommentRequest;
 import com.server.cogito.comment.service.CommentService;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
@@ -66,12 +67,41 @@ class CommentControllerTest extends RestDocsSupport {
 
     }
     @Test
+    @DisplayName("댓글 수정 성공")
+    public void updateComment_success() throws Exception {
+        //given
+        UpdateCommentRequest request = UpdateCommentRequest.builder()
+                        .content("수정")
+                        .build();
+        willDoNothing().given(commentService).updateComment(any(),any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}", 1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("commentId").description("댓글 id")
+                        ),
+                        requestFields(
+                                fieldWithPath("content").type(JsonFieldType.STRING).description("수정할 댓글 내용")
+                        )
+                ));
+    }
+
+    @Test
     @DisplayName("댓글 삭제 성공")
     public void deleteComment_success() throws Exception {
         //given
         willDoNothing().given(commentService).deleteComment(any(),any());
         //when
-        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}",1L)
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/status",1L)
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
                 .contentType(MediaType.APPLICATION_JSON));
         //then

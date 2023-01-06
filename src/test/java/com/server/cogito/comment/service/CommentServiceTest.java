@@ -1,6 +1,7 @@
 package com.server.cogito.comment.service;
 
 import com.server.cogito.comment.dto.request.CommentRequest;
+import com.server.cogito.comment.dto.request.UpdateCommentRequest;
 import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.comment.repository.CommentRepository;
 import com.server.cogito.common.entity.BaseEntity;
@@ -76,6 +77,25 @@ class CommentServiceTest {
                 .content("테스트")
                 .user(user)
                 .build();
+    }
+
+    @Test
+    @DisplayName("댓글 수정 성공")
+    public void updateComment_success() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        Comment comment = getComment();
+        String originalContent = comment.getContent();
+        UpdateCommentRequest request = UpdateCommentRequest.builder()
+                        .content("수정 댓글")
+                        .build();
+        given(commentRepository.findByIdAndStatus(comment.getId(), BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.of(comment));
+        //when
+        commentService.updateComment(authUser, comment.getId(), request);
+        //then
+        assertThat(originalContent).isNotEqualTo(request.getContent());
     }
 
     @Test

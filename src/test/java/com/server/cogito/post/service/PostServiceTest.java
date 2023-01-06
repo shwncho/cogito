@@ -3,6 +3,7 @@ package com.server.cogito.post.service;
 import com.server.cogito.comment.dto.response.CommentResponse;
 import com.server.cogito.comment.repository.CommentRepository;
 import com.server.cogito.common.entity.BaseEntity;
+import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
@@ -25,12 +26,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -120,5 +121,17 @@ class PostServiceTest {
         PostResponse response = postService.getPost(1L);
         //then
         verify(commentRepository).findCommentsByPostId(any());
+    }
+
+    @Test
+    @DisplayName("게시물 단건 조회 실패 / 존재하지 않는 게시물")
+    public void getPost_fail_not_found() throws Exception {
+        //given
+        given(postRepository.findPostByIdAndStatus(1L, BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.empty());
+
+        //expected
+        assertThatThrownBy(()->postService.getPost(1L))
+                .isExactlyInstanceOf(PostNotFoundException.class);
     }
 }

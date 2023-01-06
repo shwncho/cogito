@@ -53,6 +53,10 @@ public class Comment extends BaseEntity {
 
     }
 
+    public void changeComment(String content){
+        this.content = content;
+    }
+
     public void deleteComment(){
         this.setStatus(Status.INACTIVE);
     }
