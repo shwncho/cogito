@@ -1,5 +1,7 @@
 package com.server.cogito.user.controller;
 
+import com.server.cogito.common.exception.user.UserErrorCode;
+import com.server.cogito.common.exception.user.UserNicknameExistException;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
 import com.server.cogito.user.dto.request.UserRequest;
@@ -17,12 +19,12 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
+
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -83,6 +85,7 @@ class UserControllerTest extends RestDocsSupport {
     }
 
     @Test
+    @DisplayName("유저 프로필 수정 성공")
     public void updateMe_success() throws Exception {
         //given
         UserRequest request = UserRequest.builder()
@@ -111,5 +114,27 @@ class UserControllerTest extends RestDocsSupport {
                                 fieldWithPath("introduce").type(JsonFieldType.STRING).description("변경할 유저 소개")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("유저 프로필 수정 실패 / 이미 존재하는 닉네임")
+    public void updateMe_fail_exist_user_nickname() throws Exception {
+        //given
+        UserRequest request = UserRequest.builder()
+                .nickname("수정")
+                .profileImgUrl("수정")
+                .introduce("수정")
+                .build();
+        willThrow(new UserNicknameExistException(UserErrorCode.USER_NICKNAME_EXIST)).given(userService).updateMe(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/users/me")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_NICKNAME_EXIST.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_NICKNAME_EXIST.getMessage())));
     }
 }

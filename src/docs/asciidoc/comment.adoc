@@ -16,6 +16,30 @@ include::{snippets}/comment-controller-test/create-post_success/request-fields.a
 === 응답
 include::{snippets}/comment-controller-test/create-post_success/http-response.adoc[]
 
+=== P001
+include::{snippets}/comment-controller-test/create-comment_fail_not_found_post/http-request.adoc[]
+include::{snippets}/comment-controller-test/create-comment_fail_not_found_post/http-response.adoc[]
+
+=== C001
+include::{snippets}/comment-controller-test/create-comment_fail_not_found_parent-comment/http-request.adoc[]
+include::{snippets}/comment-controller-test/create-comment_fail_not_found_parent-comment/http-response.adoc[]
+
+= 댓글 수정
+
+=== 요청
+include::{snippets}/comment-controller-test/update-comment_success/http-request.adoc[]
+include::{snippets}/comment-controller-test/update-comment_success/request-headers.adoc[]
+include::{snippets}/comment-controller-test/update-comment_success/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/comment-controller-test/update-comment_success/http-response.adoc[]
+
+
+=== C001
+include::{snippets}/comment-controller-test/update-comment_fail_not_found/http-request.adoc[]
+include::{snippets}/comment-controller-test/update-comment_fail_not_found/http-response.adoc[]
+
+
 = 댓글 삭제
 
 === 요청
@@ -25,4 +49,12 @@ include::{snippets}/comment-controller-test/delete-comment_success/path-paramete
 
 === 응답
 include::{snippets}/comment-controller-test/delete-comment_success/http-response.adoc[]
+
+=== C001
+include::{snippets}/comment-controller-test/delete-comment_fail_not_found/http-request.adoc[]
+include::{snippets}/comment-controller-test/delete-comment_fail_not_found/http-response.adoc[]
+
+=== U003
+include::{snippets}/comment-controller-test/delete-comment_fail_invalid_user/http-request.adoc[]
+include::{snippets}/comment-controller-test/delete-comment_fail_invalid_user/http-response.adoc[]
 

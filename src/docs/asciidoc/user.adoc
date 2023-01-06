@@ -25,3 +25,7 @@ include::{snippets}/user-controller-test/update-me_success/request-fields.adoc[]
 
 === 응답
 include::{snippets}/user-controller-test/update-me_success/http-response.adoc[]
+
+=== U002
+include::{snippets}/user-controller-test/update-me_fail_exist_user_nickname/http-request.adoc[]
+include::{snippets}/user-controller-test/update-me_fail_exist_user_nickname/http-response.adoc[]

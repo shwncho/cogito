@@ -1,6 +1,8 @@
 package com.server.cogito.post.controller;
 
 import com.server.cogito.comment.dto.response.CommentResponse;
+import com.server.cogito.common.exception.post.PostErrorCode;
+import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostInfo;
@@ -27,6 +29,7 @@ import static com.server.cogito.support.restdocs.RestDocsConfig.field;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -122,7 +125,7 @@ class PostControllerTest extends RestDocsSupport {
     }
 
     @Test
-    @DisplayName("게시물 조회 성공 / 최신순")
+    @DisplayName("게시물 리스트 조회 성공 / 최신순")
     void getPosts_success_latest() throws Exception {
 
         //given
@@ -313,5 +316,21 @@ class PostControllerTest extends RestDocsSupport {
                         .createdAt(LocalDateTime.of(2022, 1, 5,0,0,0))
                         .build()))
                 .build();
+    }
+
+    @Test
+    @DisplayName("게시물 단건 조회 실패 / 존재하지 않는 게시물")
+    public void getPost_fail_not_found() throws Exception {
+        //given
+        willThrow(new PostNotFoundException()).given(postService).getPost(any());
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/api/posts/{postId}",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(PostErrorCode.POST_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(PostErrorCode.POST_NOT_FOUND.getMessage())));
     }
 }

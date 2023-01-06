@@ -82,6 +82,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("유저 프로필 수정 실패")
     public void updateMe_fail_existNickname() throws Exception {
         //given
         User user = mockKakaoUser();

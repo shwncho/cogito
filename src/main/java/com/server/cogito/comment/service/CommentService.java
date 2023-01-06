@@ -44,9 +44,7 @@ public class CommentService {
         Comment comment = commentRepository.findByIdAndStatus(commentId,ACTIVE)
                 .orElseThrow(CommentNotFoundException::new);
 
-        if(!Objects.equals(authUser.getUserId(), comment.getUser().getId())){
-            throw new UserInvalidException(UserErrorCode.USER_INVALID);
-        }
+        validateUserId(authUser, comment);
 
         comment.changeComment(updateCommentRequest.getContent());
     }
@@ -56,14 +54,18 @@ public class CommentService {
         Comment comment = commentRepository.findByIdAndStatus(commentId,ACTIVE)
                 .orElseThrow(CommentNotFoundException::new);
 
-        if(!Objects.equals(authUser.getUserId(), comment.getUser().getId())){
-            throw new UserInvalidException(UserErrorCode.USER_INVALID);
-        }
+        validateUserId(authUser, comment);
 
         if(comment.getParent()==null){
             comment.getChild().forEach(Comment::deleteComment);
             comment.deleteComment();
         }
         else comment.deleteComment();
+    }
+
+    private static void validateUserId(AuthUser authUser, Comment comment) {
+        if(!Objects.equals(authUser.getUserId(), comment.getUser().getId())){
+            throw new UserInvalidException(UserErrorCode.USER_INVALID);
+        }
     }
 }

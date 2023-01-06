@@ -3,6 +3,12 @@ package com.server.cogito.comment.controller;
 import com.server.cogito.comment.dto.request.CommentRequest;
 import com.server.cogito.comment.dto.request.UpdateCommentRequest;
 import com.server.cogito.comment.service.CommentService;
+import com.server.cogito.common.exception.comment.CommentErrorCode;
+import com.server.cogito.common.exception.comment.CommentNotFoundException;
+import com.server.cogito.common.exception.post.PostErrorCode;
+import com.server.cogito.common.exception.post.PostNotFoundException;
+import com.server.cogito.common.exception.user.UserErrorCode;
+import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +22,10 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
@@ -26,6 +34,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CommentController.class)
@@ -66,6 +75,48 @@ class CommentControllerTest extends RestDocsSupport {
 
 
     }
+
+    @Test
+    @DisplayName("댓글 생성 실패 / 존재하지 않는 게시물")
+    public void createComment_fail_not_found_post() throws Exception {
+        //given
+        CommentRequest request = CommentRequest.builder()
+                .postId(1L)
+                .content("테스트")
+                .build();
+        willThrow(new PostNotFoundException()).given(commentService).createComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/comments")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(PostErrorCode.POST_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(PostErrorCode.POST_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 생성 실패 / 존재하지 않는 부모 댓글일 경우")
+    public void createComment_fail_not_found_parentComment() throws Exception {
+        //given
+        CommentRequest request = CommentRequest.builder()
+                .postId(1L)
+                .content("테스트")
+                .build();
+        willThrow(new CommentNotFoundException()).given(commentService).createComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/comments")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_NOT_FOUND.getMessage())));
+    }
     @Test
     @DisplayName("댓글 수정 성공")
     public void updateComment_success() throws Exception {
@@ -96,6 +147,27 @@ class CommentControllerTest extends RestDocsSupport {
     }
 
     @Test
+    @DisplayName("댓글 수정 실패 / 존재하지 않는 댓글")
+    public void updateComment_fail_not_found() throws Exception {
+        //given
+        UpdateCommentRequest request = UpdateCommentRequest.builder()
+                .content("수정")
+                .build();
+        willThrow(new CommentNotFoundException()).given(commentService).updateComment(any(),any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}", 1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_NOT_FOUND.getMessage())));
+    }
+
+
+    @Test
     @DisplayName("댓글 삭제 성공")
     public void deleteComment_success() throws Exception {
         //given
@@ -115,5 +187,37 @@ class CommentControllerTest extends RestDocsSupport {
                                 parameterWithName("commentId").description("댓글 id")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패 / 존재하지 않는 댓글")
+    public void deleteComment_fail_not_found() throws Exception {
+        //given
+        willThrow(new CommentNotFoundException()).given(commentService).deleteComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/status",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패 / 유효하지 않은 유저")
+    public void deleteComment_fail_invalid_user() throws Exception {
+        //given
+        willThrow(new UserInvalidException(UserErrorCode.USER_INVALID)).given(commentService).deleteComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/status",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
     }
 }

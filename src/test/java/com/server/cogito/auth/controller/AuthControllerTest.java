@@ -2,6 +2,13 @@ package com.server.cogito.auth.controller;
 
 import com.server.cogito.auth.dto.TokenResponse;
 import com.server.cogito.auth.service.AuthService;
+import com.server.cogito.common.exception.ApplicationException;
+import com.server.cogito.common.exception.auth.AuthErrorCode;
+import com.server.cogito.common.exception.auth.RefreshTokenInvalidException;
+import com.server.cogito.common.exception.auth.RefreshTokenNotEqualException;
+import com.server.cogito.common.exception.auth.RefreshTokenNotFoundException;
+import com.server.cogito.common.exception.infrastructure.InfraErrorCode;
+import com.server.cogito.common.exception.infrastructure.UnsupportedOauthProviderException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
@@ -17,6 +24,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.any;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -105,7 +113,56 @@ class AuthControllerTest extends RestDocsSupport{
                 ));
     }
 
-    //로그인 실패 case ( other provider)
+    @Test
+    @DisplayName("로그인 실패 / 제공하지 않는 oauth provider")
+    public void login_fail_unSupported_oauth_provider() throws Exception {
+        //given
+        String code = "code";
+        String provider = "naver";
+        willThrow(new UnsupportedOauthProviderException()).given(authService).login(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/auth/{provider}/login/token?code="+code,provider));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(InfraErrorCode.INVALID_OAUTH.getCode())))
+                .andExpect(jsonPath("$.message",is(InfraErrorCode.INVALID_OAUTH.getMessage())));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 / 카카오")
+    public void login_fail_kakao() throws Exception {
+        //given
+        String code = "code";
+        String provider = "kakao";
+        willThrow(new ApplicationException(AuthErrorCode.KAKAO_LOGIN)).given(authService).login(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/auth/{provider}/login/token?code="+code,provider));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(AuthErrorCode.KAKAO_LOGIN.getCode())))
+                .andExpect(jsonPath("$.message",is(AuthErrorCode.KAKAO_LOGIN.getMessage())));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 / 깃허브")
+    public void login_fail_github() throws Exception {
+        //given
+        String code = "code";
+        String provider = "github";
+        willThrow(new ApplicationException(AuthErrorCode.GITHUB_LOGIN)).given(authService).login(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/auth/{provider}/login/token?code="+code,provider));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(AuthErrorCode.GITHUB_LOGIN.getCode())))
+                .andExpect(jsonPath("$.message",is(AuthErrorCode.GITHUB_LOGIN.getMessage())));
+    }
 
 
 
@@ -154,4 +211,53 @@ class AuthControllerTest extends RestDocsSupport{
                         )
                 ));
     }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 / 유효하지 않은 refreshToken")
+    public void reissue_fail_invalid_refreshToken() throws Exception {
+        //given
+        String refreshToken = "Bearer testRefreshToken";
+        willThrow(new RefreshTokenInvalidException()).given(authService).reissue(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/auth/reissue")
+                .header(HttpHeaders.AUTHORIZATION, refreshToken));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(AuthErrorCode.INVALID_REFRESH_TOKEN.getCode())))
+                .andExpect(jsonPath("$.message",is(AuthErrorCode.INVALID_REFRESH_TOKEN.getMessage())));
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 / 존재하지 않는 refreshToken")
+    public void reissue_fail_not_found_refreshToken() throws Exception {
+        //given
+        String refreshToken = "Bearer testRefreshToken";
+        willThrow(new RefreshTokenNotFoundException()).given(authService).reissue(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/auth/reissue")
+                .header(HttpHeaders.AUTHORIZATION, refreshToken));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN.getCode())))
+                .andExpect(jsonPath("$.message",is(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN.getMessage())));
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 / 동일하지 않는 refreshToken")
+    public void reissue_fail_not_equal_refreshToken() throws Exception {
+        //given
+        String refreshToken = "Bearer testRefreshToken";
+        willThrow(new RefreshTokenNotEqualException()).given(authService).reissue(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/auth/reissue")
+                .header(HttpHeaders.AUTHORIZATION, refreshToken));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(AuthErrorCode.NOT_EQUAL_REFRESH_TOKEN.getCode())))
+                .andExpect(jsonPath("$.message",is(AuthErrorCode.NOT_EQUAL_REFRESH_TOKEN.getMessage())));
+    }
+
 }
