@@ -169,4 +169,16 @@ class PostServiceTest {
                 .tags(List.of("수정 태그1"))
                 .build();
     }
+
+    @Test
+    @DisplayName("게시물 수정 실패 / 존재하지 않는 게시물")
+    public void updatePost_fail_not_found() throws Exception {
+        //given
+        UpdatePostRequest request = createUpdatePostRequest();
+        given(postRepository.findPostByIdAndStatus(1L, BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.empty());
+        //expected
+        assertThatThrownBy(()->postService.updatePost(1L,request))
+                .isExactlyInstanceOf(PostNotFoundException.class);
+    }
 }

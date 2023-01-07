@@ -370,4 +370,22 @@ class PostControllerTest extends RestDocsSupport {
                 .tags(List.of("수정 태그1"))
                 .build();
     }
+
+    @Test
+    @DisplayName("게시물 수정 실패 / 존재하지 않는 게시물")
+    public void updatePost_fail_not_found() throws Exception {
+        //given
+        UpdatePostRequest request = createUpdatePostRequest();
+        willThrow(new PostNotFoundException()).given(postService).updatePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(PostErrorCode.POST_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(PostErrorCode.POST_NOT_FOUND.getMessage())));
+    }
 }
