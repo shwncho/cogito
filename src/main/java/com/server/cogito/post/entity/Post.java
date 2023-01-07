@@ -2,15 +2,20 @@ package com.server.cogito.post.entity;
 
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.file.entity.PostFile;
+import com.server.cogito.post.dto.request.UpdatePostRequest;
 import com.server.cogito.tag.entity.Tag;
 import com.server.cogito.user.entity.User;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -60,4 +65,23 @@ public class Post extends BaseEntity {
                 .user(user)
                 .build();
     }
+
+    public void change(UpdatePostRequest updatePostRequest){
+        changeTitle(updatePostRequest.getTitle());
+        changeContent(updatePostRequest.getContent());
+    }
+
+    private void changeTitle(String title){
+        if(StringUtils.hasText(title)){
+            this.title=title;
+        }
+    }
+
+    private void changeContent(String content){
+        if(content!=null){
+            this.content = content;
+        }
+    }
+
+
 }

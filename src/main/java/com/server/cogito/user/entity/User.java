@@ -6,7 +6,7 @@ import com.server.cogito.user.enums.Authority;
 import com.server.cogito.user.enums.Provider;
 import com.server.cogito.common.entity.BaseEntity;
 import lombok.*;
-import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class User extends BaseEntity {
     }
 
     private void changeNickname(String nickname){
-        if(!nickname.isBlank()){
+        if(StringUtils.hasText(nickname)){
             this.nickname=nickname;
         }
     }

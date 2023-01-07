@@ -1,6 +1,7 @@
 package com.server.cogito.post.controller;
 
 import com.server.cogito.post.dto.request.PostRequest;
+import com.server.cogito.post.dto.request.UpdatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.dto.response.PostResponse;
@@ -31,8 +32,13 @@ public class PostController {
         return postService.getPosts(pageable);
     }
 
-    @GetMapping("{postId}")
+    @GetMapping("/{postId}")
     public PostResponse getPost(@PathVariable Long postId){
         return postService.getPost(postId);
+    }
+
+    @PatchMapping("/{postId}")
+    public void updatePost(@PathVariable Long postId, @RequestBody @Valid UpdatePostRequest updatePostRequest){
+        postService.updatePost(postId,updatePostRequest);
     }
 }
