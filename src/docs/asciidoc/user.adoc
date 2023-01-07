@@ -6,7 +6,7 @@
 :toclevels: 2
 :sectlinks:
 
-= 마이프로필
+== 마이프로필
 
 === 요청
 include::{snippets}/user-controller-test/get-me_success/http-request.adoc[]
@@ -16,7 +16,7 @@ include::{snippets}/user-controller-test/get-me_success/request-headers.adoc[]
 include::{snippets}/user-controller-test/get-me_success/http-response.adoc[]
 include::{snippets}/user-controller-test/get-me_success/response-fields.adoc[]
 
-= 프로필 수정
+== 프로필 수정
 
 === 요청
 include::{snippets}/user-controller-test/update-me_success/http-request.adoc[]

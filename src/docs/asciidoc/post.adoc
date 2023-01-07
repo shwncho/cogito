@@ -6,7 +6,7 @@
 :toclevels: 2
 :sectlinks:
 
-= 게시물 생성
+== 게시물 생성
 
 === 요청
 include::{snippets}/post-controller-test/create-post_success/http-request.adoc[]
@@ -21,7 +21,7 @@ include::{snippets}/post-controller-test/create-post_success/response-fields.ado
 include::{snippets}/post-controller-test/create-post_fail_not_valid/http-request.adoc[]
 include::{snippets}/post-controller-test/create-post_fail_not_valid/http-response.adoc[]
 
-= 게시물 조회
+== 게시물 조회
 
 === 요청
 include::{snippets}/post-controller-test/get-posts_success_latest/http-request.adoc[]
@@ -31,7 +31,7 @@ include::{snippets}/post-controller-test/get-posts_success_latest/request-parame
 include::{snippets}/post-controller-test/get-posts_success_latest/http-response.adoc[]
 include::{snippets}/post-controller-test/get-posts_success_latest/response-fields.adoc[]
 
-= 게시물 단건 조회
+== 게시물 단건 조회
 
 === 요청
 include::{snippets}/post-controller-test/get-post_success/http-request.adoc[]
@@ -44,3 +44,14 @@ include::{snippets}/post-controller-test/get-post_success/response-fields.adoc[]
 === P001
 include::{snippets}/post-controller-test/get-post_fail_not_found/http-request.adoc[]
 include::{snippets}/post-controller-test/get-post_fail_not_found/http-response.adoc[]
+
+== 게시물 수정
+
+=== 요청
+include::{snippets}/post-controller-test/update-post_success/http-request.adoc[]
+include::{snippets}/post-controller-test/update-post_success/path-parameters.adoc[]
+include::{snippets}/post-controller-test/update-post_success/request-headers.adoc[]
+include::{snippets}/post-controller-test/update-post_success/request-fields.adoc[]
+
+=== 응답
+include::{snippets}/post-controller-test/update-post_success/http-response.adoc[]

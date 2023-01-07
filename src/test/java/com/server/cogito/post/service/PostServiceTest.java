@@ -1,16 +1,18 @@
 package com.server.cogito.post.service;
 
-import com.server.cogito.comment.dto.response.CommentResponse;
 import com.server.cogito.comment.repository.CommentRepository;
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.file.repository.PostFileRepository;
 import com.server.cogito.post.dto.request.PostRequest;
+import com.server.cogito.post.dto.request.UpdatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.dto.response.PostResponse;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
+import com.server.cogito.tag.repository.TagRepository;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
 import com.server.cogito.user.repository.UserRepository;
@@ -22,14 +24,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
 
@@ -44,6 +46,12 @@ class PostServiceTest {
 
     @Mock
     CommentRepository commentRepository;
+
+    @Mock
+    PostFileRepository postFileRepository;
+
+    @Mock
+    TagRepository tagRepository;
 
     @InjectMocks
     PostService postService;
@@ -70,13 +78,12 @@ class PostServiceTest {
     }
 
     private static PostRequest createPostRequest() {
-        PostRequest request = PostRequest.builder()
+        return PostRequest.builder()
                 .title("테스트")
                 .content("테스트")
+                .files(List.of("file1"))
+                .tags(List.of("tag1"))
                 .build();
-        request.setFiles(List.of("file1"));
-        request.setTags(List.of("tag1"));
-        return request;
     }
 
     private User mockUser(){
@@ -133,5 +140,33 @@ class PostServiceTest {
         //expected
         assertThatThrownBy(()->postService.getPost(1L))
                 .isExactlyInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("게시물 수정 성공")
+    public void updatePost_success() throws Exception {
+        //given
+        Post post = Post.of("테스트","테스트",mockUser());
+        String originalTitle = post.getTitle();
+        String originalContent = post.getContent();
+        UpdatePostRequest request = createUpdatePostRequest();
+        given(postRepository.findPostByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(post));
+        //when
+        postService.updatePost(1L,request);
+        //then
+        assertAll(
+                ()->assertThat(originalTitle).isNotEqualTo(request.getTitle()),
+                ()->assertThat(originalContent).isNotEqualTo(request.getContent())
+        );
+    }
+
+    private UpdatePostRequest createUpdatePostRequest(){
+        return UpdatePostRequest.builder()
+                .title("수정 제목")
+                .content("수정 본문")
+                .files(List.of("수정 파일1"))
+                .tags(List.of("수정 태그1"))
+                .build();
     }
 }

@@ -6,7 +6,7 @@
 :toclevels: 2
 :sectlinks:
 
-= 댓글 생성
+== 댓글 생성
 
 === 요청
 include::{snippets}/comment-controller-test/create-post_success/http-request.adoc[]
@@ -24,7 +24,7 @@ include::{snippets}/comment-controller-test/create-comment_fail_not_found_post/h
 include::{snippets}/comment-controller-test/create-comment_fail_not_found_parent-comment/http-request.adoc[]
 include::{snippets}/comment-controller-test/create-comment_fail_not_found_parent-comment/http-response.adoc[]
 
-= 댓글 수정
+== 댓글 수정
 
 === 요청
 include::{snippets}/comment-controller-test/update-comment_success/http-request.adoc[]
@@ -40,7 +40,7 @@ include::{snippets}/comment-controller-test/update-comment_fail_not_found/http-r
 include::{snippets}/comment-controller-test/update-comment_fail_not_found/http-response.adoc[]
 
 
-= 댓글 삭제
+== 댓글 삭제
 
 === 요청
 include::{snippets}/comment-controller-test/delete-comment_success/http-request.adoc[]

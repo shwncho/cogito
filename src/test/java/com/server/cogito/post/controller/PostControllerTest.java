@@ -4,6 +4,7 @@ import com.server.cogito.comment.dto.response.CommentResponse;
 import com.server.cogito.common.exception.post.PostErrorCode;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.post.dto.request.PostRequest;
+import com.server.cogito.post.dto.request.UpdatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostInfo;
 import com.server.cogito.post.dto.response.PostPageResponse;
@@ -28,12 +29,10 @@ import java.util.List;
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -84,23 +83,22 @@ class PostControllerTest extends RestDocsSupport {
     }
 
     private static PostRequest createPostRequest() {
-        PostRequest request = PostRequest.builder()
+        return PostRequest.builder()
                 .title("테스트")
                 .content("테스트")
+                .files(List.of("file1","file2"))
+                .tags(List.of("tag1","tag2"))
                 .build();
-        request.setFiles(List.of("file1","file2"));
-        request.setTags(List.of("tag1","tag2"));
-        return request;
     }
 
     private static PostRequest createPostNullRequest() {
-        PostRequest request = PostRequest.builder()
+        return PostRequest.builder()
                 .title(null)
                 .content(null)
+                .files(List.of("file1","file2"))
+                .tags(List.of("tag1","tag2"))
                 .build();
-        request.setFiles(List.of("file1","file2"));
-        request.setTags(List.of("tag1","tag2"));
-        return request;
+
     }
 
     @Test
@@ -332,5 +330,44 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code",is(PostErrorCode.POST_NOT_FOUND.getCode())))
                 .andExpect(jsonPath("$.message",is(PostErrorCode.POST_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("게시물 수정 성공")
+    public void updatePost_success() throws Exception {
+        //given
+        UpdatePostRequest request = createUpdatePostRequest();
+        willDoNothing().given(postService).updatePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 id")
+                        ),
+                        requestFields(
+                                fieldWithPath("title").type(JsonFieldType.STRING).optional().description("게시물 제목").attributes(field("constraints","null or 공백값 넘길시 기존 제목값 유지")),
+                                fieldWithPath("content").type(JsonFieldType.STRING).optional().description("게시물 내용").attributes(field("constraints","null 넘길시 기존 본문값 유지")),
+                                fieldWithPath("files[]").type(JsonFieldType.ARRAY).optional().description("게시물 이미지 url").attributes(field("constraints","변화가 없다면 기존 리스트값, 변화가 있다면 새로운 리스트값")),
+                                fieldWithPath("tags[]").type(JsonFieldType.ARRAY).optional().description("게시물 태그").attributes(field("constraints","변화가 없다면 기존 리스트값, 변화가 있다면 새로운 리스트값"))
+                        )
+                ));
+    }
+
+    private UpdatePostRequest createUpdatePostRequest(){
+        return UpdatePostRequest.builder()
+                .title("수정 제목")
+                .content("수정 본문")
+                .files(List.of("수정 파일1"))
+                .tags(List.of("수정 태그1"))
+                .build();
     }
 }
