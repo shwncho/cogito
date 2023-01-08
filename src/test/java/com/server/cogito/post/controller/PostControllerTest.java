@@ -134,6 +134,7 @@ class PostControllerTest extends RestDocsSupport {
         ResultActions resultActions = mockMvc.perform(get("/api/posts")
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
                 .param("page","1")
+                .param("size","15")
                 .contentType(MediaType.APPLICATION_JSON));
 
         //then, docs
@@ -156,7 +157,8 @@ class PostControllerTest extends RestDocsSupport {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
                         ),
                         requestParameters(
-                                parameterWithName("page").description("페이지 번호")
+                                parameterWithName("page").description("페이지 번호"),
+                                parameterWithName("size").description("페이지 사이즈")
                         ),
                         responseFields(
                                 fieldWithPath("posts[].title").type(JsonFieldType.STRING).description("게시물 제목"),

@@ -62,7 +62,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostPageResponse getPosts(Pageable pageable){
-        PageRequest request = PageRequest.of(pageable.getPageNumber()-1, 10, Sort.Direction.DESC,"createdAt");
+        PageRequest request = PageRequest.of(pageable.getPageNumber()-1, pageable.getPageSize(), Sort.Direction.DESC,"createdAt");
         Page<Post> posts = postRepository.findAll(request);
         return getPostPageResponse(posts);
     }
