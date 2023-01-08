@@ -9,12 +9,12 @@
 == 댓글 생성
 
 === 요청
-include::{snippets}/comment-controller-test/create-post_success/http-request.adoc[]
-include::{snippets}/comment-controller-test/create-post_success/request-headers.adoc[]
-include::{snippets}/comment-controller-test/create-post_success/request-fields.adoc[]
+include::{snippets}/comment-controller-test/create-comment_success/http-request.adoc[]
+include::{snippets}/comment-controller-test/create-comment_success/request-headers.adoc[]
+include::{snippets}/comment-controller-test/create-comment_success/request-fields.adoc[]
 
 === 응답
-include::{snippets}/comment-controller-test/create-post_success/http-response.adoc[]
+include::{snippets}/comment-controller-test/create-comment_success/http-response.adoc[]
 
 === P001
 include::{snippets}/comment-controller-test/create-comment_fail_not_found_post/http-request.adoc[]
