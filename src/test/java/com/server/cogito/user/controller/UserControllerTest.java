@@ -30,6 +30,8 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,13 +45,13 @@ class UserControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("유저 프로필 조회")
-    public void getMe_success() throws Exception {
+    public void getUser_success() throws Exception {
         //given
         User user = mockKakaoUser();
         UserResponse response = UserResponse.from(user);
-        given(userService.getMe(any())).willReturn(response);
+        given(userService.getUser(any())).willReturn(response);
         //when
-        ResultActions resultActions = mockMvc.perform(get("/api/users/me")
+        ResultActions resultActions = mockMvc.perform(get("/api/users/{userId}",1L)
                         .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken"));
 
 
@@ -63,6 +65,9 @@ class UserControllerTest extends RestDocsSupport {
                 .andDo(restDocs.document(
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("userId").description("유저 id")
                         ),
                         responseFields(
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
@@ -86,16 +91,16 @@ class UserControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("유저 프로필 수정 성공")
-    public void updateMe_success() throws Exception {
+    public void updateUser_success() throws Exception {
         //given
         UserRequest request = UserRequest.builder()
                 .nickname("수정")
                 .profileImgUrl("수정")
                 .introduce("수정")
                 .build();
-        willDoNothing().given(userService).updateMe(any(),any());
+        willDoNothing().given(userService).updateUser(any(),any(),any());
         //when
-        ResultActions resultActions = mockMvc.perform(patch("/api/users/me")
+        ResultActions resultActions = mockMvc.perform(patch("/api/users/{userId}",1L)
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
@@ -108,26 +113,29 @@ class UserControllerTest extends RestDocsSupport {
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
                         ),
+                        pathParameters(
+                                parameterWithName("userId").description("유저 id")
+                        ),
                         requestFields(
-                                fieldWithPath("nickname").type(JsonFieldType.STRING).description("변경할 닉네임"),
-                                fieldWithPath("profileImgUrl").type(JsonFieldType.STRING).description("변경할 프로필 사진 URL"),
-                                fieldWithPath("introduce").type(JsonFieldType.STRING).description("변경할 유저 소개")
+                                fieldWithPath("nickname").type(JsonFieldType.STRING).optional().description("변경할 닉네임"),
+                                fieldWithPath("profileImgUrl").type(JsonFieldType.STRING).optional().description("변경할 프로필 사진 URL"),
+                                fieldWithPath("introduce").type(JsonFieldType.STRING).optional().description("변경할 유저 소개")
                         )
                 ));
     }
 
     @Test
     @DisplayName("유저 프로필 수정 실패 / 이미 존재하는 닉네임")
-    public void updateMe_fail_exist_user_nickname() throws Exception {
+    public void updateUser_fail_exist_user_nickname() throws Exception {
         //given
         UserRequest request = UserRequest.builder()
                 .nickname("수정")
                 .profileImgUrl("수정")
                 .introduce("수정")
                 .build();
-        willThrow(new UserNicknameExistException(UserErrorCode.USER_NICKNAME_EXIST)).given(userService).updateMe(any(),any());
+        willThrow(new UserNicknameExistException(UserErrorCode.USER_NICKNAME_EXIST)).given(userService).updateUser(any(),any(),any());
         //when
-        ResultActions resultActions = mockMvc.perform(patch("/api/users/me")
+        ResultActions resultActions = mockMvc.perform(patch("/api/users/{userId}",1L)
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));

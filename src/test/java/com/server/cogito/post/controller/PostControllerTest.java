@@ -157,8 +157,8 @@ class PostControllerTest extends RestDocsSupport {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
                         ),
                         requestParameters(
-                                parameterWithName("page").description("페이지 번호"),
-                                parameterWithName("size").description("페이지 사이즈")
+                                parameterWithName("page").optional().description("페이지 번호 (입력안할시 1 페이지)"),
+                                parameterWithName("size").optional().description("페이지 사이즈 (입력안할시 20개)")
                         ),
                         responseFields(
                                 fieldWithPath("posts[].title").type(JsonFieldType.STRING).description("게시물 제목"),

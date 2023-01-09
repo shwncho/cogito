@@ -15,13 +15,13 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/me")
-    public UserResponse getMe(@AuthenticationPrincipal AuthUser authUser){
-        return userService.getMe(authUser);
+    @GetMapping("/{userId}")
+    public UserResponse getUser(@PathVariable Long userId){
+        return userService.getUser(userId);
     }
 
-    @PatchMapping("/me")
-    public void updateMe(@AuthenticationPrincipal AuthUser authUser, @RequestBody UserRequest userRequest){
-        userService.updateMe(authUser, userRequest);
+    @PatchMapping("/{userId}")
+    public void updateUser(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long userId, @RequestBody UserRequest userRequest){
+        userService.updateUser(authUser, userId, userRequest);
     }
 }

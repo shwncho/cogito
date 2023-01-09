@@ -6,7 +6,6 @@
 :toclevels: 2
 :sectlinks:
 
-[[login_success_github]]
 == 소셜 로그인
 
 === 요청

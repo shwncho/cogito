@@ -14,9 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,10 +36,11 @@ class UserServiceTest {
     public void getMe_success() throws Exception {
         //given
         User user = mockKakaoUser();
-        AuthUser authUser = AuthUser.of(user);
+        given(userRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(user));
 
         //when
-        UserResponse response = userService.getMe(authUser);
+        UserResponse response = userService.getUser(user.getId());
 
         //then
         assertAll(
@@ -70,8 +74,10 @@ class UserServiceTest {
                 .profileImgUrl("수정")
                 .introduce("수정")
                 .build();
+        given(userRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(user));
         //when
-        userService.updateMe(authUser, request);
+        userService.updateUser(authUser, user.getId(),request);
 
         //then
         assertAll(
@@ -96,10 +102,12 @@ class UserServiceTest {
                 .profileImgUrl("수정")
                 .introduce("수정")
                 .build();
+        given(userRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(user));
         given(userRepository.existsByNickname(request.getNickname())).willReturn(true);
 
         //expected
-        assertThatThrownBy(()->userService.updateMe(authUser,request))
+        assertThatThrownBy(()->userService.updateUser(authUser,user.getId(),request))
                 .isExactlyInstanceOf(UserNicknameExistException.class);
     }
 }
