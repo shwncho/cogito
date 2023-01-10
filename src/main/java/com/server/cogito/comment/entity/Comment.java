@@ -60,4 +60,12 @@ public class Comment extends BaseEntity {
     public void deleteComment(){
         this.setStatus(Status.INACTIVE);
     }
+
+    public void addLike(){
+        this.likeCnt++;
+    }
+
+    public void subtractLike(){
+        this.likeCnt--;
+    }
 }

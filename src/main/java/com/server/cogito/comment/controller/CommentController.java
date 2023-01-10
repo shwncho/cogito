@@ -22,14 +22,24 @@ public class CommentController {
         commentService.createComment(authUser,commentRequest);
     }
 
-    @PatchMapping("{commentId}")
+    @PatchMapping("/{commentId}")
     public void updateComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId,
                               @RequestBody @Valid UpdateCommentRequest updateCommentRequest){
         commentService.updateComment(authUser, commentId, updateCommentRequest);
     }
 
-    @PatchMapping("{commentId}/status")
+    @PatchMapping("/{commentId}/status")
     public void deleteComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId){
         commentService.deleteComment(authUser,commentId);
+    }
+
+    @PatchMapping("/{commentId}/like")
+    public void likeComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId){
+        commentService.likeComment(authUser, commentId);
+    }
+
+    @PatchMapping("/{commentId}/dislike")
+    public void dislikeComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId){
+        commentService.dislikeComment(authUser, commentId);
     }
 }

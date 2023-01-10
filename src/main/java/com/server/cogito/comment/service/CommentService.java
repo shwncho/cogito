@@ -39,6 +39,7 @@ public class CommentService {
                         .user(authUser.getUser())
                         .build()
         );
+        authUser.getUser().addScore(3);
     }
 
     private Comment getParent(Long parentId){
@@ -76,11 +77,40 @@ public class CommentService {
             comment.deleteComment();
         }
         else comment.deleteComment();
+
+        authUser.getUser().subtractScore(3);
     }
 
     private static void validateUserId(AuthUser authUser, Comment comment) {
         if(!Objects.equals(authUser.getUserId(), comment.getUser().getId())){
             throw new UserInvalidException(UserErrorCode.USER_INVALID);
         }
+    }
+
+    @Transactional
+    public void likeComment(AuthUser authUser, Long commentId){
+        Comment comment = commentRepository.findByIdAndStatus(commentId, ACTIVE)
+                .orElseThrow(CommentNotFoundException::new);
+        validateParent(comment);
+        validateEqualUserId(authUser,comment);
+
+        comment.addLike();
+
+    }
+
+    private static void validateEqualUserId(AuthUser authUser, Comment comment) {
+        if(Objects.equals(authUser.getUserId(), comment.getUser().getId())){
+            throw new UserInvalidException(UserErrorCode.USER_INVALID);
+        }
+    }
+
+    @Transactional
+    public void dislikeComment(AuthUser authUser, Long commentId){
+        Comment comment = commentRepository.findByIdAndStatus(commentId, ACTIVE)
+                .orElseThrow(CommentNotFoundException::new);
+        validateParent(comment);
+        validateEqualUserId(authUser,comment);
+
+        comment.subtractLike();
     }
 }

@@ -56,6 +56,10 @@ public class User extends BaseEntity {
         this.score+=num;
     }
 
+    public void subtractScore(int num){
+        this.score-=num;
+    }
+
     public void change(UserRequest userRequest){
         changeNickname(userRequest.getNickname());
         changeProfileImgUrl(userRequest.getProfileImgUrl());
