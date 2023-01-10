@@ -83,5 +83,9 @@ public class Post extends BaseEntity {
         }
     }
 
+    public void deletePost(){
+        this.setStatus(Status.INACTIVE);
+    }
+
 
 }

@@ -5,6 +5,8 @@ import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.comment.repository.CommentRepository;
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.post.PostNotFoundException;
+import com.server.cogito.common.exception.user.UserErrorCode;
+import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.file.entity.PostFile;
 import com.server.cogito.file.repository.PostFileRepository;
@@ -24,10 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -112,6 +111,21 @@ public class PostService {
             Tag tag = new Tag(s);
             tag.changePost(post);
         });
+    }
+
+    @Transactional
+    public void deletePost(AuthUser authUser, Long postId){
+        Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
+                .orElseThrow(PostNotFoundException::new);
+        validateUserId(authUser,post);
+        post.getUser().subtractScore(2);
+        post.deletePost();
+    }
+
+    private static void validateUserId(AuthUser authUser, Post post) {
+        if(!Objects.equals(authUser.getUserId(), post.getUser().getId())){
+            throw new UserInvalidException(UserErrorCode.USER_INVALID);
+        }
     }
 
 

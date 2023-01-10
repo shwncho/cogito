@@ -41,4 +41,9 @@ public class PostController {
     public void updatePost(@PathVariable Long postId, @RequestBody @Valid UpdatePostRequest updatePostRequest){
         postService.updatePost(postId,updatePostRequest);
     }
+
+    @PatchMapping("/{postId}/status")
+    public void deletePost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
+        postService.deletePost(authUser, postId);
+    }
 }

@@ -19,7 +19,10 @@ public interface PostRepository extends JpaRepository<Post,Long>{
     Page<Post> findAll(Pageable pageable);
 
     //게시물 존재여부 체크
-    Optional<Post> findByIdAndStatus(Long postId, BaseEntity.Status status);
+    @Query("select p from Post p" +
+            " join fetch p.user u" +
+            " where p.id = :postId and p.status = :status")
+    Optional<Post> findByIdAndStatus(@Param("postId") Long postId, @Param("status") BaseEntity.Status status);
 
     //게시물 상세 조회
     @Query("select distinct p from Post p" +
