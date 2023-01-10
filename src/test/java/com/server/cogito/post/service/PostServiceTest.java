@@ -3,6 +3,7 @@ package com.server.cogito.post.service;
 import com.server.cogito.comment.repository.CommentRepository;
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.post.PostNotFoundException;
+import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.file.repository.PostFileRepository;
 import com.server.cogito.post.dto.request.PostRequest;
@@ -30,7 +31,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
@@ -91,6 +91,15 @@ class PostServiceTest {
                 .email("kakao@kakao.com")
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
+                .build();
+    }
+
+    private User githubUser(){
+        return User.builder()
+                .id(2L)
+                .email("github@github.com")
+                .nickname("github")
+                .provider(Provider.GITHUB)
                 .build();
     }
 
@@ -180,5 +189,52 @@ class PostServiceTest {
         //expected
         assertThatThrownBy(()->postService.updatePost(1L,request))
                 .isExactlyInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("게시물 삭제 성공")
+    public void delete_post_success() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(post));
+        //when
+        postService.deletePost(authUser,post.getId());
+        //then
+        assertAll(
+                ()->assertThat(user.getScore()).isEqualTo(-1),
+                ()->assertThat(post.getStatus()).isEqualTo(BaseEntity.Status.INACTIVE)
+        );
+    }
+
+    @Test
+    @DisplayName("게시물 삭제 실패 / 존재하지 않는 게시물")
+    public void delete_post_fail_not_found() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.empty());
+        //expected
+        assertThatThrownBy(()->postService.deletePost(authUser,post.getId()))
+                .isExactlyInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("게시물 삭제 실패 / 유효하지 않은 유저")
+    public void delete_post_fail_invalid_user() throws Exception {
+        //given
+        User user = mockUser();
+        User githubUser = githubUser();
+        AuthUser authUser = AuthUser.of(githubUser);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(post));
+        //expected
+        assertThatThrownBy(()->postService.deletePost(authUser,post.getId()))
+                .isExactlyInstanceOf(UserInvalidException.class);
     }
 }

@@ -3,6 +3,8 @@ package com.server.cogito.post.controller;
 import com.server.cogito.comment.dto.response.CommentResponse;
 import com.server.cogito.common.exception.post.PostErrorCode;
 import com.server.cogito.common.exception.post.PostNotFoundException;
+import com.server.cogito.common.exception.user.UserErrorCode;
+import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.request.UpdatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
@@ -389,5 +391,60 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code",is(PostErrorCode.POST_NOT_FOUND.getCode())))
                 .andExpect(jsonPath("$.message",is(PostErrorCode.POST_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("게시물 삭제 성공")
+    public void delete_post_success() throws Exception {
+        //given
+        willDoNothing().given(postService).deletePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/status",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 id")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("게시물 삭제 실패 / 존재하지 않는 게시물")
+    public void delete_post_fail_not_found() throws Exception {
+        //given
+        willThrow(new PostNotFoundException()).given(postService).deletePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/status",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(PostErrorCode.POST_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(PostErrorCode.POST_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("게시물 삭제 실패 / 유효하지 않은 유저")
+    public void delete_post_fail_invalid_user() throws Exception {
+        //given
+        willThrow(new UserInvalidException(UserErrorCode.USER_INVALID))
+                .given(postService).deletePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/status",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
     }
 }
