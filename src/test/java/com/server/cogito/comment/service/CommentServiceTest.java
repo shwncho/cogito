@@ -6,6 +6,7 @@ import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.comment.repository.CommentRepository;
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.comment.CommentNotFoundException;
+import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.entity.Post;
@@ -60,6 +61,23 @@ class CommentServiceTest {
         );
 
     }
+
+    @Test
+    @DisplayName("댓글 생성 실패 / 존재하지 않는 게시물")
+    public void createComment_fail_not_found_post() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        Post post = createPost(user);
+        CommentRequest request = createCommentRequest();
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willThrow(PostNotFoundException.class);
+
+        //expected
+        assertThatThrownBy(()->commentService.createComment(authUser,request))
+                .isExactlyInstanceOf(PostNotFoundException.class);
+    }
+
 
     private User mockUser(){
         return User.builder()

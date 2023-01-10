@@ -4,6 +4,8 @@ import com.server.cogito.comment.dto.request.CommentRequest;
 import com.server.cogito.comment.dto.request.UpdateCommentRequest;
 import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.comment.repository.CommentRepository;
+import com.server.cogito.common.exception.comment.CommentErrorCode;
+import com.server.cogito.common.exception.comment.CommentInvalidException;
 import com.server.cogito.common.exception.comment.CommentNotFoundException;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserErrorCode;
@@ -29,14 +31,27 @@ public class CommentService {
     public void createComment(AuthUser authUser, CommentRequest commentRequest){
         commentRepository.save(
                 Comment.builder()
-                        .post(postRepository.findByIdAndStatus(commentRequest.getPostId(), ACTIVE).orElseThrow(PostNotFoundException::new))
+                        .post(postRepository.findByIdAndStatus(commentRequest.getPostId(), ACTIVE)
+                                .orElseThrow(PostNotFoundException::new))
                         .parent(commentRequest.getParentId() != null ?
-                                commentRepository.findByIdAndStatus(commentRequest.getParentId(), ACTIVE).orElseThrow(CommentNotFoundException::new)
-                                : null)
+                                getParent(commentRequest.getParentId()) : null)
                         .content(commentRequest.getContent())
                         .user(authUser.getUser())
                         .build()
         );
+    }
+
+    private Comment getParent(Long parentId){
+        Comment parent = commentRepository.findByIdAndStatus(parentId, ACTIVE)
+                .orElseThrow(CommentNotFoundException::new);
+        validateParent(parent);
+        return parent;
+    }
+
+    private void validateParent(Comment parent){
+        if (parent.getParent() != null) {
+            throw new CommentInvalidException(CommentErrorCode.COMMENT_PARENT_INVALID);
+        }
     }
 
     @Transactional

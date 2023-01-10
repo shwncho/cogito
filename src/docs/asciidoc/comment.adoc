@@ -24,6 +24,10 @@ include::{snippets}/comment-controller-test/create-comment_fail_not_found_post/h
 include::{snippets}/comment-controller-test/create-comment_fail_not_found_parent-comment/http-request.adoc[]
 include::{snippets}/comment-controller-test/create-comment_fail_not_found_parent-comment/http-response.adoc[]
 
+=== C002
+include::{snippets}/comment-controller-test/create-comment_fail_invalid_parent/http-request.adoc[]
+include::{snippets}/comment-controller-test/create-comment_fail_invalid_parent/http-response.adoc[]
+
 == 댓글 수정
 
 === 요청

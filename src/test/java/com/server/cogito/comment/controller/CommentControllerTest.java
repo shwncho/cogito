@@ -4,6 +4,7 @@ import com.server.cogito.comment.dto.request.CommentRequest;
 import com.server.cogito.comment.dto.request.UpdateCommentRequest;
 import com.server.cogito.comment.service.CommentService;
 import com.server.cogito.common.exception.comment.CommentErrorCode;
+import com.server.cogito.common.exception.comment.CommentInvalidException;
 import com.server.cogito.common.exception.comment.CommentNotFoundException;
 import com.server.cogito.common.exception.post.PostErrorCode;
 import com.server.cogito.common.exception.post.PostNotFoundException;
@@ -116,6 +117,29 @@ class CommentControllerTest extends RestDocsSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_NOT_FOUND.getCode())))
                 .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 생성 실패 / 유효하지 않은 부모 댓글")
+    public void createComment_fail_invalid_parent() throws Exception {
+        //given
+        CommentRequest request = CommentRequest.builder()
+                .postId(1L)
+                .parentId(2L)
+                .content("테스트")
+                .build();
+        willThrow(new CommentInvalidException(CommentErrorCode.COMMENT_PARENT_INVALID))
+                .given(commentService).createComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/comments")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_PARENT_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_PARENT_INVALID.getMessage())));
     }
     @Test
     @DisplayName("댓글 수정 성공")
