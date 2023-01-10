@@ -9,25 +9,25 @@
 == 프로필 조회
 
 === 요청
-include::{snippets}/user-controller-test/get-user_success/http-request.adoc[]
-include::{snippets}/user-controller-test/get-user_success/request-headers.adoc[]
-include::{snippets}/user-controller-test/get-user_success/path-parameters.adoc[]
+include::{snippets}/user-controller-test/get_user_success/http-request.adoc[]
+include::{snippets}/user-controller-test/get_user_success/request-headers.adoc[]
+include::{snippets}/user-controller-test/get_user_success/path-parameters.adoc[]
 
 === 응답
-include::{snippets}/user-controller-test/get-user_success/http-response.adoc[]
-include::{snippets}/user-controller-test/get-user_success/response-fields.adoc[]
+include::{snippets}/user-controller-test/get_user_success/http-response.adoc[]
+include::{snippets}/user-controller-test/get_user_success/response-fields.adoc[]
 
 == 프로필 수정
 
 === 요청
-include::{snippets}/user-controller-test/update-user_success/http-request.adoc[]
-include::{snippets}/user-controller-test/update-user_success/request-headers.adoc[]
-include::{snippets}/user-controller-test/update-user_success/request-fields.adoc[]
-include::{snippets}/user-controller-test/update-user_success/path-parameters.adoc[]
+include::{snippets}/user-controller-test/update_user_success/http-request.adoc[]
+include::{snippets}/user-controller-test/update_user_success/request-headers.adoc[]
+include::{snippets}/user-controller-test/update_user_success/request-fields.adoc[]
+include::{snippets}/user-controller-test/update_user_success/path-parameters.adoc[]
 
 === 응답
-include::{snippets}/user-controller-test/update-user_success/http-response.adoc[]
+include::{snippets}/user-controller-test/update_user_success/http-response.adoc[]
 
 === U002
-include::{snippets}/user-controller-test/update-user_fail_exist_user_nickname/http-request.adoc[]
-include::{snippets}/user-controller-test/update-user_fail_exist_user_nickname/http-response.adoc[]
+include::{snippets}/user-controller-test/update_user_fail_exist_user_nickname/http-request.adoc[]
+include::{snippets}/user-controller-test/update_user_fail_exist_user_nickname/http-response.adoc[]

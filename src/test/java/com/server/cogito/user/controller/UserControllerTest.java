@@ -45,7 +45,7 @@ class UserControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("유저 프로필 조회")
-    public void getUser_success() throws Exception {
+    public void get_user_success() throws Exception {
         //given
         User user = mockKakaoUser();
         UserResponse response = UserResponse.from(user);
@@ -91,7 +91,7 @@ class UserControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("유저 프로필 수정 성공")
-    public void updateUser_success() throws Exception {
+    public void update_user_success() throws Exception {
         //given
         UserRequest request = UserRequest.builder()
                 .nickname("수정")
@@ -126,7 +126,7 @@ class UserControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("유저 프로필 수정 실패 / 이미 존재하는 닉네임")
-    public void updateUser_fail_exist_user_nickname() throws Exception {
+    public void update_user_fail_exist_user_nickname() throws Exception {
         //given
         UserRequest request = UserRequest.builder()
                 .nickname("수정")

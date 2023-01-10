@@ -45,7 +45,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 생성 성공")
-    public void createComment_success() throws Exception {
+    public void create_comment_success() throws Exception {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
@@ -65,7 +65,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 생성 실패 / 존재하지 않는 게시물")
-    public void createComment_fail_not_found_post() throws Exception {
+    public void create_comment_fail_not_found_post() throws Exception {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
@@ -115,7 +115,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 수정 성공")
-    public void updateComment_success() throws Exception {
+    public void update_comment_success() throws Exception {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
@@ -134,7 +134,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 수정 실패 / 존재하지 않는 댓글")
-    public void updateComment_fail_not_found() throws Exception {
+    public void update_comment_fail_not_found() throws Exception {
         //given
         given(commentRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.empty());
@@ -145,7 +145,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 삭제 성공")
-    public void deleteComment_success() throws Exception {
+    public void delete_comment_success() throws Exception {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
@@ -165,7 +165,7 @@ class CommentServiceTest {
     
     @Test
     @DisplayName("댓글 삭제 실패 / 존재하지 않는 댓글")
-    public void deleteComment_fail_not_found() throws Exception {
+    public void delete_comment_fail_not_found() throws Exception {
         //given
         given(commentRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.empty());
@@ -185,7 +185,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 좋아요 성공")
-    public void likeComment_success() throws Exception {
+    public void like_comment_success() throws Exception {
         //given
         User user = mockUser();
         User githubUser = githubUser();
@@ -201,7 +201,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 좋아요 실패 / 존재하지 않는 댓글")
-    public void likeComment_fail_not_found() throws Exception {
+    public void like_comment_fail_not_found() throws Exception {
         //given
         given(commentRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.empty());
@@ -212,7 +212,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 싫어요 성공")
-    public void dislikeComment() throws Exception {
+    public void dislike_comment() throws Exception {
         //given
         User user = mockUser();
         User githubUser = githubUser();
@@ -228,7 +228,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 싫어요 실패 / 존재하지 않는 댓글")
-    public void dislikeComment_fail_not_found() throws Exception {
+    public void dislike_comment_fail_not_found() throws Exception {
         //given
         given(commentRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.empty());

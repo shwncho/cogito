@@ -58,7 +58,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("게시물 생성 성공")
-    void createPost_success() throws Exception{
+    void create_post_success() throws Exception{
 
         //given
         PostRequest request = createPostRequest();
@@ -105,7 +105,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("게시물 조회 성공 / 최신순")
-    void getPosts_success_latest() throws Exception {
+    void get_posts_success_latest() throws Exception {
 
         //given
         User user = mockUser();
@@ -127,7 +127,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("게시물 단건 조회 성공")
-    public void getPost_success() throws Exception {
+    public void get_post_success() throws Exception {
         //given
         User user = mockUser();
         Post post = Post.of("테스트 제목","테스트 본문",user);
@@ -141,7 +141,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("게시물 단건 조회 실패 / 존재하지 않는 게시물")
-    public void getPost_fail_not_found() throws Exception {
+    public void get_post_fail_not_found() throws Exception {
         //given
         given(postRepository.findPostByIdAndStatus(1L, BaseEntity.Status.ACTIVE))
                 .willReturn(Optional.empty());
@@ -153,7 +153,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("게시물 수정 성공")
-    public void updatePost_success() throws Exception {
+    public void update_post_success() throws Exception {
         //given
         Post post = Post.of("테스트","테스트",mockUser());
         String originalTitle = post.getTitle();
@@ -181,7 +181,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("게시물 수정 실패 / 존재하지 않는 게시물")
-    public void updatePost_fail_not_found() throws Exception {
+    public void update_post_fail_not_found() throws Exception {
         //given
         UpdatePostRequest request = createUpdatePostRequest();
         given(postRepository.findPostByIdAndStatus(1L, BaseEntity.Status.ACTIVE))

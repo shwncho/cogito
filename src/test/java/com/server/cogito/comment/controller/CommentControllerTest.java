@@ -48,7 +48,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 생성 성공")
-    public void createComment_success() throws Exception {
+    public void create_comment_success() throws Exception {
         //given
         CommentRequest request = CommentRequest.builder()
                 .postId(1L)
@@ -79,7 +79,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 생성 실패 / 존재하지 않는 게시물")
-    public void createComment_fail_not_found_post() throws Exception {
+    public void create_comment_fail_not_found_post() throws Exception {
         //given
         CommentRequest request = CommentRequest.builder()
                 .postId(1L)
@@ -100,7 +100,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 생성 실패 / 존재하지 않는 부모 댓글일 경우")
-    public void createComment_fail_not_found_parentComment() throws Exception {
+    public void create_comment_fail_not_found_parentComment() throws Exception {
         //given
         CommentRequest request = CommentRequest.builder()
                 .postId(1L)
@@ -121,7 +121,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 생성 실패 / 유효하지 않은 부모 댓글")
-    public void createComment_fail_invalid_parent() throws Exception {
+    public void create_comment_fail_invalid_parent() throws Exception {
         //given
         CommentRequest request = CommentRequest.builder()
                 .postId(1L)
@@ -143,7 +143,7 @@ class CommentControllerTest extends RestDocsSupport {
     }
     @Test
     @DisplayName("댓글 수정 성공")
-    public void updateComment_success() throws Exception {
+    public void update_comment_success() throws Exception {
         //given
         UpdateCommentRequest request = UpdateCommentRequest.builder()
                         .content("수정")
@@ -172,7 +172,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 수정 실패 / 존재하지 않는 댓글")
-    public void updateComment_fail_not_found() throws Exception {
+    public void update_comment_fail_not_found() throws Exception {
         //given
         UpdateCommentRequest request = UpdateCommentRequest.builder()
                 .content("수정")
@@ -193,7 +193,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 삭제 성공")
-    public void deleteComment_success() throws Exception {
+    public void delete_comment_success() throws Exception {
         //given
         willDoNothing().given(commentService).deleteComment(any(),any());
         //when
@@ -215,7 +215,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 삭제 실패 / 존재하지 않는 댓글")
-    public void deleteComment_fail_not_found() throws Exception {
+    public void delete_comment_fail_not_found() throws Exception {
         //given
         willThrow(new CommentNotFoundException()).given(commentService).deleteComment(any(),any());
         //when
@@ -231,7 +231,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 삭제 실패 / 유효하지 않은 유저")
-    public void deleteComment_fail_invalid_user() throws Exception {
+    public void delete_comment_fail_invalid_user() throws Exception {
         //given
         willThrow(new UserInvalidException(UserErrorCode.USER_INVALID)).given(commentService).deleteComment(any(),any());
         //when
@@ -247,7 +247,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 좋아요 성공")
-    public void likeComment_success() throws Exception {
+    public void like_comment_success() throws Exception {
         //given
         willDoNothing().given(commentService).likeComment(any(),any());
         //when
@@ -269,7 +269,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 좋아요 실패 / 존재하지 않는 댓글")
-    public void likeComment_fail_not_found() throws Exception {
+    public void like_comment_fail_not_found() throws Exception {
         //given
         willThrow(new CommentNotFoundException()).given(commentService).likeComment(any(),any());
         //when
@@ -285,7 +285,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 좋아요 실패 / 유효하지 않은 부모 댓글")
-    public void likeComment_fail_invalid_parent() throws Exception {
+    public void like_comment_fail_invalid_parent() throws Exception {
         //given
         willThrow(new CommentInvalidException(CommentErrorCode.COMMENT_PARENT_INVALID))
                 .given(commentService).likeComment(any(),any());
@@ -302,7 +302,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 좋아요 실패 / 좋아요 하는 유저가 본인일 경우")
-    public void likeComment_fail_invalid_user() throws Exception {
+    public void like_comment_fail_invalid_user() throws Exception {
         //given
         willThrow(new UserInvalidException(UserErrorCode.USER_INVALID)).given(commentService).likeComment(any(),any());
         //when
@@ -318,7 +318,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 싫어요 성공")
-    public void dislikeComment_success() throws Exception {
+    public void dislike_comment_success() throws Exception {
         //given
         willDoNothing().given(commentService).dislikeComment(any(),any());
         //when
@@ -340,7 +340,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 싫어요 실패 / 존재하지 않는 댓글")
-    public void dislikeComment_fail_not_found() throws Exception {
+    public void dislike_comment_fail_not_found() throws Exception {
         //given
         willThrow(new CommentNotFoundException()).given(commentService).dislikeComment(any(),any());
         //when
@@ -356,7 +356,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 싫어요 실패 / 유효하지 않은 부모 댓글")
-    public void dislikeComment_fail_invalid_parent() throws Exception {
+    public void dislike_comment_fail_invalid_parent() throws Exception {
         //given
         willThrow(new CommentInvalidException(CommentErrorCode.COMMENT_PARENT_INVALID))
                 .given(commentService).dislikeComment(any(),any());
@@ -373,7 +373,7 @@ class CommentControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("댓글 싫어요 실패 / 싫어요 하는 유저가 본인일 경우")
-    public void dislikeComment_fail_invalid_user() throws Exception {
+    public void dislike_comment_fail_invalid_user() throws Exception {
         //given
         willThrow(new UserInvalidException(UserErrorCode.USER_INVALID)).given(commentService).dislikeComment(any(),any());
         //when

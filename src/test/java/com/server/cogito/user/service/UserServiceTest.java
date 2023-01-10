@@ -33,7 +33,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("유저 프로필 조회 성공")
-    public void getMe_success() throws Exception {
+    public void get_user_success() throws Exception {
         //given
         User user = mockKakaoUser();
         given(userRepository.findByIdAndStatus(any(),any()))
@@ -61,7 +61,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("유저 프로필 수정 성공")
-    public void updateMe_success() throws Exception {
+    public void update_user_success() throws Exception {
         //given
         User user = mockKakaoUser();
         String originNickname = user.getNickname();
@@ -89,7 +89,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("유저 프로필 수정 실패")
-    public void updateMe_fail_existNickname() throws Exception {
+    public void update_user_fail_existNickname() throws Exception {
         //given
         User user = mockKakaoUser();
         String originNickname = user.getNickname();
