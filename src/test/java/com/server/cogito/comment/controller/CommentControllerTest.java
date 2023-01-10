@@ -244,4 +244,146 @@ class CommentControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
                 .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
     }
+
+    @Test
+    @DisplayName("댓글 좋아요 성공")
+    public void likeComment_success() throws Exception {
+        //given
+        willDoNothing().given(commentService).likeComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/like",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("commentId").description("댓글 id")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 실패 / 존재하지 않는 댓글")
+    public void likeComment_fail_not_found() throws Exception {
+        //given
+        willThrow(new CommentNotFoundException()).given(commentService).likeComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/like",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 실패 / 유효하지 않은 부모 댓글")
+    public void likeComment_fail_invalid_parent() throws Exception {
+        //given
+        willThrow(new CommentInvalidException(CommentErrorCode.COMMENT_PARENT_INVALID))
+                .given(commentService).likeComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/like",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_PARENT_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_PARENT_INVALID.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 실패 / 좋아요 하는 유저가 본인일 경우")
+    public void likeComment_fail_invalid_user() throws Exception {
+        //given
+        willThrow(new UserInvalidException(UserErrorCode.USER_INVALID)).given(commentService).likeComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/like",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 성공")
+    public void dislikeComment_success() throws Exception {
+        //given
+        willDoNothing().given(commentService).dislikeComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/dislike",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("commentId").description("댓글 id")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 실패 / 존재하지 않는 댓글")
+    public void dislikeComment_fail_not_found() throws Exception {
+        //given
+        willThrow(new CommentNotFoundException()).given(commentService).dislikeComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/dislike",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 실패 / 유효하지 않은 부모 댓글")
+    public void dislikeComment_fail_invalid_parent() throws Exception {
+        //given
+        willThrow(new CommentInvalidException(CommentErrorCode.COMMENT_PARENT_INVALID))
+                .given(commentService).dislikeComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/dislike",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_PARENT_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_PARENT_INVALID.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 실패 / 싫어요 하는 유저가 본인일 경우")
+    public void dislikeComment_fail_invalid_user() throws Exception {
+        //given
+        willThrow(new UserInvalidException(UserErrorCode.USER_INVALID)).given(commentService).dislikeComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/dislike",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
+    }
 }

@@ -57,7 +57,8 @@ class CommentServiceTest {
         //then
         assertAll(
                 ()->verify(postRepository).findByIdAndStatus(any(),any()),
-                ()->verify(commentRepository).save(any(Comment.class))
+                ()->verify(commentRepository).save(any(Comment.class)),
+                ()->assertThat(user.getScore()).isEqualTo(4)
         );
 
     }
@@ -81,9 +82,19 @@ class CommentServiceTest {
 
     private User mockUser(){
         return User.builder()
+                .id(1L)
                 .email("kakao@kakao.com")
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
+                .build();
+    }
+
+    private User githubUser(){
+        return User.builder()
+                .id(2L)
+                .email("github@github.com")
+                .nickname("github")
+                .provider(Provider.GITHUB)
                 .build();
     }
 
@@ -139,12 +150,17 @@ class CommentServiceTest {
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
         Comment comment = getComment();
+        user.addScore(3);
         given(commentRepository.findByIdAndStatus(comment.getId(), BaseEntity.Status.ACTIVE))
                 .willReturn(Optional.of(comment));
         //when
         commentService.deleteComment(authUser,comment.getId());
         //then
-        assertThat(comment.getStatus()).isEqualTo(BaseEntity.Status.INACTIVE);
+        assertAll(
+                ()->assertThat(comment.getStatus()).isEqualTo(BaseEntity.Status.INACTIVE),
+                ()->assertThat(user.getScore()).isEqualTo(1)
+
+        );
     }
     
     @Test
@@ -165,6 +181,60 @@ class CommentServiceTest {
                 .content("테스트")
                 .post(createPost(mockUser()))
                 .build();
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 성공")
+    public void likeComment_success() throws Exception {
+        //given
+        User user = mockUser();
+        User githubUser = githubUser();
+        AuthUser authUser = AuthUser.of(githubUser);
+        Comment comment = getComment();
+        given(commentRepository.findByIdAndStatus(comment.getId(), BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.of(comment));
+        //when
+        commentService.likeComment(authUser,comment.getId());
+        //then
+        assertThat(comment.getLikeCnt()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 실패 / 존재하지 않는 댓글")
+    public void likeComment_fail_not_found() throws Exception {
+        //given
+        given(commentRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.empty());
+        //expected
+        assertThatThrownBy(()->commentService.likeComment(any(),any()))
+                .isExactlyInstanceOf(CommentNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 성공")
+    public void dislikeComment() throws Exception {
+        //given
+        User user = mockUser();
+        User githubUser = githubUser();
+        AuthUser authUser = AuthUser.of(githubUser);
+        Comment comment = getComment();
+        given(commentRepository.findByIdAndStatus(comment.getId(), BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.of(comment));
+        //when
+        commentService.dislikeComment(authUser,comment.getId());
+        //then
+        assertThat(comment.getLikeCnt()).isEqualTo(-1);
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 실패 / 존재하지 않는 댓글")
+    public void dislikeComment_fail_not_found() throws Exception {
+        //given
+        given(commentRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.empty());
+        //expected
+        assertThatThrownBy(()->commentService.dislikeComment(any(),any()))
+                .isExactlyInstanceOf(CommentNotFoundException.class);
     }
 
 }

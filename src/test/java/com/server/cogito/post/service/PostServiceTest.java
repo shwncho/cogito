@@ -73,7 +73,7 @@ class PostServiceTest {
         //then
         assertAll(
                 ()->verify(postRepository).save(any(Post.class)),
-                ()->assertEquals(3,user.getScore())
+                ()->assertThat(user.getScore()).isEqualTo(3)
         );
     }
 

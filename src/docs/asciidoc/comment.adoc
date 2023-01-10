@@ -62,3 +62,46 @@ include::{snippets}/comment-controller-test/delete-comment_fail_not_found/http-r
 include::{snippets}/comment-controller-test/delete-comment_fail_invalid_user/http-request.adoc[]
 include::{snippets}/comment-controller-test/delete-comment_fail_invalid_user/http-response.adoc[]
 
+== 댓글 좋아요
+
+=== 요청
+include::{snippets}/comment-controller-test/like-comment_success/http-request.adoc[]
+include::{snippets}/comment-controller-test/like-comment_success/request-headers.adoc[]
+include::{snippets}/comment-controller-test/like-comment_success/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/comment-controller-test/like-comment_success/http-response.adoc[]
+
+=== C001
+include::{snippets}/comment-controller-test/like-comment_fail_not_found/http-request.adoc[]
+include::{snippets}/comment-controller-test/like-comment_fail_not_found/http-response.adoc[]
+
+=== C002
+include::{snippets}/comment-controller-test/like-comment_fail_invalid_parent/http-request.adoc[]
+include::{snippets}/comment-controller-test/like-comment_fail_invalid_parent/http-response.adoc[]
+
+=== U003
+include::{snippets}/comment-controller-test/like-comment_fail_invalid_user/http-request.adoc[]
+include::{snippets}/comment-controller-test/like-comment_fail_invalid_user/http-response.adoc[]
+
+== 댓글 싫어요
+
+=== 요청
+include::{snippets}/comment-controller-test/dislike-comment_success/http-request.adoc[]
+include::{snippets}/comment-controller-test/dislike-comment_success/request-headers.adoc[]
+include::{snippets}/comment-controller-test/dislike-comment_success/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/comment-controller-test/dislike-comment_success/http-response.adoc[]
+
+=== C001
+include::{snippets}/comment-controller-test/dislike-comment_fail_not_found/http-request.adoc[]
+include::{snippets}/comment-controller-test/dislike-comment_fail_not_found/http-response.adoc[]
+
+=== C002
+include::{snippets}/comment-controller-test/dislike-comment_fail_invalid_parent/http-request.adoc[]
+include::{snippets}/comment-controller-test/dislike-comment_fail_invalid_parent/http-response.adoc[]
+
+=== U003
+include::{snippets}/comment-controller-test/dislike-comment_fail_invalid_user/http-request.adoc[]
+include::{snippets}/comment-controller-test/dislike-comment_fail_invalid_user/http-response.adoc[]
