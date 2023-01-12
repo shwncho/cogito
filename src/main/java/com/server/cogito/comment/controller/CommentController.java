@@ -42,4 +42,9 @@ public class CommentController {
     public void dislikeComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId){
         commentService.dislikeComment(authUser, commentId);
     }
+
+    @PatchMapping("/{commentId}/selection")
+    public void selectComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId){
+        commentService.selectComment(authUser, commentId);
+    }
 }

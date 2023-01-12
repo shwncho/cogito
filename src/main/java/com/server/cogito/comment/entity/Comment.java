@@ -68,4 +68,8 @@ public class Comment extends BaseEntity {
     public void subtractLike(){
         this.likeCnt--;
     }
+
+    public void selectComment(){
+        this.selected = 1;
+    }
 }
