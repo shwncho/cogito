@@ -386,4 +386,26 @@ class CommentControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
                 .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
     }
+
+    @Test
+    @DisplayName("댓글 채택 성공")
+    public void select_comment_success() throws Exception {
+        //given
+        willDoNothing().given(commentService).selectComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/selection",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("commentId").description("댓글 id")
+                        )
+                ));
+    }
 }

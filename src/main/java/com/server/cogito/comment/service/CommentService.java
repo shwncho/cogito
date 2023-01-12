@@ -119,7 +119,7 @@ public class CommentService {
         Comment comment = commentRepository.findByIdAndStatus(commentId, ACTIVE)
                 .orElseThrow(CommentNotFoundException::new);
         validateParent(comment);
-        validateUserId(authUser,comment);
+        validateEqualUserId(authUser,comment);
 
         comment.selectComment();
         comment.getUser().addScore(5);

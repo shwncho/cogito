@@ -187,7 +187,6 @@ class CommentServiceTest {
     @DisplayName("댓글 좋아요 성공")
     public void like_comment_success() throws Exception {
         //given
-        User user = mockUser();
         User githubUser = githubUser();
         AuthUser authUser = AuthUser.of(githubUser);
         Comment comment = getComment();
@@ -214,7 +213,6 @@ class CommentServiceTest {
     @DisplayName("댓글 싫어요 성공")
     public void dislike_comment() throws Exception {
         //given
-        User user = mockUser();
         User githubUser = githubUser();
         AuthUser authUser = AuthUser.of(githubUser);
         Comment comment = getComment();
@@ -235,6 +233,33 @@ class CommentServiceTest {
         //expected
         assertThatThrownBy(()->commentService.dislikeComment(any(),any()))
                 .isExactlyInstanceOf(CommentNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("댓글 채택 성공")
+    public void select_comment_success() throws Exception {
+        //given
+        User user = mockUser();
+        User githubUser = githubUser();
+        AuthUser authUser = AuthUser.of(githubUser);
+        Comment comment = createComment(user);
+        given(commentRepository.findByIdAndStatus(comment.getId(), BaseEntity.Status.ACTIVE))
+                .willReturn(Optional.of(comment));
+        //when
+        commentService.selectComment(authUser,comment.getId());
+        //then
+        assertAll(
+                ()->assertThat(comment.getSelected()).isEqualTo(1),
+                ()->assertThat(user.getScore()).isEqualTo(6)
+        );
+    }
+
+    private Comment createComment(User user){
+        return Comment.builder()
+                .user(user)
+                .content("테스트")
+                .post(createPost(mockUser()))
+                .build();
     }
 
 }
