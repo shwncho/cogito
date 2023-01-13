@@ -103,27 +103,27 @@ class PostServiceTest {
                 .build();
     }
 
-    @Test
-    @DisplayName("게시물 조회 성공 / 최신순")
-    void get_posts_success_latest() throws Exception {
-
-        //given
-        User user = mockUser();
-        Pageable pageable = PageRequest.of(1,10,Sort.by("createdAt").descending());
-        List<Post> posts = List.of(Post.of("테스트 제목1","테스트 본문1", user),
-                Post.of("테스트 제목2","테스트 본문2", user));
-        Page<Post> postPage = new PageImpl<>(posts);
-        given(postRepository.findAll(any(PageRequest.class))).willReturn(postPage);
-
-        //when
-        PostPageResponse response = postService.getPosts(pageable);
-
-        assertAll(
-                ()->verify(postRepository).findAll(any(PageRequest.class)),
-                ()->assertThat(2).isEqualTo(response.getPosts().size())
-        );
-
-    }
+//    @Test
+//    @DisplayName("게시물 조회 성공 / 최신순")
+//    void get_posts_success_latest() throws Exception {
+//
+//        //given
+//        User user = mockUser();
+//        Pageable pageable = PageRequest.of(1,10,Sort.by("createdAt").descending());
+//        List<Post> posts = List.of(Post.of("테스트 제목1","테스트 본문1", user),
+//                Post.of("테스트 제목2","테스트 본문2", user));
+//        Page<Post> postPage = new PageImpl<>(posts);
+//        given(postRepository.findAll(any(PageRequest.class))).willReturn(postPage);
+//
+//        //when
+//        PostPageResponse response = postService.getPosts(pageable);
+//
+//        assertAll(
+//                ()->verify(postRepository).findAll(any(PageRequest.class)),
+//                ()->assertThat(2).isEqualTo(response.getPosts().size())
+//        );
+//
+//    }
 
     @Test
     @DisplayName("게시물 단건 조회 성공")

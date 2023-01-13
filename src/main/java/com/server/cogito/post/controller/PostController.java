@@ -1,15 +1,14 @@
 package com.server.cogito.post.controller;
 
+import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.request.UpdatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.dto.response.PostResponse;
 import com.server.cogito.post.service.PostService;
-import com.server.cogito.common.security.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +27,8 @@ public class PostController {
     }
 
     @GetMapping("")
-    public PostPageResponse getPosts(@PageableDefault(page = 1) Pageable pageable){
-        return postService.getPosts(pageable);
+    public PostPageResponse getPosts(@RequestParam(required = false) String query, Pageable pageable){
+        return postService.getPosts(query,pageable);
     }
 
     @GetMapping("/{postId}")

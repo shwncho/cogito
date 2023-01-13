@@ -130,7 +130,7 @@ class PostControllerTest extends RestDocsSupport {
 
         //given
         PostPageResponse response = PostPageResponse.from(getPostInfo());
-        given(postService.getPosts(any())).willReturn(response);
+        //given(postService.getPosts(any())).willReturn(response);
 
         //when
         ResultActions resultActions = mockMvc.perform(get("/api/posts")

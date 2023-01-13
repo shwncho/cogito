@@ -12,19 +12,20 @@ import com.server.cogito.file.entity.PostFile;
 import com.server.cogito.file.repository.PostFileRepository;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.request.UpdatePostRequest;
-import com.server.cogito.post.dto.response.*;
+import com.server.cogito.post.dto.response.CreatePostResponse;
+import com.server.cogito.post.dto.response.PostInfo;
+import com.server.cogito.post.dto.response.PostPageResponse;
+import com.server.cogito.post.dto.response.PostResponse;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
 import com.server.cogito.tag.entity.Tag;
 import com.server.cogito.tag.repository.TagRepository;
 import com.server.cogito.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -60,14 +61,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostPageResponse getPosts(Pageable pageable){
-        PageRequest request = PageRequest.of(pageable.getPageNumber()-1, pageable.getPageSize(), Sort.Direction.DESC,"createdAt");
-        Page<Post> posts = postRepository.findAll(request);
-        return getPostPageResponse(posts);
+    public PostPageResponse getPosts(String query, Pageable pageable){
+        if(!StringUtils.hasText(query))
+            return getPostPageResponse(postRepository.findWithoutSearchConditions(pageable));
+        return getPostPageResponse(postRepository.findWithSearchConditions(query, pageable));
     }
 
-    private static PostPageResponse getPostPageResponse(Page<Post> posts) {
-        return PostPageResponse.from(posts.getContent()
+    private static PostPageResponse getPostPageResponse(List<Post> posts) {
+        return PostPageResponse.from(posts
                 .stream()
                 .map(PostInfo::from)
                 .collect(Collectors.toList()));
