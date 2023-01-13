@@ -21,7 +21,7 @@ include::{snippets}/post-controller-test/create_post_success/response-fields.ado
 include::{snippets}/post-controller-test/create_post_fail_not_valid/http-request.adoc[]
 include::{snippets}/post-controller-test/create_post_fail_not_valid/http-response.adoc[]
 
-== 게시물 조회
+== 게시물 조회 (검색 조건 없을 때)
 
 === 요청
 include::{snippets}/post-controller-test/get_posts_success_latest/http-request.adoc[]
@@ -30,6 +30,16 @@ include::{snippets}/post-controller-test/get_posts_success_latest/request-parame
 === 응답
 include::{snippets}/post-controller-test/get_posts_success_latest/http-response.adoc[]
 include::{snippets}/post-controller-test/get_posts_success_latest/response-fields.adoc[]
+
+== 게시물 조회 (검색 조건 있을 때)
+
+=== 요청
+include::{snippets}/post-controller-test/get_posts_success_query/http-request.adoc[]
+include::{snippets}/post-controller-test/get_posts_success_query/request-parameters.adoc[]
+
+=== 응답
+include::{snippets}/post-controller-test/get_posts_success_query/http-response.adoc[]
+include::{snippets}/post-controller-test/get_posts_success_query/response-fields.adoc[]
 
 == 게시물 단건 조회
 

@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
 
@@ -103,27 +104,46 @@ class PostServiceTest {
                 .build();
     }
 
-//    @Test
-//    @DisplayName("게시물 조회 성공 / 최신순")
-//    void get_posts_success_latest() throws Exception {
-//
-//        //given
-//        User user = mockUser();
-//        Pageable pageable = PageRequest.of(1,10,Sort.by("createdAt").descending());
-//        List<Post> posts = List.of(Post.of("테스트 제목1","테스트 본문1", user),
-//                Post.of("테스트 제목2","테스트 본문2", user));
-//        Page<Post> postPage = new PageImpl<>(posts);
-//        given(postRepository.findAll(any(PageRequest.class))).willReturn(postPage);
-//
-//        //when
-//        PostPageResponse response = postService.getPosts(pageable);
-//
-//        assertAll(
-//                ()->verify(postRepository).findAll(any(PageRequest.class)),
-//                ()->assertThat(2).isEqualTo(response.getPosts().size())
-//        );
-//
-//    }
+    @Test
+    @DisplayName("게시물 조회 성공 / 검색 조건 없을 경우")
+    void get_posts_success_latest() throws Exception {
+
+        //given
+        User user = mockUser();
+        Pageable pageable = PageRequest.of(0,15,Sort.by("createdAt").descending());
+        List<Post> posts = List.of(Post.of("테스트 제목1","테스트 본문1", user),
+                Post.of("테스트 제목2","테스트 본문2", user));
+        given(postRepository.findWithoutSearchConditions(pageable)).willReturn(posts);
+
+        //when
+        PostPageResponse response = postService.getPosts("",pageable);
+
+        assertAll(
+                ()->verify(postRepository).findWithoutSearchConditions(any(Pageable.class)),
+                ()->assertThat(2).isEqualTo(response.getPosts().size())
+        );
+
+    }
+
+    @Test
+    @DisplayName("게시물 조회 성공 / 검색 조건 있을 경우")
+    void get_posts_success_query() throws Exception {
+
+        //given
+        User user = mockUser();
+        Pageable pageable = PageRequest.of(0,15,Sort.by("createdAt").descending());
+        List<Post> posts = List.of(Post.of("테스트 제목1","테스트 본문1", user));
+        given(postRepository.findWithSearchConditions(any(),any())).willReturn(posts);
+
+        //when
+        PostPageResponse response = postService.getPosts("테스트 제목1",pageable);
+
+        assertAll(
+                ()->verify(postRepository).findWithSearchConditions(anyString(),any(Pageable.class)),
+                ()->assertThat(1).isEqualTo(response.getPosts().size())
+        );
+
+    }
 
     @Test
     @DisplayName("게시물 단건 조회 성공")

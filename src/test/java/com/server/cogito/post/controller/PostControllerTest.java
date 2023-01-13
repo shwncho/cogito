@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -125,17 +126,17 @@ class PostControllerTest extends RestDocsSupport {
     }
 
     @Test
-    @DisplayName("게시물 리스트 조회 성공 / 최신순")
+    @DisplayName("게시물 리스트 조회 성공 / 검색 조건 없을 경우")
     void get_posts_success_latest() throws Exception {
 
         //given
-        PostPageResponse response = PostPageResponse.from(getPostInfo());
-        //given(postService.getPosts(any())).willReturn(response);
+        PostPageResponse response = PostPageResponse.from(getPostWithoutConditions());
+        given(postService.getPosts(any(),any())).willReturn(response);
 
         //when
         ResultActions resultActions = mockMvc.perform(get("/api/posts")
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
-                .param("page","1")
+                .param("page","0")
                 .param("size","15")
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -143,7 +144,7 @@ class PostControllerTest extends RestDocsSupport {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.posts",hasSize(2)))
-                .andExpect(jsonPath("$.posts[0].title", is("테스트 제목1")))
+                .andExpect(jsonPath("$.posts[0].title", is("test")))
                 .andExpect(jsonPath("$.posts[0].content", is("테스트 본문1")))
                 .andExpect(jsonPath("$.posts[0].tags[0]", is("태그1")))
                 .andExpect(jsonPath("$.posts[0].nickname", is("테스트1")))
@@ -159,8 +160,56 @@ class PostControllerTest extends RestDocsSupport {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
                         ),
                         requestParameters(
-                                parameterWithName("page").optional().description("페이지 번호 (입력안할시 1 페이지)"),
-                                parameterWithName("size").optional().description("페이지 사이즈 (입력안할시 20개)")
+                                parameterWithName("query").optional().description("검색 키워드"),
+                                parameterWithName("page").description("페이지 번호 (0페이지 부터)"),
+                                parameterWithName("size").description("페이지 사이즈 ")
+                        ),
+                        responseFields(
+                                fieldWithPath("posts[].title").type(JsonFieldType.STRING).description("게시물 제목"),
+                                fieldWithPath("posts[].content").type(JsonFieldType.STRING).description("게시물 본문"),
+                                fieldWithPath("posts[].tags[]").type(JsonFieldType.ARRAY).description("게시물 태그"),
+                                fieldWithPath("posts[].nickname").type(JsonFieldType.STRING).description("게시물 작성자 닉네임"),
+                                fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
+                                fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수")
+                        )
+                ));
+
+    }
+
+    @Test
+    @DisplayName("게시물 리스트 조회 성공 / 검색 조건 있을 경우")
+    void get_posts_success_query() throws Exception {
+
+        //given
+        PostPageResponse response = PostPageResponse.from(getPostWithConditions());
+        given(postService.getPosts(any(),any())).willReturn(response);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/api/posts")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .param("query","test")
+                .param("page","0")
+                .param("size","15")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then, docs
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.posts",hasSize(1)))
+                .andExpect(jsonPath("$.posts[0].title", is("test")))
+                .andExpect(jsonPath("$.posts[0].content", is("테스트 본문1")))
+                .andExpect(jsonPath("$.posts[0].tags[0]", is("태그1")))
+                .andExpect(jsonPath("$.posts[0].nickname", is("테스트1")))
+                .andExpect(jsonPath("$.posts[0].score", is(1)))
+
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        requestParameters(
+                                parameterWithName("query").optional().description("검색 키워드"),
+                                parameterWithName("page").description("페이지 번호 (0페이지 부터)"),
+                                parameterWithName("size").description("페이지 사이즈 ")
                         ),
                         responseFields(
                                 fieldWithPath("posts[].title").type(JsonFieldType.STRING).description("게시물 제목"),
@@ -175,9 +224,9 @@ class PostControllerTest extends RestDocsSupport {
     }
 
 
-    private static List<PostInfo> getPostInfo(){
+    private static List<PostInfo> getPostWithoutConditions(){
         return List.of(PostInfo.builder()
-                .title("테스트 제목1")
+                .title("test")
                 .content("테스트 본문1")
                 .tags(List.of("태그1","태그2"))
                 .nickname("테스트1")
@@ -189,6 +238,17 @@ class PostControllerTest extends RestDocsSupport {
                         .content("테스트 본문2")
                         .tags(List.of("태그3","태그4"))
                         .nickname("테스트2")
+                        .score(1)
+                        .createdAt(LocalDateTime.now())
+                        .build());
+    }
+
+    private static List<PostInfo> getPostWithConditions(){
+        return List.of(PostInfo.builder()
+                        .title("test")
+                        .content("테스트 본문1")
+                        .tags(List.of("태그1","태그2"))
+                        .nickname("테스트1")
                         .score(1)
                         .createdAt(LocalDateTime.now())
                         .build());
