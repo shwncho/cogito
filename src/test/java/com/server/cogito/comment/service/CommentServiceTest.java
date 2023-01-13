@@ -262,4 +262,18 @@ class CommentServiceTest {
                 .build();
     }
 
+    @Test
+    @DisplayName("댓글 채택 실패 / 본인 댓글을 채택할 경우")
+    public void select_comment_fail_invalid_user() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        Comment comment = createComment(user);
+        given(commentRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(comment));
+        //expected
+        assertThatThrownBy(()->commentService.selectComment(authUser, comment.getId()))
+                .isExactlyInstanceOf(UserInvalidException.class);
+    }
+
 }

@@ -408,4 +408,38 @@ class CommentControllerTest extends RestDocsSupport {
                         )
                 ));
     }
+
+    @Test
+    @DisplayName("댓글 채택 실패 / 유효하지 않은 부모 댓글")
+    public void select_comment_fail_invalid_parent() throws Exception {
+        //given
+        willThrow(new CommentInvalidException(CommentErrorCode.COMMENT_PARENT_INVALID))
+                .given(commentService).selectComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/selection",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_PARENT_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_PARENT_INVALID.getMessage())));
+    }
+
+    @Test
+    @DisplayName("댓글 채택 실패 / 본인 댓글을 채택하려는 경우")
+    public void select_comment_fail_invalid_user() throws Exception {
+        //given
+        willThrow(new UserInvalidException(UserErrorCode.USER_INVALID))
+                .given(commentService).selectComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/selection",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
+    }
 }
