@@ -39,7 +39,7 @@ public class CommentService {
                         .user(authUser.getUser())
                         .build()
         );
-        authUser.getUser().addScore(3);
+        authUser.getUser().addScore(1);
     }
 
     private Comment getParent(Long parentId){

@@ -259,7 +259,7 @@ class PostControllerTest extends RestDocsSupport {
     public void get_post_success() throws Exception {
         //given
         PostResponse response = getPostResponse();
-        given(postService.getPost(anyLong())).willReturn(response);
+        given(postService.getPost(any(),anyLong())).willReturn(response);
         //when
         ResultActions resultActions = mockMvc.perform(get("/api/posts/{postId}",1L)
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
@@ -384,7 +384,7 @@ class PostControllerTest extends RestDocsSupport {
     @DisplayName("게시물 단건 조회 실패 / 존재하지 않는 게시물")
     public void get_post_fail_not_found() throws Exception {
         //given
-        willThrow(new PostNotFoundException()).given(postService).getPost(any());
+        willThrow(new PostNotFoundException()).given(postService).getPost(any(),any());
         //when
         ResultActions resultActions = mockMvc.perform(get("/api/posts/{postId}",1L)
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")

@@ -58,7 +58,7 @@ class CommentServiceTest {
         assertAll(
                 ()->verify(postRepository).findByIdAndStatus(any(),any()),
                 ()->verify(commentRepository).save(any(Comment.class)),
-                ()->assertThat(user.getScore()).isEqualTo(4)
+                ()->assertThat(user.getScore()).isEqualTo(2)
         );
 
     }

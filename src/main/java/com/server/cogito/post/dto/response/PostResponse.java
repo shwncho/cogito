@@ -1,14 +1,17 @@
 package com.server.cogito.post.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.server.cogito.comment.dto.response.CommentResponse;
 import com.server.cogito.file.entity.PostFile;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.tag.entity.Tag;
+import com.server.cogito.user.entity.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
@@ -30,6 +33,9 @@ public class PostResponse {
 
     private String profileImgUrl;
 
+    @JsonProperty("isMe")
+    private boolean isMe;
+
     private int score;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
@@ -37,7 +43,7 @@ public class PostResponse {
 
     private List<CommentResponse> commentResponses;
 
-    public static PostResponse from(Post post, List<CommentResponse> commentResponses){
+    public static PostResponse from(User user, Post post, List<CommentResponse> commentResponses){
         return PostResponse.builder()
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -45,6 +51,7 @@ public class PostResponse {
                 .files(post.getFiles().stream().map(PostFile::getUrl).collect(Collectors.toList()))
                 .nickname(post.getUser().getNickname())
                 .profileImgUrl(post.getUser().getProfileImgUrl())
+                .isMe(Objects.equals(user.getId(), post.getUser().getId()))
                 .score(post.getUser().getScore())
                 .commentResponses(commentResponses)
                 .build();

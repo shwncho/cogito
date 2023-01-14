@@ -75,17 +75,18 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponse getPost(Long postId){
+    public PostResponse getPost(AuthUser authUser, Long postId){
+        User user = authUser.getUser();
         Post post = postRepository.findPostByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
-        return PostResponse.from(post, convert(commentRepository.findCommentsByPostId(post.getId())));
+        return PostResponse.from(user, post, convert(user, commentRepository.findCommentsByPostId(post.getId())));
     }
 
-    private List<CommentResponse> convert(List<Comment> comments){
+    private List<CommentResponse> convert(User user, List<Comment> comments){
         List<CommentResponse> result = new ArrayList<>();
         Map<Long, CommentResponse> map = new HashMap<>();
         comments.forEach(c ->{
-            CommentResponse response = CommentResponse.from(c);
+            CommentResponse response = CommentResponse.from(user, c);
             map.put(response.getCommentId(), response);
             if(c.getParent()!=null) map.get(c.getParent().getId()).getChildren().add(response);
             else result.add(response);

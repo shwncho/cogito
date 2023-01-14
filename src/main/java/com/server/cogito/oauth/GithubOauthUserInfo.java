@@ -1,5 +1,6 @@
 package com.server.cogito.oauth;
 
+import com.server.cogito.common.exception.infrastructure.NoPublicEmailOnGithubException;
 import com.server.cogito.user.enums.Provider;
 
 import java.util.Collections;
@@ -19,7 +20,7 @@ public class GithubOauthUserInfo implements OauthUserInfo {
 
     @Override
     public String getEmail(){
-        if (attributes.get("email")==null)  return getGithubId();
+        validatePublicEmail();
         return attributes.get("email").toString();
     }
     @Override
@@ -27,12 +28,14 @@ public class GithubOauthUserInfo implements OauthUserInfo {
         return Provider.GITHUB;
     }
 
-    public String getGithubId() {
-        return attributes.get("id").toString();
-    }
-
     @Override
     public String getNickname() {
         return attributes.get("name").toString();
+    }
+
+    private void validatePublicEmail(){
+        if(attributes.get("email")==null){
+            throw new NoPublicEmailOnGithubException();
+        }
     }
 }

@@ -32,8 +32,8 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public PostResponse getPost(@PathVariable Long postId){
-        return postService.getPost(postId);
+    public PostResponse getPost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
+        return postService.getPost(authUser,postId);
     }
 
     @PatchMapping("/{postId}")

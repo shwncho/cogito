@@ -18,6 +18,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
     public List<Comment> findCommentsByPostId(Long postId) {
         return queryFactory.selectFrom(comment)
                 .leftJoin(comment.parent).fetchJoin()
+                .innerJoin(comment.user).fetchJoin()
                 .where(comment.post.id.eq(postId), comment.status.eq(BaseEntity.Status.ACTIVE))
                 .orderBy(
                         comment.selected.asc(),
