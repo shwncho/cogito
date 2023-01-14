@@ -6,7 +6,6 @@ import com.server.cogito.comment.dto.response.CommentResponse;
 import com.server.cogito.file.entity.PostFile;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.tag.entity.Tag;
-import com.server.cogito.user.entity.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -43,7 +42,7 @@ public class PostResponse {
 
     private List<CommentResponse> commentResponses;
 
-    public static PostResponse from(User user, Post post, List<CommentResponse> commentResponses){
+    public static PostResponse from(Long userId, Post post, List<CommentResponse> commentResponses){
         return PostResponse.builder()
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -51,7 +50,7 @@ public class PostResponse {
                 .files(post.getFiles().stream().map(PostFile::getUrl).collect(Collectors.toList()))
                 .nickname(post.getUser().getNickname())
                 .profileImgUrl(post.getUser().getProfileImgUrl())
-                .isMe(Objects.equals(user.getId(), post.getUser().getId()))
+                .isMe(Objects.equals(userId, post.getUser().getId()))
                 .score(post.getUser().getScore())
                 .commentResponses(commentResponses)
                 .build();

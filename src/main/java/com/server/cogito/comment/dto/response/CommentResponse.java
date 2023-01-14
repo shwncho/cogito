@@ -3,7 +3,6 @@ package com.server.cogito.comment.dto.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.server.cogito.comment.entity.Comment;
-import com.server.cogito.user.entity.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -48,7 +47,7 @@ public class CommentResponse {
         this.createdAt = createdAt;
     }
 
-    public static CommentResponse from(User user, Comment comment){
+    public static CommentResponse from(Long userId, Comment comment){
         return CommentResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
@@ -58,7 +57,7 @@ public class CommentResponse {
                 .nickname(comment.getUser().getNickname())
                 .score(comment.getUser().getScore())
                 .profileImgUrl(comment.getUser().getProfileImgUrl())
-                .isMe(Objects.equals(user.getId(), comment.getUser().getId()))
+                .isMe(Objects.equals(userId, comment.getUser().getId()))
                 .createdAt(comment.getCreatedAt())
                 .build();
     }

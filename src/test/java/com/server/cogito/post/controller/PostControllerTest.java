@@ -275,6 +275,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.profileImgUrl",is("testUrl")))
                 .andExpect(jsonPath("$.score",is(1)))
                 .andExpect(jsonPath("$.createdAt",is(LocalDateTime.of(2022, 1, 5,0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))))
+                .andExpect(jsonPath("$.isMe",is(true)))
                 .andExpect(jsonPath("$.commentResponses[0].commentId",is(1)))
                 .andExpect(jsonPath("$.commentResponses[0].content",is("테스트 댓글")))
                 .andExpect(jsonPath("$.commentResponses[0].selected",is(0)))
@@ -284,6 +285,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.commentResponses[0].score",is(4)))
                 .andExpect(jsonPath("$.commentResponses[0].profileImgUrl",is("testUrl2")))
                 .andExpect(jsonPath("$.commentResponses[0].createdAt",is(LocalDateTime.of(2022, 1, 5,0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))))
+                .andExpect(jsonPath("$.commentResponses[0].isMe",is(true)))
                 .andExpect(jsonPath("$.commentResponses[0].children[0].commentId",is(2)))
                 .andExpect(jsonPath("$.commentResponses[0].children[0].content",is("테스트 대댓글")))
                 .andExpect(jsonPath("$.commentResponses[0].children[0].selected",is(0)))
@@ -294,6 +296,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.commentResponses[0].children[0].profileImgUrl",is("testUrl3")))
                 .andExpect(jsonPath("$.commentResponses[0].children[0].createdAt",is(LocalDateTime.of(2022, 1, 5,0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))))
                 .andExpect(jsonPath("$.commentResponses[0].children[0].children",is(empty())))
+                .andExpect(jsonPath("$.commentResponses[0].children[0].isMe",is(true)))
 
 
 
@@ -314,6 +317,7 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("profileImgUrl").type(JsonFieldType.STRING).description("게시물 작성자 프로필 이미지 URL"),
                                 fieldWithPath("score").type(JsonFieldType.NUMBER).description("게시물 작성자 score"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시물 작성 시간"),
+                                fieldWithPath("isMe").type(JsonFieldType.BOOLEAN).description("본인 여부"),
                                 fieldWithPath("commentResponses[].commentId").type(JsonFieldType.NUMBER).description("댓글 id"),
                                 fieldWithPath("commentResponses[].content").type(JsonFieldType.STRING).description("댓글 내용"),
                                 fieldWithPath("commentResponses[].selected").type(JsonFieldType.NUMBER).description("댓글 채택 여부 0 or 1"),
@@ -324,6 +328,7 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("commentResponses[].profileImgUrl").type(JsonFieldType.STRING).description("댓글 작성자 프로필 이미지 URL"),
                                 fieldWithPath("commentResponses[].createdAt").type(JsonFieldType.STRING).description("댓글 작성 시간"),
                                 fieldWithPath("commentResponses[].children[]").type(JsonFieldType.ARRAY).description("대댓글이 없을경우 빈 리스트"),
+                                fieldWithPath("commentResponses[].isMe").type(JsonFieldType.BOOLEAN).description("본인 여부"),
                                 fieldWithPath("commentResponses[].children[].commentId").type(JsonFieldType.NUMBER).description("대댓글 id"),
                                 fieldWithPath("commentResponses[].children[].content").type(JsonFieldType.STRING).description("대댓글 내용"),
                                 fieldWithPath("commentResponses[].children[].selected").type(JsonFieldType.NUMBER).description("대댓글은 채택 없음"),
@@ -333,8 +338,9 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("commentResponses[].children[].score").type(JsonFieldType.NUMBER).description("대댓글 작성자 score"),
                                 fieldWithPath("commentResponses[].children[].profileImgUrl").type(JsonFieldType.STRING).description("대댓글 작성자 프로필 이미지 URL"),
                                 fieldWithPath("commentResponses[].children[].createdAt").type(JsonFieldType.STRING).description("대댓글 작성 시간"),
-                                fieldWithPath("commentResponses[].children[].children[]").type(JsonFieldType.ARRAY).description("대댓글의 children[]은 무조건 빈 리스트")
-                        )
+                                fieldWithPath("commentResponses[].children[].children[]").type(JsonFieldType.ARRAY).description("대댓글의 children[]은 무조건 빈 리스트"),
+                                fieldWithPath("commentResponses[].children[].isMe").type(JsonFieldType.BOOLEAN).description("본인 여부")
+                                )
                 ));
     }
 
@@ -351,6 +357,7 @@ class PostControllerTest extends RestDocsSupport {
                 .score(1)
                 .createdAt(LocalDateTime.of(2022, 1, 5,0,0,0))
                 .commentResponses(List.of(getCommentResponse()))
+                .isMe(true)
                 .build();
 
     }
@@ -376,7 +383,9 @@ class PostControllerTest extends RestDocsSupport {
                         .score(4)
                         .profileImgUrl("testUrl3")
                         .createdAt(LocalDateTime.of(2022, 1, 5,0,0,0))
+                        .isMe(true)
                         .build()))
+                .isMe(true)
                 .build();
     }
 

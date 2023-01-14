@@ -66,6 +66,7 @@ class PostServiceTest {
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
         Post post = Post.of(request.getTitle(),request.getContent(),user);
+        given(userRepository.findByEmailAndStatus(any(),any())).willReturn(Optional.of(user));
         given(postRepository.save(any(Post.class))).willReturn(post);
 
         //when
@@ -73,6 +74,7 @@ class PostServiceTest {
 
         //then
         assertAll(
+                ()->verify(userRepository).findByEmailAndStatus(any(),any()),
                 ()->verify(postRepository).save(any(Post.class)),
                 ()->assertThat(user.getScore()).isEqualTo(3)
         );

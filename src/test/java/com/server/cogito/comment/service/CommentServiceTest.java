@@ -13,6 +13,7 @@ import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
+import com.server.cogito.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +41,9 @@ class CommentServiceTest {
     @Mock
     PostRepository postRepository;
 
+    @Mock
+    UserRepository userRepository;
+
     @InjectMocks
     CommentService commentService;
 
@@ -51,11 +55,13 @@ class CommentServiceTest {
         AuthUser authUser = AuthUser.of(user);
         Post post = createPost(user);
         CommentRequest request = createCommentRequest();
+        given(userRepository.findByEmailAndStatus(any(),any())).willReturn(Optional.of(user));
         given(postRepository.findByIdAndStatus(any(),any())).willReturn(Optional.of(post));
         //when
         commentService.createComment(authUser,request);
         //then
         assertAll(
+                ()->verify(userRepository).findByEmailAndStatus(any(),any()),
                 ()->verify(postRepository).findByIdAndStatus(any(),any()),
                 ()->verify(commentRepository).save(any(Comment.class)),
                 ()->assertThat(user.getScore()).isEqualTo(2)
@@ -71,6 +77,7 @@ class CommentServiceTest {
         AuthUser authUser = AuthUser.of(user);
         Post post = createPost(user);
         CommentRequest request = createCommentRequest();
+        given(userRepository.findByEmailAndStatus(any(),any())).willReturn(Optional.of(user));
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willThrow(PostNotFoundException.class);
 
@@ -149,8 +156,8 @@ class CommentServiceTest {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Comment comment = getComment();
-        user.addScore(3);
+        Comment comment = createComment(user);
+        user.addScore(1);
         given(commentRepository.findByIdAndStatus(comment.getId(), BaseEntity.Status.ACTIVE))
                 .willReturn(Optional.of(comment));
         //when

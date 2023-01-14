@@ -7,6 +7,7 @@ import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserErrorCode;
 import com.server.cogito.common.exception.user.UserInvalidException;
+import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.file.entity.PostFile;
 import com.server.cogito.file.repository.PostFileRepository;
@@ -21,6 +22,7 @@ import com.server.cogito.post.repository.PostRepository;
 import com.server.cogito.tag.entity.Tag;
 import com.server.cogito.tag.repository.TagRepository;
 import com.server.cogito.user.entity.User;
+import com.server.cogito.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,10 +41,12 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final PostFileRepository postFileRepository;
     private final TagRepository tagRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public CreatePostResponse createPost(AuthUser authUser, PostRequest request){
-        User user = authUser.getUser();
+        User user = userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE)
+                .orElseThrow(UserNotFoundException::new);
         Post post = Post.of(request.getTitle(), request.getContent(), user);
         savePostFilesAndTags(request, post);
         user.addScore(2);
@@ -76,17 +80,17 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostResponse getPost(AuthUser authUser, Long postId){
-        User user = authUser.getUser();
+        Long userId = authUser.getUserId();
         Post post = postRepository.findPostByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
-        return PostResponse.from(user, post, convert(user, commentRepository.findCommentsByPostId(post.getId())));
+        return PostResponse.from(userId, post, convert(userId, commentRepository.findCommentsByPostId(post.getId())));
     }
 
-    private List<CommentResponse> convert(User user, List<Comment> comments){
+    private List<CommentResponse> convert(Long userId, List<Comment> comments){
         List<CommentResponse> result = new ArrayList<>();
         Map<Long, CommentResponse> map = new HashMap<>();
         comments.forEach(c ->{
-            CommentResponse response = CommentResponse.from(user, c);
+            CommentResponse response = CommentResponse.from(userId, c);
             map.put(response.getCommentId(), response);
             if(c.getParent()!=null) map.get(c.getParent().getId()).getChildren().add(response);
             else result.add(response);

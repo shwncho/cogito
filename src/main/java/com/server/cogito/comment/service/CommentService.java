@@ -4,14 +4,18 @@ import com.server.cogito.comment.dto.request.CommentRequest;
 import com.server.cogito.comment.dto.request.UpdateCommentRequest;
 import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.comment.repository.CommentRepository;
+import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.comment.CommentErrorCode;
 import com.server.cogito.common.exception.comment.CommentInvalidException;
 import com.server.cogito.common.exception.comment.CommentNotFoundException;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserErrorCode;
 import com.server.cogito.common.exception.user.UserInvalidException;
+import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.repository.PostRepository;
+import com.server.cogito.user.entity.User;
+import com.server.cogito.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +30,12 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void createComment(AuthUser authUser, CommentRequest commentRequest){
+        User user = userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE)
+                .orElseThrow(UserNotFoundException::new);
         commentRepository.save(
                 Comment.builder()
                         .post(postRepository.findByIdAndStatus(commentRequest.getPostId(), ACTIVE)
@@ -36,10 +43,10 @@ public class CommentService {
                         .parent(commentRequest.getParentId() != null ?
                                 getParent(commentRequest.getParentId()) : null)
                         .content(commentRequest.getContent())
-                        .user(authUser.getUser())
+                        .user(user)
                         .build()
         );
-        authUser.getUser().addScore(1);
+        user.addScore(1);
     }
 
     private Comment getParent(Long parentId){
@@ -78,7 +85,7 @@ public class CommentService {
         }
         else comment.deleteComment();
 
-        authUser.getUser().subtractScore(3);
+        comment.getUser().subtractScore(1);
     }
 
     private static void validateUserId(AuthUser authUser, Comment comment) {
