@@ -4,6 +4,7 @@ import com.server.cogito.comment.repository.CommentRepository;
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserInvalidException;
+import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.file.repository.PostFileRepository;
 import com.server.cogito.post.dto.request.PostRequest;
@@ -78,6 +79,20 @@ class PostServiceTest {
                 ()->verify(postRepository).save(any(Post.class)),
                 ()->assertThat(user.getScore()).isEqualTo(3)
         );
+    }
+
+    @Test
+    @DisplayName("게시물 생성 실패 / 존재하지 않는 유저")
+    public void create_post_not_found_user() throws Exception {
+        //given
+        PostRequest request = createPostRequest();
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        given(userRepository.findByEmailAndStatus(any(),any()))
+                .willThrow(new UserNotFoundException());
+        //expected
+        assertThatThrownBy(()->postService.createPost(authUser,request))
+                .isExactlyInstanceOf(UserNotFoundException.class);
     }
 
     private static PostRequest createPostRequest() {

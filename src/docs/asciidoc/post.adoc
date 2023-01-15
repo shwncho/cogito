@@ -21,6 +21,10 @@ include::{snippets}/post-controller-test/create_post_success/response-fields.ado
 include::{snippets}/post-controller-test/create_post_fail_not_valid/http-request.adoc[]
 include::{snippets}/post-controller-test/create_post_fail_not_valid/http-response.adoc[]
 
+=== U001
+include::{snippets}/post-controller-test/create_post_fail_not_found_user/http-request.adoc[]
+include::{snippets}/post-controller-test/create_post_fail_not_found_user/http-response.adoc[]
+
 == 게시물 조회 (검색 조건 없을 때)
 
 === 요청

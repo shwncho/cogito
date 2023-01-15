@@ -6,6 +6,7 @@ import com.server.cogito.common.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -57,6 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .antMatchers("/","/api/auth/**","/h2-console/**").permitAll() //로그인 부분
                 .antMatchers("/docs/**","/error,", "/favicon.ico").permitAll()
                 .anyRequest().authenticated();

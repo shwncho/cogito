@@ -8,6 +8,7 @@ import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.comment.CommentNotFoundException;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserInvalidException;
+import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,6 +86,20 @@ class CommentServiceTest {
         //expected
         assertThatThrownBy(()->commentService.createComment(authUser,request))
                 .isExactlyInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("댓글 생성 실패 / 존재하지 않는 유저")
+    public void create_comment_fail_not_found_user() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        CommentRequest request = createCommentRequest();
+        given(userRepository.findByEmailAndStatus(any(),any()))
+                .willThrow(new UserNotFoundException());
+        //expected
+        assertThatThrownBy(()->commentService.createComment(authUser,request))
+                .isExactlyInstanceOf(UserNotFoundException.class);
     }
 
 

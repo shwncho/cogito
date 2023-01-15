@@ -10,6 +10,7 @@ import com.server.cogito.common.exception.post.PostErrorCode;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserErrorCode;
 import com.server.cogito.common.exception.user.UserInvalidException;
+import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
 import org.junit.jupiter.api.DisplayName;
@@ -141,6 +142,27 @@ class CommentControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.code",is(CommentErrorCode.COMMENT_PARENT_INVALID.getCode())))
                 .andExpect(jsonPath("$.message",is(CommentErrorCode.COMMENT_PARENT_INVALID.getMessage())));
     }
+
+    @Test
+    @DisplayName("댓글 생성 실패 / 존재하지 않는 유저")
+    public void create_comment_fail_not_found_user() throws Exception {
+        CommentRequest request = CommentRequest.builder()
+                .postId(1L)
+                .content("테스트")
+                .build();
+        willThrow(new UserNotFoundException()).given(commentService).createComment(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/comments")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_NOT_FOUND.getMessage())));
+    }
+
     @Test
     @DisplayName("댓글 수정 성공")
     public void update_comment_success() throws Exception {

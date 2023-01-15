@@ -26,6 +26,10 @@ include::{snippets}/auth-controller-test/login_fail_kakao/http-response.adoc[]
 include::{snippets}/auth-controller-test/login_fail_github/http-request.adoc[]
 include::{snippets}/auth-controller-test/login_fail_github/http-response.adoc[]
 
+=== I002
+include::{snippets}/auth-controller-test/login_fail_github_no_public_email/http-request.adoc[]
+include::{snippets}/auth-controller-test/login_fail_github_no_public_email/http-response.adoc[]
+
 
 == 로그아웃
 

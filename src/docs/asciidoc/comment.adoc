@@ -28,6 +28,10 @@ include::{snippets}/comment-controller-test/create_comment_fail_not_found_parent
 include::{snippets}/comment-controller-test/create_comment_fail_invalid_parent/http-request.adoc[]
 include::{snippets}/comment-controller-test/create_comment_fail_invalid_parent/http-response.adoc[]
 
+=== U001
+include::{snippets}/comment-controller-test/create_comment_fail_not_found_user/http-request.adoc[]
+include::{snippets}/comment-controller-test/create_comment_fail_not_found_user/http-response.adoc[]
+
 == 댓글 수정
 
 === 요청

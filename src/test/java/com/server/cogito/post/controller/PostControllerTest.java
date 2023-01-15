@@ -5,6 +5,7 @@ import com.server.cogito.common.exception.post.PostErrorCode;
 import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserErrorCode;
 import com.server.cogito.common.exception.user.UserInvalidException;
+import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.request.UpdatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
@@ -24,14 +25,14 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -123,6 +124,25 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors",hasSize(2)));
 
+    }
+
+    @Test
+    @DisplayName("게시물 생성 실패 / 존재하지 않는 유저")
+    public void create_post_fail_not_found_user() throws Exception {
+        //given
+        PostRequest request = createPostRequest();
+        given(postService.createPost(any(),any()))
+                .willThrow(new UserNotFoundException());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/posts")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_NOT_FOUND.getMessage())));
     }
 
     @Test
