@@ -8,6 +8,7 @@ import com.server.cogito.common.exception.auth.RefreshTokenInvalidException;
 import com.server.cogito.common.exception.auth.RefreshTokenNotEqualException;
 import com.server.cogito.common.exception.auth.RefreshTokenNotFoundException;
 import com.server.cogito.common.exception.infrastructure.InfraErrorCode;
+import com.server.cogito.common.exception.infrastructure.NoPublicEmailOnGithubException;
 import com.server.cogito.common.exception.infrastructure.UnsupportedOauthProviderException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.support.restdocs.RestDocsSupport;
@@ -162,6 +163,23 @@ class AuthControllerTest extends RestDocsSupport{
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code",is(AuthErrorCode.GITHUB_LOGIN.getCode())))
                 .andExpect(jsonPath("$.message",is(AuthErrorCode.GITHUB_LOGIN.getMessage())));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 / 깃허브에 public email이 등록되어있지 않을경우")
+    public void login_fail_github_no_public_email() throws Exception {
+        //given
+        String code = "code";
+        String provider = "github";
+        willThrow(new NoPublicEmailOnGithubException()).given(authService).login(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/auth/{provider}/login/token?code="+code,provider));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(InfraErrorCode.EMPTY_PUBLIC_EMAIL.getCode())))
+                .andExpect(jsonPath("$.message",is(InfraErrorCode.EMPTY_PUBLIC_EMAIL.getMessage())));
     }
 
 
