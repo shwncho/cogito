@@ -1,5 +1,6 @@
 package com.server.cogito.post.entity;
 
+import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.file.entity.PostFile;
 import com.server.cogito.post.dto.request.UpdatePostRequest;
@@ -47,6 +48,10 @@ public class Post extends BaseEntity {
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private List<Tag> tags = new ArrayList<>();
+
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
 
     private int linkCnt;
 

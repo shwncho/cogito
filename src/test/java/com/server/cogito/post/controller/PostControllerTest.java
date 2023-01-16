@@ -164,16 +164,22 @@ class PostControllerTest extends RestDocsSupport {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.posts",hasSize(2)))
+                .andExpect(jsonPath("$.posts[0].postId",is(1)))
                 .andExpect(jsonPath("$.posts[0].title", is("test")))
                 .andExpect(jsonPath("$.posts[0].content", is("테스트 본문1")))
                 .andExpect(jsonPath("$.posts[0].tags[0]", is("태그1")))
                 .andExpect(jsonPath("$.posts[0].nickname", is("테스트1")))
+                .andExpect(jsonPath("$.posts[0].profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.posts[0].score", is(1)))
+                .andExpect(jsonPath("$.posts[0].commentCnt",is(0)))
+                .andExpect(jsonPath("$.posts[1].postId",is(2)))
                 .andExpect(jsonPath("$.posts[1].title", is("테스트 제목2")))
                 .andExpect(jsonPath("$.posts[1].content", is("테스트 본문2")))
                 .andExpect(jsonPath("$.posts[1].tags[0]", is("태그3")))
                 .andExpect(jsonPath("$.posts[1].nickname", is("테스트2")))
+                .andExpect(jsonPath("$.posts[1].profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.posts[1].score", is(1)))
+                .andExpect(jsonPath("$.posts[1].commentCnt",is(0)))
 
                 .andDo(restDocs.document(
                         requestHeaders(
@@ -185,12 +191,15 @@ class PostControllerTest extends RestDocsSupport {
                                 parameterWithName("size").description("페이지 사이즈 ")
                         ),
                         responseFields(
+                                fieldWithPath("posts[].postId").type(JsonFieldType.NUMBER).description("게시물 id"),
                                 fieldWithPath("posts[].title").type(JsonFieldType.STRING).description("게시물 제목"),
                                 fieldWithPath("posts[].content").type(JsonFieldType.STRING).description("게시물 본문"),
                                 fieldWithPath("posts[].tags[]").type(JsonFieldType.ARRAY).description("게시물 태그"),
                                 fieldWithPath("posts[].nickname").type(JsonFieldType.STRING).description("게시물 작성자 닉네임"),
+                                fieldWithPath("posts[].profileImgUrl").type(JsonFieldType.STRING).description("게시물 작성자 프로필 이미지 URL"),
                                 fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
-                                fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수")
+                                fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수"),
+                                fieldWithPath("posts[].commentCnt").type(JsonFieldType.NUMBER).description("게시물 댓글 개수")
                         )
                 ));
 
@@ -216,11 +225,14 @@ class PostControllerTest extends RestDocsSupport {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.posts",hasSize(1)))
+                .andExpect(jsonPath("$.posts[0].postId",is(1)))
                 .andExpect(jsonPath("$.posts[0].title", is("test")))
                 .andExpect(jsonPath("$.posts[0].content", is("테스트 본문1")))
                 .andExpect(jsonPath("$.posts[0].tags[0]", is("태그1")))
                 .andExpect(jsonPath("$.posts[0].nickname", is("테스트1")))
+                .andExpect(jsonPath("$.posts[0].profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.posts[0].score", is(1)))
+                .andExpect(jsonPath("$.posts[0].commentCnt",is(0)))
 
                 .andDo(restDocs.document(
                         requestHeaders(
@@ -232,12 +244,15 @@ class PostControllerTest extends RestDocsSupport {
                                 parameterWithName("size").description("페이지 사이즈 ")
                         ),
                         responseFields(
+                                fieldWithPath("posts[].postId").type(JsonFieldType.NUMBER).description("게시물 id"),
                                 fieldWithPath("posts[].title").type(JsonFieldType.STRING).description("게시물 제목"),
                                 fieldWithPath("posts[].content").type(JsonFieldType.STRING).description("게시물 본문"),
                                 fieldWithPath("posts[].tags[]").type(JsonFieldType.ARRAY).description("게시물 태그"),
                                 fieldWithPath("posts[].nickname").type(JsonFieldType.STRING).description("게시물 작성자 닉네임"),
+                                fieldWithPath("posts[].profileImgUrl").type(JsonFieldType.STRING).description("게시물 작성자 프로필 이미지 URL"),
                                 fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
-                                fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수")
+                                fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수"),
+                                fieldWithPath("posts[].commentCnt").type(JsonFieldType.NUMBER).description("게시물 댓글 개수")
                         )
                 ));
 
@@ -246,30 +261,39 @@ class PostControllerTest extends RestDocsSupport {
 
     private static List<PostInfo> getPostWithoutConditions(){
         return List.of(PostInfo.builder()
+                .postId(1L)
                 .title("test")
                 .content("테스트 본문1")
                 .tags(List.of("태그1","태그2"))
                 .nickname("테스트1")
+                .profileImgUrl("url")
                 .score(1)
+                .commentCnt(0)
                 .createdAt(LocalDateTime.now())
                 .build(),
                 PostInfo.builder()
+                        .postId(2L)
                         .title("테스트 제목2")
                         .content("테스트 본문2")
                         .tags(List.of("태그3","태그4"))
                         .nickname("테스트2")
+                        .profileImgUrl("url")
                         .score(1)
+                        .commentCnt(0)
                         .createdAt(LocalDateTime.now())
                         .build());
     }
 
     private static List<PostInfo> getPostWithConditions(){
         return List.of(PostInfo.builder()
+                        .postId(1L)
                         .title("test")
                         .content("테스트 본문1")
                         .tags(List.of("태그1","태그2"))
                         .nickname("테스트1")
+                        .profileImgUrl("url")
                         .score(1)
+                        .commentCnt(0)
                         .createdAt(LocalDateTime.now())
                         .build());
     }

@@ -15,8 +15,6 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post,Long>,PostRepositoryCustom{
 
-    @EntityGraph(attributePaths = {"user"})
-    Page<Post> findAll(Pageable pageable);
 
     //게시물 존재여부 체크
     @Query("select p from Post p" +
