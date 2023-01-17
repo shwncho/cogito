@@ -79,11 +79,10 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponse getPost(AuthUser authUser, Long postId){
-        Long userId = authUser.getUserId();
+    public PostResponse getPost(Long postId){
         Post post = postRepository.findPostByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
-        return PostResponse.from(userId, post, convert(userId, commentRepository.findCommentsByPostId(post.getId())));
+        return PostResponse.from(post.getUser().getId(), post, convert(post.getUser().getId(), commentRepository.findCommentsByPostId(post.getId())));
     }
 
     private List<CommentResponse> convert(Long userId, List<Comment> comments){
