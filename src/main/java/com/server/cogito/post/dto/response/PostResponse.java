@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 @Builder
 public class PostResponse {
 
+    private Long postId;
+
     private String title;
 
     private String content;
@@ -44,6 +46,7 @@ public class PostResponse {
 
     public static PostResponse from(Long userId, Post post, List<CommentResponse> commentResponses){
         return PostResponse.builder()
+                .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .tags(post.getTags().stream().map(Tag::getContent).collect(Collectors.toList()))

@@ -311,6 +311,7 @@ class PostControllerTest extends RestDocsSupport {
         //then
         resultActions
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postId",is(1)))
                 .andExpect(jsonPath("$.title",is("테스트 제목")))
                 .andExpect(jsonPath("$.content",is("테스트 본문")))
                 .andExpect(jsonPath("$.tags[0]",is("태그1")))
@@ -353,6 +354,7 @@ class PostControllerTest extends RestDocsSupport {
                                 parameterWithName("postId").description("게시물 id")
                         ),
                         responseFields(
+                                fieldWithPath("postId").type(JsonFieldType.NUMBER).description("게시물 id"),
                                 fieldWithPath("title").type(JsonFieldType.STRING).description("게시물 제목"),
                                 fieldWithPath("content").type(JsonFieldType.STRING).description("게시물 본문"),
                                 fieldWithPath("tags[]").type(JsonFieldType.ARRAY).description("게시물 태그"),
@@ -392,6 +394,7 @@ class PostControllerTest extends RestDocsSupport {
 
     private PostResponse getPostResponse(){
         return PostResponse.builder()
+                .postId(1L)
                 .title("테스트 제목")
                 .content("테스트 본문")
                 .tags(List.of("태그1"))
