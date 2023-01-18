@@ -2,6 +2,7 @@ package com.server.cogito.user.controller;
 
 import com.server.cogito.common.exception.user.UserErrorCode;
 import com.server.cogito.common.exception.user.UserNicknameExistException;
+import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
 import com.server.cogito.user.dto.request.UserRequest;
@@ -44,6 +45,38 @@ class UserControllerTest extends RestDocsSupport {
     private UserService userService;
 
     @Test
+    @DisplayName("본인 프로필 조회 성공")
+    public void get_me_success() throws Exception {
+        //given
+        User user = mockKakaoUser();
+        UserResponse response = UserResponse.from(user);
+        given(userService.getMe(any())).willReturn(response);
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/api/users/me")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken"));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId",is(1)))
+                .andExpect(jsonPath("$.nickname",is("kakao")))
+                .andExpect(jsonPath("$.profileImgUrl",is("url")))
+                .andExpect(jsonPath("$.score",is(1)))
+                .andExpect(jsonPath("$.introduce",is("소개")))
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        responseFields(
+                                fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 id"),
+                                fieldWithPath("nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
+                                fieldWithPath("profileImgUrl").type(JsonFieldType.STRING).description("유저 프로필 사진"),
+                                fieldWithPath("score").type(JsonFieldType.NUMBER).description("유저 점수"),
+                                fieldWithPath("introduce").type(JsonFieldType.STRING).description("유저 소개")
+                        )
+                ));
+    }
+
+    @Test
     @DisplayName("유저 프로필 조회")
     public void get_user_success() throws Exception {
         //given
@@ -58,10 +91,11 @@ class UserControllerTest extends RestDocsSupport {
         //then
         resultActions
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId",is(1)))
                 .andExpect(jsonPath("$.nickname",is("kakao")))
-                .andExpect(jsonPath("$.profileImgUrl").value(nullValue()))
+                .andExpect(jsonPath("$.profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.score",is(1)))
-                .andExpect(jsonPath("$.introduce").value(nullValue()))
+                .andExpect(jsonPath("$.introduce",is("소개")))
                 .andDo(restDocs.document(
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
@@ -70,10 +104,11 @@ class UserControllerTest extends RestDocsSupport {
                                 parameterWithName("userId").description("유저 id")
                         ),
                         responseFields(
+                                fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 id"),
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
-                                fieldWithPath("profileImgUrl").type(JsonFieldType.NULL).description("유저 프로필 사진"),
+                                fieldWithPath("profileImgUrl").type(JsonFieldType.STRING).description("유저 프로필 사진"),
                                 fieldWithPath("score").type(JsonFieldType.NUMBER).description("유저 점수"),
-                                fieldWithPath("introduce").type(JsonFieldType.NULL).description("유저 소개")
+                                fieldWithPath("introduce").type(JsonFieldType.STRING).description("유저 소개")
                         )
                 ));
 
@@ -83,8 +118,11 @@ class UserControllerTest extends RestDocsSupport {
 
     private User mockKakaoUser(){
         return User.builder()
+                .id(1L)
                 .email("kakao@kakao.com")
                 .nickname("kakao")
+                .profileImgUrl("url")
+                .introduce("소개")
                 .provider(Provider.KAKAO)
                 .build();
     }

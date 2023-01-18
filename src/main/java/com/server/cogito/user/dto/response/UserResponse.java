@@ -10,6 +10,8 @@ import lombok.*;
 @Builder
 public class UserResponse {
 
+    private Long userId;
+
     private String nickname;
 
     private String profileImgUrl;
@@ -20,6 +22,7 @@ public class UserResponse {
 
     public static UserResponse from(User user){
         return UserResponse.builder()
+                .userId(user.getId())
                 .nickname(user.getNickname())
                 .profileImgUrl(user.getProfileImgUrl())
                 .score(user.getScore())

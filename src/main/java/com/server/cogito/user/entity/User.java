@@ -44,13 +44,15 @@ public class User extends BaseEntity {
     private Provider provider;
 
     @Builder
-    public User(Long id, String email, String nickname, Provider provider) {
+    public User(Long id, String email, String nickname, String profileImgUrl, String introduce, Provider provider) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
+        this.profileImgUrl = profileImgUrl;
+        this.introduce = introduce;
+        this.score++;
         this.authority = Authority.ROLE_USER;
         this.provider = provider;
-        this.score++;
     }
 
     public void addScore(int num){

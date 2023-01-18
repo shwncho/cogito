@@ -32,6 +32,26 @@ class UserServiceTest {
     UserService userService;
 
     @Test
+    @DisplayName("본인 프로필 조회 성공")
+    public void get_me_success() throws Exception {
+        //given
+        User user = mockKakaoUser();
+        AuthUser authUser = AuthUser.of(user);
+
+        //when
+        UserResponse response = userService.getMe(authUser);
+
+        //then
+        assertAll(
+                ()->assertThat(user.getId()).isEqualTo(response.getUserId()),
+                ()->assertThat(user.getNickname()).isEqualTo(response.getNickname()),
+                ()->assertThat(user.getProfileImgUrl()).isEqualTo(response.getProfileImgUrl()),
+                ()->assertThat(user.getScore()).isEqualTo(response.getScore()),
+                ()->assertThat(user.getIntroduce()).isEqualTo(response.getIntroduce())
+        );
+    }
+
+    @Test
     @DisplayName("유저 프로필 조회 성공")
     public void get_user_success() throws Exception {
         //given
@@ -44,6 +64,7 @@ class UserServiceTest {
 
         //then
         assertAll(
+                ()->assertThat(user.getId()).isEqualTo(response.getUserId()),
                 ()->assertThat(user.getNickname()).isEqualTo(response.getNickname()),
                 ()->assertThat(user.getProfileImgUrl()).isEqualTo(response.getProfileImgUrl()),
                 ()->assertThat(user.getScore()).isEqualTo(response.getScore()),
@@ -53,6 +74,7 @@ class UserServiceTest {
 
     private User mockKakaoUser(){
         return User.builder()
+                .id(1L)
                 .email("kakao@kakao.com")
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
