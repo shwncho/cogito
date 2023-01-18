@@ -23,6 +23,11 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
+    public UserResponse getMe(AuthUser authUser){
+        return UserResponse.from(authUser.getUser());
+    }
+
+    @Transactional(readOnly = true)
     public UserResponse getUser(Long userId){
         User user = userRepository.findByIdAndStatus(userId, BaseEntity.Status.ACTIVE)
                 .orElseThrow(UserNotFoundException::new);

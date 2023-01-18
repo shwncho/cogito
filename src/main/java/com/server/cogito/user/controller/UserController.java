@@ -15,6 +15,11 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/me")
+    public UserResponse getMe(@AuthenticationPrincipal AuthUser authUser){
+        return userService.getMe(authUser);
+    }
+
     @GetMapping("/{userId}")
     public UserResponse getUser(@PathVariable Long userId){
         return userService.getUser(userId);
