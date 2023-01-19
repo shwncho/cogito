@@ -53,7 +53,7 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    private int linkCnt;
+    private int likeCnt;
 
 
     @Builder
@@ -92,5 +92,11 @@ public class Post extends BaseEntity {
         this.setStatus(Status.INACTIVE);
     }
 
+    public void addLike(){
+        this.likeCnt++;
+    }
 
+    public void subtractLike(){
+        this.likeCnt--;
+    }
 }

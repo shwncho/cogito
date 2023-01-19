@@ -45,4 +45,14 @@ public class PostController {
     public void deletePost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
         postService.deletePost(authUser, postId);
     }
+
+    @PatchMapping("/{postId}/like")
+    public void likePost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
+        postService.likePost(authUser, postId);
+    }
+
+    @PatchMapping("/{postId}/dislike")
+    public void dislikePost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
+        postService.dislikePost(authUser, postId);
+    }
 }

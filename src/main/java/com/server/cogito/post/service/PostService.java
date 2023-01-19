@@ -133,5 +133,29 @@ public class PostService {
         }
     }
 
+    @Transactional
+    public void likePost(AuthUser authUser, Long postId){
+        Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
+                .orElseThrow(PostNotFoundException::new);
+        validateEqualUserId(authUser,post);
+
+        post.addLike();
+    }
+
+    @Transactional
+    public void dislikePost(AuthUser authUser, Long postId){
+        Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
+                .orElseThrow(PostNotFoundException::new);
+        validateEqualUserId(authUser,post);
+
+        post.subtractLike();
+    }
+
+
+    private static void validateEqualUserId(AuthUser authUser, Post post) {
+        if(Objects.equals(authUser.getUserId(), post.getUser().getId())){
+            throw new UserInvalidException(UserErrorCode.USER_INVALID);
+        }
+    }
 
 }
