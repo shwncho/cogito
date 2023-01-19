@@ -563,4 +563,116 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
                 .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
     }
+
+    @Test
+    @DisplayName("게시물 좋아요 성공")
+    public void like_post_success() throws Exception {
+        //given
+        willDoNothing().given(postService).likePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/like",1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 id")
+                        )
+                ));
+
+    }
+
+    @Test
+    @DisplayName("게시물 좋아요 실패 / 존재하지 않는 게시물")
+    public void like_post_fail_not_found() throws Exception {
+        //given
+        willThrow(new PostNotFoundException()).given(postService).likePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/like",1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(PostErrorCode.POST_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(PostErrorCode.POST_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("게시물 좋아요 실패 / 유효하지 않은 유저")
+    public void like_post_fail_invalid_user() throws Exception {
+        //given
+        willThrow(new UserInvalidException(UserErrorCode.USER_INVALID))
+                .given(postService).likePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/like",1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
+    }
+
+    @Test
+    @DisplayName("게시물 싫어요 성공")
+    public void dislike_post_success() throws Exception {
+        //given
+        willDoNothing().given(postService).dislikePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/dislike",1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 id")
+                        )
+                ));
+
+    }
+
+    @Test
+    @DisplayName("게시물 싫어요 실패 / 존재하지 않는 게시물")
+    public void dislike_post_fail_not_found() throws Exception {
+        //given
+        willThrow(new PostNotFoundException()).given(postService).dislikePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/dislike",1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(PostErrorCode.POST_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(PostErrorCode.POST_NOT_FOUND.getMessage())));
+    }
+
+    @Test
+    @DisplayName("게시물 싫어요 실패 / 유효하지 않은 유저")
+    public void dislike_post_fail_invalid_user() throws Exception {
+        //given
+        willThrow(new UserInvalidException(UserErrorCode.USER_INVALID))
+                .given(postService).dislikePost(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/posts/{postId}/dislike",1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(UserErrorCode.USER_INVALID.getCode())))
+                .andExpect(jsonPath("$.message",is(UserErrorCode.USER_INVALID.getMessage())));
+    }
 }

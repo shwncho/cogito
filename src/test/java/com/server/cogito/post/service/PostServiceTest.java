@@ -274,4 +274,94 @@ class PostServiceTest {
         assertThatThrownBy(()->postService.deletePost(authUser,post.getId()))
                 .isExactlyInstanceOf(UserInvalidException.class);
     }
+
+    @Test
+    @DisplayName("게시물 좋아요 성공")
+    public void like_post_success() throws Exception {
+        //given
+        User user = mockUser();
+        User githubUser = githubUser();
+        AuthUser authUser = AuthUser.of(githubUser);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(post));
+        //when
+        postService.likePost(authUser,post.getId());
+        //then
+        assertThat(post.getLikeCnt()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("게시물 좋아요 실패 / 존재하지 않는 게시물")
+    public void like_post_fail_not_found() throws Exception {
+        //given
+        User user = mockUser();
+        User githubUser = githubUser();
+        AuthUser authUser = AuthUser.of(githubUser);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.empty());
+        //expected
+        assertThatThrownBy(()->postService.likePost(authUser,post.getId()))
+                .isExactlyInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("게시물 좋아요 실패 / 유효하지 않은 유저")
+    public void like_post_fail_invalid_user() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(post));
+        //expected
+        assertThatThrownBy(()->postService.likePost(authUser,post.getId()))
+                .isExactlyInstanceOf(UserInvalidException.class);
+    }
+
+    @Test
+    @DisplayName("게시물 싫어요 성공")
+    public void dislike_post_success() throws Exception {
+        //given
+        User user = mockUser();
+        User githubUser = githubUser();
+        AuthUser authUser = AuthUser.of(githubUser);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(post));
+        //when
+        postService.dislikePost(authUser,post.getId());
+        //then
+        assertThat(post.getLikeCnt()).isEqualTo(-1);
+    }
+
+    @Test
+    @DisplayName("게시물 싫어요 실패 / 존재하지 않는 게시물")
+    public void dislike_post_fail_not_found() throws Exception {
+        //given
+        User user = mockUser();
+        User githubUser = githubUser();
+        AuthUser authUser = AuthUser.of(githubUser);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.empty());
+        //expected
+        assertThatThrownBy(()->postService.dislikePost(authUser,post.getId()))
+                .isExactlyInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("게시물 싫어요 실패 / 유효하지 않은 유저")
+    public void dislike_post_fail_invalid_user() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        Post post = Post.of("테스트 제목","테스트 본문",user);
+        given(postRepository.findByIdAndStatus(any(),any()))
+                .willReturn(Optional.of(post));
+        //expected
+        assertThatThrownBy(()->postService.dislikePost(authUser,post.getId()))
+                .isExactlyInstanceOf(UserInvalidException.class);
+    }
 }

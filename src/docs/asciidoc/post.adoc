@@ -87,3 +87,40 @@ include::{snippets}/post-controller-test/delete_post_fail_not_found/http-respons
 === U003
 include::{snippets}/post-controller-test/delete_post_fail_invalid_user/http-request.adoc[]
 include::{snippets}/post-controller-test/delete_post_fail_invalid_user/http-response.adoc[]
+
+== 게시물 좋아요
+
+=== 요청
+include::{snippets}/post-controller-test/like_post_success/http-request.adoc[]
+include::{snippets}/post-controller-test/like_post_success/path-parameters.adoc[]
+include::{snippets}/post-controller-test/like_post_success/request-headers.adoc[]
+
+=== 응답
+include::{snippets}/post-controller-test/like_post_success/http-response.adoc[]
+
+=== P001
+include::{snippets}/post-controller-test/like_post_fail_not_found/http-request.adoc[]
+include::{snippets}/post-controller-test/like_post_fail_not_found/http-response.adoc[]
+
+=== U003
+include::{snippets}/post-controller-test/like_post_fail_invalid_user/http-request.adoc[]
+include::{snippets}/post-controller-test/like_post_fail_invalid_user/http-response.adoc[]
+
+== 게시물 싫어요
+
+=== 요청
+include::{snippets}/post-controller-test/dislike_post_success/http-request.adoc[]
+include::{snippets}/post-controller-test/dislike_post_success/path-parameters.adoc[]
+include::{snippets}/post-controller-test/dislike_post_success/request-headers.adoc[]
+
+=== 응답
+include::{snippets}/post-controller-test/dislike_post_success/http-response.adoc[]
+
+=== P001
+include::{snippets}/post-controller-test/dislike_post_fail_not_found/http-request.adoc[]
+include::{snippets}/post-controller-test/dislike_post_fail_not_found/http-response.adoc[]
+
+=== U003
+include::{snippets}/post-controller-test/dislike_post_fail_invalid_user/http-request.adoc[]
+include::{snippets}/post-controller-test/dislike_post_fail_invalid_user/http-response.adoc[]
+
