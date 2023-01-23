@@ -1,6 +1,7 @@
 package com.server.cogito.auth.service;
 
-import com.server.cogito.auth.dto.TokenResponse;
+import com.server.cogito.auth.dto.response.LoginResponse;
+import com.server.cogito.auth.dto.response.TokenResponse;
 import com.server.cogito.common.exception.auth.RefreshTokenInvalidException;
 import com.server.cogito.common.exception.auth.RefreshTokenNotEqualException;
 import com.server.cogito.common.exception.auth.RefreshTokenNotFoundException;
@@ -40,7 +41,7 @@ public class AuthService {
 
     //로그인
     @Transactional
-    public TokenResponse login(String provider, String code){
+    public LoginResponse login(String provider, String code){
 
         OauthUserInfo oauthUserInfo = oauthHandler.getUserInfoFromCode(toEnum(provider),code);
         User user = userRepository.findByEmailAndStatus(oauthUserInfo.getEmail(), ACTIVE)
@@ -48,16 +49,19 @@ public class AuthService {
 
         AuthUser authUser = AuthUser.of(user);
 
-        TokenResponse response = jwtProvider.createToken(authUser);
+        TokenResponse token = jwtProvider.createToken(authUser);
 
-        saveRefreshToken(authUser.getUsername(), response.getRefreshToken(), REFRESH_TOKEN_EXPIRE_TIME);
-        return response;
+        saveRefreshToken(authUser.getUsername(), token.getRefreshToken(), REFRESH_TOKEN_EXPIRE_TIME);
+        return LoginResponse.builder()
+                .token(token)
+                .registered(user.getNickname()!=null)
+                .build();
     }
 
     private User createOauthUser(OauthUserInfo client){
         return userRepository.save(User.builder()
                 .email(client.getEmail())
-                .nickname(client.getNickname())
+                .name(client.getName())
                 .provider(client.getProvider())
                 .build());
     }

@@ -4,6 +4,6 @@ import com.server.cogito.user.enums.Provider;
 
 public interface OauthUserInfo {
     String getEmail();
-    String getNickname();
+    String getName();
     Provider getProvider();
 }

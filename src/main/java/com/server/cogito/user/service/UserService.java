@@ -24,6 +24,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse getMe(AuthUser authUser){
+        if(authUser==null)  return UserResponse.builder().build();
         return UserResponse.from(authUser.getUser());
     }
 

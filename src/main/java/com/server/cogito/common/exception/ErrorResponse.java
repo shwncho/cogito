@@ -54,8 +54,8 @@ public class ErrorResponse {
         return new ErrorResponse(e);
     }
 
-    public static ErrorResponse fromServerException(ServerErrorCode serverErrorCode){
-        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), serverErrorCode.getMessage(), ServerErrorCode.SERVER_ERROR);
+    public static ErrorResponse fromServerException(String message){
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), message, ServerErrorCode.SERVER_ERROR);
     }
 
     public static ErrorResponse fromUnauthorizedAtFilter(String message) {

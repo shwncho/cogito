@@ -1,6 +1,7 @@
 package com.server.cogito.auth.service;
 
-import com.server.cogito.auth.dto.TokenResponse;
+import com.server.cogito.auth.dto.response.LoginResponse;
+import com.server.cogito.auth.dto.response.TokenResponse;
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.infrastructure.UnsupportedOauthProviderException;
 import com.server.cogito.common.security.AuthUser;
@@ -79,7 +80,7 @@ class AuthServiceTest {
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
         //when
-        TokenResponse response = authService.login(provider,code);
+        LoginResponse response = authService.login(provider,code);
 
         //then
         assertAll(
@@ -109,7 +110,7 @@ class AuthServiceTest {
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
         //when
-        TokenResponse response = authService.login(provider,code);
+        LoginResponse response = authService.login(provider,code);
 
         //then
         assertAll(
@@ -138,7 +139,7 @@ class AuthServiceTest {
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
         //when
-        TokenResponse response = authService.login(provider,code);
+        LoginResponse response = authService.login(provider,code);
 
         //then
         assertAll(
@@ -167,7 +168,7 @@ class AuthServiceTest {
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
         //when
-        TokenResponse response = authService.login(provider,code);
+        LoginResponse response = authService.login(provider,code);
 
         //then
         assertAll(
@@ -224,9 +225,9 @@ class AuthServiceTest {
 
         //given
         User user = mockKakaoUser();
-        TokenResponse tokenResponse = mockJwtProvider();
+        TokenResponse token = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        given(valueOperations.get("RT:"+user.getEmail())).willReturn(tokenResponse.getRefreshToken());
+        given(valueOperations.get("RT:"+user.getEmail())).willReturn(token.getRefreshToken());
         given(jwtProvider.getExpiration(any())).willReturn(1L);
 
         //when
@@ -245,7 +246,7 @@ class AuthServiceTest {
 
         //given
         User user = mockKakaoUser();
-        TokenResponse tokenResponse = mockJwtProvider();
+        TokenResponse token = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
         given(jwtProvider.getExpiration(any())).willReturn(1L);
 
@@ -264,9 +265,9 @@ class AuthServiceTest {
         //given
         User user = mockKakaoUser();
         AuthUser authUser = AuthUser.of(user);
-        TokenResponse tokenResponse = mockJwtProvider();
+        TokenResponse token = mockJwtProvider();
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        given(valueOperations.get("RT:"+user.getEmail())).willReturn(tokenResponse.getRefreshToken());
+        given(valueOperations.get("RT:"+user.getEmail())).willReturn(token.getRefreshToken());
         given(jwtProvider.createToken(any())).willReturn(renewalJwtProvider());
         given(jwtProvider.validateToken(any())).willReturn(true);
 

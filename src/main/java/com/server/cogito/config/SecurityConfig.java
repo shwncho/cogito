@@ -58,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts/**","/api/users/**").permitAll()
                 .antMatchers("/","/api/auth/**","/h2-console/**").permitAll() //로그인 부분
                 .antMatchers("/docs/**","/error,", "/favicon.ico").permitAll()
                 .anyRequest().authenticated();

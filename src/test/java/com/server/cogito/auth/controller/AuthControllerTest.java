@@ -1,6 +1,7 @@
 package com.server.cogito.auth.controller;
 
-import com.server.cogito.auth.dto.TokenResponse;
+import com.server.cogito.auth.dto.response.LoginResponse;
+import com.server.cogito.auth.dto.response.TokenResponse;
 import com.server.cogito.auth.service.AuthService;
 import com.server.cogito.common.exception.ApplicationException;
 import com.server.cogito.common.exception.auth.AuthErrorCode;
@@ -27,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -45,6 +47,8 @@ class AuthControllerTest extends RestDocsSupport{
     @MockBean
     private AuthService authService;
 
+    private final String ACCESS_TOKEN = "testAccessToken";
+    private final String REFRESH_TOKEN = "testRefreshToken";
 
     @Test
     @DisplayName("로그인 성공 / kakao")
@@ -52,9 +56,9 @@ class AuthControllerTest extends RestDocsSupport{
         //given
         String code = "code";
         String provider = "kakao";
-        TokenResponse response = TokenResponse.builder()
-                .accessToken("testAccessToken")
-                .refreshToken("testRefreshToken")
+        LoginResponse response = LoginResponse.builder()
+                .token(mockJwt())
+                .registered(true)
                 .build();
         given(authService.login(any(),any()))
                 .willReturn(response);
@@ -66,16 +70,18 @@ class AuthControllerTest extends RestDocsSupport{
         //then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken",is("testAccessToken")))
-                .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
+                .andExpect(jsonPath("$.token.accessToken",is("testAccessToken")))
+                .andExpect(jsonPath("$.token.refreshToken",is("testRefreshToken")))
+                .andExpect(jsonPath("$.registered",is(true)))
                 .andDo(restDocs.document(
                         pathParameters(parameterWithName("provider").description("oauth provider( kakao or github )"))
                         ,
                         requestParameters(parameterWithName("code").description("Authorization code"))
                         ,
                         responseFields(
-                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
-                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
+                                fieldWithPath("token.accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
+                                fieldWithPath("token.refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token"),
+                                fieldWithPath("registered").type(JsonFieldType.BOOLEAN).description("등록된 유저 true, 최초 로그인 false")
                         )
                 ));
     }
@@ -86,9 +92,9 @@ class AuthControllerTest extends RestDocsSupport{
         //given
         String code = "code";
         String provider = "github";
-        TokenResponse response = TokenResponse.builder()
-                .accessToken("testAccessToken")
-                .refreshToken("testRefreshToken")
+        LoginResponse response = LoginResponse.builder()
+                .token(mockJwt())
+                .registered(true)
                 .build();
         given(authService.login(any(),any()))
                 .willReturn(response);
@@ -100,16 +106,18 @@ class AuthControllerTest extends RestDocsSupport{
         //then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken",is("testAccessToken")))
-                .andExpect(jsonPath("$.refreshToken",is("testRefreshToken")))
+                .andExpect(jsonPath("$.token.accessToken",is("testAccessToken")))
+                .andExpect(jsonPath("$.token.refreshToken",is("testRefreshToken")))
+                .andExpect(jsonPath("$.registered",is(true)))
                 .andDo(restDocs.document(
                         pathParameters(parameterWithName("provider").description("oauth provider"))
                         ,
                         requestParameters(parameterWithName("code").description("Authorization code"))
                         ,
                         responseFields(
-                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
-                                fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token")
+                                fieldWithPath("token.accessToken").type(JsonFieldType.STRING).description("JWT Access Token"),
+                                fieldWithPath("token.refreshToken").type(JsonFieldType.STRING).description("JWT Refresh Token"),
+                                fieldWithPath("registered").type(JsonFieldType.BOOLEAN).description("등록된 유저 true, 최초 로그인 false")
                         )
                 ));
     }
@@ -210,10 +218,7 @@ class AuthControllerTest extends RestDocsSupport{
         //given
         String refreshToken = "Bearer testRefreshToken";
         given(authService.reissue(any(AuthUser.class),any()))
-                .willReturn(TokenResponse.builder()
-                        .accessToken("testAccessToken")
-                        .refreshToken("testRefreshToken")
-                        .build());
+                .willReturn(mockJwt());
 
         //expected, docs
         mockMvc.perform(post("/api/auth/reissue")
@@ -276,6 +281,13 @@ class AuthControllerTest extends RestDocsSupport{
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code",is(AuthErrorCode.NOT_EQUAL_REFRESH_TOKEN.getCode())))
                 .andExpect(jsonPath("$.message",is(AuthErrorCode.NOT_EQUAL_REFRESH_TOKEN.getMessage())));
+    }
+
+    private TokenResponse mockJwt(){
+        return TokenResponse.builder()
+                .accessToken(ACCESS_TOKEN)
+                .refreshToken(REFRESH_TOKEN)
+                .build();
     }
 
 }

@@ -1,20 +1,14 @@
-package com.server.cogito.auth.dto;
+package com.server.cogito.auth.dto.response;
 
 import lombok.*;
 
-import javax.validation.constraints.NotEmpty;
-
 @Getter
-@Data
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TokenResponse {
-
-    @NotEmpty
     private String accessToken;
 
-    @NotEmpty
     private String refreshToken;
-
 }

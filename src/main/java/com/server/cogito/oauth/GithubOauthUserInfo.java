@@ -29,7 +29,7 @@ public class GithubOauthUserInfo implements OauthUserInfo {
     }
 
     @Override
-    public String getNickname() {
+    public String getName() {
         return attributes.get("name").toString();
     }
 

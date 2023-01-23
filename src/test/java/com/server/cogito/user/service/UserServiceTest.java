@@ -52,6 +52,22 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("본인 프로필 조회 성공 / 비로그인 유저일 경우")
+    public void get_me_success_no_auth() throws Exception {
+        //given, when
+        UserResponse response = userService.getMe(null);
+
+        //then
+        assertAll(
+                ()->assertThat(response.getUserId()).isNull(),
+                ()->assertThat(response.getNickname()).isNull(),
+                ()->assertThat(response.getProfileImgUrl()).isNull(),
+                ()->assertThat(response.getScore()).isEqualTo(0),
+                ()->assertThat(response.getIntroduce()).isNull()
+        );
+    }
+
+    @Test
     @DisplayName("유저 프로필 조회 성공")
     public void get_user_success() throws Exception {
         //given

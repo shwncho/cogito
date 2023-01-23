@@ -1,6 +1,7 @@
 package com.server.cogito.common.security.jwt;
 
-import com.server.cogito.auth.dto.TokenResponse;
+import com.server.cogito.auth.dto.response.LoginResponse;
+import com.server.cogito.auth.dto.response.TokenResponse;
 import com.server.cogito.common.exception.auth.TokenException;
 import com.server.cogito.common.exception.auth.AuthErrorCode;
 import com.server.cogito.common.security.AuthUser;
