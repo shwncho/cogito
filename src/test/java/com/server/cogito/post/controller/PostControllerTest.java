@@ -150,7 +150,7 @@ class PostControllerTest extends RestDocsSupport {
     void get_posts_success_latest() throws Exception {
 
         //given
-        PostPageResponse response = PostPageResponse.from(getPostWithoutConditions());
+        PostPageResponse response = PostPageResponse.from(getPostWithoutConditions(),2);
         given(postService.getPosts(any(),any())).willReturn(response);
 
         //when
@@ -180,6 +180,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.posts[1].profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.posts[1].score", is(1)))
                 .andExpect(jsonPath("$.posts[1].commentCnt",is(0)))
+                .andExpect(jsonPath("$.total",is(2)))
 
                 .andDo(restDocs.document(
                         requestHeaders(
@@ -199,7 +200,9 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("posts[].profileImgUrl").type(JsonFieldType.STRING).description("게시물 작성자 프로필 이미지 URL"),
                                 fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
                                 fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수"),
-                                fieldWithPath("posts[].commentCnt").type(JsonFieldType.NUMBER).description("게시물 댓글 개수")
+                                fieldWithPath("posts[].commentCnt").type(JsonFieldType.NUMBER).description("게시물 댓글 개수"),
+                                fieldWithPath("total").type(JsonFieldType.NUMBER).description("총 게시물 개수")
+
                         )
                 ));
 
@@ -210,7 +213,7 @@ class PostControllerTest extends RestDocsSupport {
     void get_posts_success_query() throws Exception {
 
         //given
-        PostPageResponse response = PostPageResponse.from(getPostWithConditions());
+        PostPageResponse response = PostPageResponse.from(getPostWithConditions(),1);
         given(postService.getPosts(any(),any())).willReturn(response);
 
         //when
@@ -233,6 +236,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.posts[0].profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.posts[0].score", is(1)))
                 .andExpect(jsonPath("$.posts[0].commentCnt",is(0)))
+                .andExpect(jsonPath("$.total",is(1)))
 
                 .andDo(restDocs.document(
                         requestHeaders(
@@ -252,7 +256,8 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("posts[].profileImgUrl").type(JsonFieldType.STRING).description("게시물 작성자 프로필 이미지 URL"),
                                 fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
                                 fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수"),
-                                fieldWithPath("posts[].commentCnt").type(JsonFieldType.NUMBER).description("게시물 댓글 개수")
+                                fieldWithPath("posts[].commentCnt").type(JsonFieldType.NUMBER).description("게시물 댓글 개수"),
+                                fieldWithPath("total").type(JsonFieldType.NUMBER).description("총 게시물 개수")
                         )
                 ));
 

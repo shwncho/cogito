@@ -13,9 +13,12 @@ public class PostPageResponse {
 
     private List<PostInfo> posts;
 
-    public static PostPageResponse from(List<PostInfo> posts){
+    private long total;
+
+    public static PostPageResponse from(List<PostInfo> posts, long total){
         return PostPageResponse.builder()
                 .posts(posts)
+                .total(total)
                 .build();
     }
 }

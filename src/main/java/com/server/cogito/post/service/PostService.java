@@ -24,6 +24,7 @@ import com.server.cogito.tag.repository.TagRepository;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,11 +72,11 @@ public class PostService {
         return getPostPageResponse(postRepository.findWithSearchConditions(query, pageable));
     }
 
-    private static PostPageResponse getPostPageResponse(List<Post> posts) {
-        return PostPageResponse.from(posts
+    private static PostPageResponse getPostPageResponse(Page<Post> posts) {
+        return PostPageResponse.from(posts.getContent()
                 .stream()
                 .map(PostInfo::from)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()), posts.getTotalElements());
     }
 
     @Transactional(readOnly = true)

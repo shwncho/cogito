@@ -128,8 +128,8 @@ class PostServiceTest {
         //given
         User user = mockUser();
         Pageable pageable = PageRequest.of(0,15,Sort.by("createdAt").descending());
-        List<Post> posts = List.of(Post.of("테스트 제목1","테스트 본문1", user),
-                Post.of("테스트 제목2","테스트 본문2", user));
+        Page<Post> posts = new PageImpl<>(List.of(Post.of("테스트 제목1","테스트 본문1", user),
+                Post.of("테스트 제목2","테스트 본문2", user)));
         given(postRepository.findWithoutSearchConditions(pageable)).willReturn(posts);
 
         //when
@@ -149,7 +149,7 @@ class PostServiceTest {
         //given
         User user = mockUser();
         Pageable pageable = PageRequest.of(0,15,Sort.by("createdAt").descending());
-        List<Post> posts = List.of(Post.of("테스트 제목1","테스트 본문1", user));
+        Page<Post> posts = new PageImpl<>(List.of(Post.of("테스트 제목1","테스트 본문1", user)));
         given(postRepository.findWithSearchConditions(any(),any())).willReturn(posts);
 
         //when
