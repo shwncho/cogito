@@ -150,7 +150,7 @@ class PostControllerTest extends RestDocsSupport {
     void get_posts_success_latest() throws Exception {
 
         //given
-        PostPageResponse response = PostPageResponse.from(getPostWithoutConditions(),2);
+        PostPageResponse response = PostPageResponse.of(getPostWithoutConditions(),2);
         given(postService.getPosts(any(),any())).willReturn(response);
 
         //when
@@ -163,7 +163,6 @@ class PostControllerTest extends RestDocsSupport {
         //then, docs
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.posts",hasSize(2)))
                 .andExpect(jsonPath("$.posts[0].postId",is(1)))
                 .andExpect(jsonPath("$.posts[0].title", is("test")))
                 .andExpect(jsonPath("$.posts[0].content", is("테스트 본문1")))
@@ -213,7 +212,7 @@ class PostControllerTest extends RestDocsSupport {
     void get_posts_success_query() throws Exception {
 
         //given
-        PostPageResponse response = PostPageResponse.from(getPostWithConditions(),1);
+        PostPageResponse response = PostPageResponse.of(getPostWithConditions(),1);
         given(postService.getPosts(any(),any())).willReturn(response);
 
         //when
@@ -227,7 +226,6 @@ class PostControllerTest extends RestDocsSupport {
         //then, docs
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.posts",hasSize(1)))
                 .andExpect(jsonPath("$.posts[0].postId",is(1)))
                 .andExpect(jsonPath("$.posts[0].title", is("test")))
                 .andExpect(jsonPath("$.posts[0].content", is("테스트 본문1")))

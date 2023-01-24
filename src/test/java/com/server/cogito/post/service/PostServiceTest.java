@@ -157,7 +157,7 @@ class PostServiceTest {
 
         assertAll(
                 ()->verify(postRepository).findWithSearchConditions(anyString(),any(Pageable.class)),
-                ()->assertThat(1).isEqualTo(response.getPosts().size())
+                ()->assertThat(response.getPosts().size()).isEqualTo(1)
         );
 
     }

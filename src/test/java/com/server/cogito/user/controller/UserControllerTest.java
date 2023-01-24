@@ -6,6 +6,7 @@ import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
 import com.server.cogito.user.dto.request.UserRequest;
+import com.server.cogito.user.dto.response.UserPageResponse;
 import com.server.cogito.user.dto.response.UserResponse;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
@@ -21,9 +22,10 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 
+import java.util.List;
+
 import static com.server.cogito.support.restdocs.RestDocsConfig.field;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
@@ -31,8 +33,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,6 +44,49 @@ class UserControllerTest extends RestDocsSupport {
 
     @MockBean
     private UserService userService;
+
+    @Test
+    @DisplayName("유저 랭킹 조회 성공")
+    public void get_users_success() throws Exception {
+        //given
+        User kakaoUser = mockKakaoUser();
+        UserPageResponse response = UserPageResponse.of(
+                List.of(UserResponse.from(kakaoUser)),
+                1
+        );
+        given(userService.getUsers(any(),any())).willReturn(response);
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/api/users")
+                .param("page","0")
+                .param("size","15")
+                .param("query","kakao")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.users[0].userId",is(1)))
+                .andExpect(jsonPath("$.users[0].nickname",is("kakao")))
+                .andExpect(jsonPath("$.users[0].profileImgUrl",is("url")))
+                .andExpect(jsonPath("$.users[0].score",is(1)))
+                .andExpect(jsonPath("$.users[0].introduce",is("소개")))
+                .andExpect(jsonPath("$.total",is(1)))
+
+                .andDo(restDocs.document(
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호 (0페이지 부터)"),
+                                parameterWithName("size").description("페이지 사이즈 "),
+                                parameterWithName("query").optional().description("유저 닉네임")
+                                ),
+                        responseFields(
+                                fieldWithPath("users[].userId").type(JsonFieldType.NUMBER).description("유저 id"),
+                                fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
+                                fieldWithPath("users[].profileImgUrl").type(JsonFieldType.STRING).description("유저 프로필 사진"),
+                                fieldWithPath("users[].score").type(JsonFieldType.NUMBER).description("유저 점수"),
+                                fieldWithPath("users[].introduce").type(JsonFieldType.STRING).description("유저 소개"),
+                                fieldWithPath("total").type(JsonFieldType.NUMBER).description("총 유저 수")
+                        )
+                ));
+    }
 
     @Test
     @DisplayName("본인 프로필 조회 성공")
@@ -124,6 +168,17 @@ class UserControllerTest extends RestDocsSupport {
                 .profileImgUrl("url")
                 .introduce("소개")
                 .provider(Provider.KAKAO)
+                .build();
+    }
+
+    private User mockGithubUser(){
+        return User.builder()
+                .id(2L)
+                .email("github@github.com")
+                .nickname("github")
+                .profileImgUrl("url")
+                .introduce("소개")
+                .provider(Provider.GITHUB)
                 .build();
     }
 

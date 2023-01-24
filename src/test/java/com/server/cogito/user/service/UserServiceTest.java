@@ -3,6 +3,7 @@ package com.server.cogito.user.service;
 import com.server.cogito.common.exception.user.UserNicknameExistException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.user.dto.request.UserRequest;
+import com.server.cogito.user.dto.response.UserPageResponse;
 import com.server.cogito.user.dto.response.UserResponse;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
@@ -13,7 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -30,6 +37,21 @@ class UserServiceTest {
 
     @InjectMocks
     UserService userService;
+
+    @Test
+    @DisplayName("유저 랭킹 조회 성공")
+    public void get_users_success() throws Exception {
+        //given
+        User user = mockKakaoUser();
+        Pageable pageable = PageRequest.of(0,15);
+        Page<User> users = new PageImpl<>(List.of(user));
+        given(userRepository.findWithSearchConditions(any(),any()))
+                .willReturn(users);
+        //when
+        UserPageResponse response = userService.getUsers("kakao",pageable);
+        //then
+        assertThat(response.getUsers().size()).isEqualTo(1);
+    }
 
     @Test
     @DisplayName("본인 프로필 조회 성공")
