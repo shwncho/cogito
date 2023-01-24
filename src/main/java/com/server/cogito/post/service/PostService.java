@@ -67,13 +67,13 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostPageResponse getPosts(String query, Pageable pageable){
-        if(!StringUtils.hasText(query))
-            return getPostPageResponse(postRepository.findWithoutSearchConditions(pageable));
-        return getPostPageResponse(postRepository.findWithSearchConditions(query, pageable));
+        if(StringUtils.hasText(query))
+            return getPostPageResponse(postRepository.findWithSearchConditions(query, pageable));
+        return getPostPageResponse(postRepository.findWithoutSearchConditions(pageable));
     }
 
     private static PostPageResponse getPostPageResponse(Page<Post> posts) {
-        return PostPageResponse.from(posts.getContent()
+        return PostPageResponse.of(posts.getContent()
                 .stream()
                 .map(PostInfo::from)
                 .collect(Collectors.toList()), posts.getTotalElements());

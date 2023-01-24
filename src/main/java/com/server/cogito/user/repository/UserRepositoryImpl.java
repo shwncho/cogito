@@ -1,57 +1,52 @@
-package com.server.cogito.post.repository;
+package com.server.cogito.user.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.server.cogito.post.entity.Post;
+import com.server.cogito.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
+
+import static com.server.cogito.user.entity.QUser.*;
 import java.util.List;
 
-import static com.server.cogito.post.entity.QPost.post;
-
 @RequiredArgsConstructor
-public class PostRepositoryImpl implements PostRepositoryCustom {
+public class UserRepositoryImpl implements UserRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Post> findWithSearchConditions(String query, Pageable pageable) {
-        List<Post> result = queryFactory.selectFrom(post)
-                .innerJoin(post.user).fetchJoin()
+    public Page<User> findWithSearchConditions(String query, Pageable pageable) {
+        List<User> result = queryFactory.selectFrom(user)
                 .where(containQuery(query))
-                .orderBy(post.createdAt.desc())
+                .orderBy(user.score.desc(), user.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-        JPQLQuery<Post> count = queryFactory.selectFrom(post)
-                .innerJoin(post.user).fetchJoin()
+
+        JPQLQuery<User> count = queryFactory.selectFrom(user)
                 .where(containQuery(query));
 
         return PageableExecutionUtils.getPage(result,pageable,count::fetchCount);
     }
 
     @Override
-    public Page<Post> findWithoutSearchConditions(Pageable pageable) {
-        List<Post> result = queryFactory.selectFrom(post)
-                .innerJoin(post.user).fetchJoin()
-                .orderBy(post.createdAt.desc())
+    public Page<User> findWithoutSearchConditions(Pageable pageable) {
+        List<User> result = queryFactory.selectFrom(user)
+                .orderBy(user.score.desc(), user.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        JPQLQuery<Post> count = queryFactory.selectFrom(post)
-                .innerJoin(post.user).fetchJoin();
+        JPQLQuery<User> count = queryFactory.selectFrom(user);
 
         return PageableExecutionUtils.getPage(result,pageable,count::fetchCount);
     }
 
     private BooleanExpression containQuery(String query){
-        return post.title.contains(query).or(post.content.contains(query));
+        return user.nickname.contains(query);
     }
-
-
 }

@@ -15,7 +15,7 @@ public class PostPageResponse {
 
     private long total;
 
-    public static PostPageResponse from(List<PostInfo> posts, long total){
+    public static PostPageResponse of(List<PostInfo> posts, long total){
         return PostPageResponse.builder()
                 .posts(posts)
                 .total(total)

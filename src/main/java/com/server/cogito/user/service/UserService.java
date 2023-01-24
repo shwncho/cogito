@@ -7,20 +7,40 @@ import com.server.cogito.common.exception.user.UserNicknameExistException;
 import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.user.dto.request.UserRequest;
+import com.server.cogito.user.dto.response.UserPageResponse;
 import com.server.cogito.user.dto.response.UserResponse;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    public UserPageResponse getUsers(String query, Pageable pageable){
+        if(StringUtils.hasText(query)){
+            return getUserPageResponse(userRepository.findWithSearchConditions(query, pageable));
+        }
+        return getUserPageResponse(userRepository.findWithoutSearchConditions(pageable));
+    }
+
+    private static UserPageResponse getUserPageResponse(Page<User> users){
+        return UserPageResponse.of(users.getContent()
+                .stream()
+                .map(UserResponse::from)
+                .collect(Collectors.toList()), users.getTotalElements());
+    }
 
     @Transactional(readOnly = true)
     public UserResponse getMe(AuthUser authUser){
