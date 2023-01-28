@@ -1,7 +1,11 @@
 package com.server.cogito.auth.service;
 
-import com.server.cogito.auth.dto.response.LoginResponse;
-import com.server.cogito.auth.dto.response.TokenResponse;
+import com.server.cogito.auth.domain.LogoutAccessToken;
+import com.server.cogito.auth.domain.LogoutRefreshToken;
+import com.server.cogito.auth.domain.RefreshToken;
+import com.server.cogito.auth.dto.response.ReissueTokenResponse;
+import com.server.cogito.auth.dto.result.LoginResult;
+import com.server.cogito.auth.repository.TokenRepository;
 import com.server.cogito.common.entity.BaseEntity;
 import com.server.cogito.common.exception.infrastructure.UnsupportedOauthProviderException;
 import com.server.cogito.common.security.AuthUser;
@@ -19,19 +23,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.Optional;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.assertj.core.api.Assertions.assertThat;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -48,16 +48,13 @@ class AuthServiceTest {
     @Mock
     JwtProvider jwtProvider;
     @Mock
-    RedisTemplate redisTemplate;
+    TokenRepository tokenRepository;
     @Mock
     KaKaoRequester kakaoRequester;
     @Mock
     GithubRequester githubRequester;
     @Mock
     OauthHandler oauthHandler;
-
-    @Mock
-    ValueOperations<String, Object> valueOperations;
 
     @InjectMocks
     AuthService authService;
@@ -76,19 +73,17 @@ class AuthServiceTest {
         given(userRepository.findByEmailAndStatus("kakao@kakao.com", BaseEntity.Status.ACTIVE)
                 .orElseGet(()->userRepository.save(any())))
                 .willReturn(mockKakaoUser());
-        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
-        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        given(jwtProvider.createAccessToken(any())).willReturn(ACCESS_TOKEN);
+        given(jwtProvider.createRefreshToken(any())).willReturn(REFRESH_TOKEN);
 
         //when
-        LoginResponse response = authService.login(provider,code);
+        LoginResult result = authService.login(provider,code);
 
         //then
         assertAll(
                 ()->verify(oauthHandler).getUserInfoFromCode(Provider.toEnum(provider),code),
                 ()->verify(userRepository).save(any(User.class)),
-                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
-                ()->verify(valueOperations).set("RT:"+"kakao@kakao.com",REFRESH_TOKEN,0, MILLISECONDS)
-
+                ()->verify(tokenRepository).saveRefreshToken(any(RefreshToken.class))
         );
     }
 
@@ -105,20 +100,18 @@ class AuthServiceTest {
                 .willReturn(oauthUserInfo);
         given(userRepository.findByEmailAndStatus("github@github.com", BaseEntity.Status.ACTIVE)
                 .orElseGet(()->userRepository.save(any())))
-                .willReturn(mockGithubUser());
-        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
-        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+                .willReturn(mockKakaoUser());
+        given(jwtProvider.createAccessToken(any())).willReturn(ACCESS_TOKEN);
+        given(jwtProvider.createRefreshToken(any())).willReturn(REFRESH_TOKEN);
 
         //when
-        LoginResponse response = authService.login(provider,code);
+        LoginResult result = authService.login(provider,code);
 
         //then
         assertAll(
                 ()->verify(oauthHandler).getUserInfoFromCode(Provider.toEnum(provider),code),
                 ()->verify(userRepository).save(any(User.class)),
-                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
-                ()->verify(valueOperations).set("RT:"+"github@github.com",REFRESH_TOKEN,0, MILLISECONDS)
-
+                ()->verify(tokenRepository).saveRefreshToken(any(RefreshToken.class))
         );
     }
 
@@ -135,19 +128,17 @@ class AuthServiceTest {
                 .willReturn(oauthUserInfo);
         given(userRepository.findByEmailAndStatus(any(), any()))
                 .willReturn(Optional.of(mockKakaoUser()));
-        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
-        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        given(jwtProvider.createAccessToken(any())).willReturn(ACCESS_TOKEN);
+        given(jwtProvider.createRefreshToken(any())).willReturn(REFRESH_TOKEN);
 
         //when
-        LoginResponse response = authService.login(provider,code);
+        LoginResult result = authService.login(provider,code);
 
         //then
         assertAll(
                 ()->verify(oauthHandler).getUserInfoFromCode(Provider.toEnum(provider),code),
                 ()->verify(userRepository).findByEmailAndStatus(any(), any()),
-                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
-                ()->verify(valueOperations).set("RT:"+"kakao@kakao.com",REFRESH_TOKEN,0, MILLISECONDS)
-
+                ()->verify(tokenRepository).saveRefreshToken(any(RefreshToken.class))
         );
     }
 
@@ -164,19 +155,17 @@ class AuthServiceTest {
                 .willReturn(oauthUserInfo);
         given(userRepository.findByEmailAndStatus(any(), any()))
                 .willReturn(Optional.of(mockGithubUser()));
-        given(jwtProvider.createToken(any())).willReturn(mockJwtProvider());
-        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        given(jwtProvider.createAccessToken(any())).willReturn(ACCESS_TOKEN);
+        given(jwtProvider.createRefreshToken(any())).willReturn(REFRESH_TOKEN);
 
         //when
-        LoginResponse response = authService.login(provider,code);
+        LoginResult result = authService.login(provider,code);
 
         //then
         assertAll(
                 ()->verify(oauthHandler).getUserInfoFromCode(Provider.toEnum(provider),code),
                 ()->verify(userRepository).findByEmailAndStatus(any(), any()),
-                ()->verify(jwtProvider).createToken(any(AuthUser.class)),
-                ()->verify(valueOperations).set("RT:"+"github@github.com",REFRESH_TOKEN,0, MILLISECONDS)
-
+                ()->verify(tokenRepository).saveRefreshToken(any(RefreshToken.class))
         );
     }
 
@@ -199,13 +188,6 @@ class AuthServiceTest {
                 .build();
     }
 
-    private TokenResponse mockJwtProvider(){
-        return TokenResponse.builder()
-                .accessToken(ACCESS_TOKEN)
-                .refreshToken(REFRESH_TOKEN)
-                .build();
-    }
-
     @Test
     @DisplayName("로그인 실패 / 제공하지 않는 oauth provider")
     void login_fail_no_oauth_provider() throws Exception{
@@ -220,43 +202,22 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("로그아웃 성공 / refreshToken이 존재할경우")
+    @DisplayName("로그아웃 성공")
     void logout_success_existRefreshToken() throws Exception{
 
-        //given
-        User user = mockKakaoUser();
-        TokenResponse token = mockJwtProvider();
-        given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        given(valueOperations.get("RT:"+user.getEmail())).willReturn(token.getRefreshToken());
-        given(jwtProvider.getExpiration(any())).willReturn(1L);
-
-        //when
-        authService.logout(AuthUser.of(user),ACCESS_TOKEN);
+        //given, when
+        authService.logout(ACCESS_TOKEN,REFRESH_TOKEN);
 
         //then
         assertAll(
-                ()->verify(redisTemplate).delete("RT:"+user.getEmail()),
-                ()->verify(valueOperations).set(ACCESS_TOKEN,"logout",1L,MILLISECONDS)
+                ()->verify(jwtProvider).getRemainingMilliSecondsFromToken(ACCESS_TOKEN),
+                ()->verify(jwtProvider).getRemainingMilliSecondsFromToken(REFRESH_TOKEN),
+                ()->verify(tokenRepository).saveLogoutAccessToken(any(LogoutAccessToken.class)),
+                ()->verify(tokenRepository).saveLogoutRefreshToken(any(LogoutRefreshToken.class))
+
         );
     }
 
-    @Test
-    @DisplayName("로그아웃 성공 / refreshToken이 존재하지 않을경우")
-    void logout_success_notExistRefreshToken() throws Exception{
-
-        //given
-        User user = mockKakaoUser();
-        TokenResponse token = mockJwtProvider();
-        given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        given(jwtProvider.getExpiration(any())).willReturn(1L);
-
-        //when
-        authService.logout(AuthUser.of(user),ACCESS_TOKEN);
-
-        //then
-        verify(valueOperations).set(ACCESS_TOKEN,"logout",1L,MILLISECONDS);
-
-    }
 
     @Test
     @DisplayName("토큰 재발급 성공")
@@ -265,28 +226,25 @@ class AuthServiceTest {
         //given
         User user = mockKakaoUser();
         AuthUser authUser = AuthUser.of(user);
-        TokenResponse token = mockJwtProvider();
-        given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        given(valueOperations.get("RT:"+user.getEmail())).willReturn(token.getRefreshToken());
-        given(jwtProvider.createToken(any())).willReturn(renewalJwtProvider());
-        given(jwtProvider.validateToken(any())).willReturn(true);
-
+        RefreshToken refreshToken = RefreshToken.of(authUser.getUsername(),REFRESH_TOKEN, 1000*60*60*4L);
+        given(userRepository.findByEmailAndStatus(any(),any()))
+                .willReturn(Optional.of(user));
+        given(tokenRepository.findRefreshTokenByUsername(any()))
+                .willReturn(Optional.of(refreshToken));
+        given(tokenRepository.existsLogoutRefreshTokenById(any()))
+                .willReturn(true);
 
         //when
-        TokenResponse response = authService.reissue(authUser,REFRESH_TOKEN);
+        ReissueTokenResponse reissue = authService.reissue(REFRESH_TOKEN);
 
         //then
-        assertThat(REFRESH_TOKEN).isNotEqualTo(response.getRefreshToken());
+        assertAll(
+                ()->verify(tokenRepository).deleteRefreshToken(any(RefreshToken.class)),
+                ()->verify(jwtProvider).createAccessToken(any(AuthUser.class)),
+                ()->verify(jwtProvider).createRefreshToken(any(AuthUser.class)),
+                ()->verify(tokenRepository).saveRefreshToken(any(RefreshToken.class))
+        );
 
-
-
-    }
-
-    private TokenResponse renewalJwtProvider(){
-        return TokenResponse.builder()
-                .accessToken(RENEWAL_ACCESS_TOKEN)
-                .refreshToken(RENEWAL_REFRESH_TOKEN)
-                .build();
     }
 
 }

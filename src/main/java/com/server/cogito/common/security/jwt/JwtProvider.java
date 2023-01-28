@@ -1,7 +1,5 @@
 package com.server.cogito.common.security.jwt;
 
-import com.server.cogito.auth.dto.response.LoginResponse;
-import com.server.cogito.auth.dto.response.TokenResponse;
 import com.server.cogito.common.exception.auth.TokenException;
 import com.server.cogito.common.exception.auth.AuthErrorCode;
 import com.server.cogito.common.security.AuthUser;
@@ -22,7 +20,6 @@ import java.util.*;
 public class JwtProvider implements InitializingBean {
 
     private final String secret;
-    private final String AUTHORITIES_KEY = "auth";
     private final String USER_ID = "userId";
     private final String USER_PROVIDER = "provider";
     private final String USERNAME = "username";
@@ -48,27 +45,24 @@ public class JwtProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public TokenResponse createToken(AuthUser authUser) {
+    public String createAccessToken(AuthUser authUser) {
+        return createToken(authUser, ACCESS_TOKEN_EXPIRE_TIME);
+    }
 
+    public String createRefreshToken(AuthUser authUser) {
+        return createToken(authUser, REFRESH_TOKEN_EXPIRE_TIME);
+    }
+
+    private String createToken(AuthUser authUser, long time) {
         Date now = new Date();
-
-        String accessToken = Jwts.builder()
+        Date expiryDate = new Date(now.getTime() + time);
+        return Jwts.builder()
                 .setSubject(authUser.getUsername())
                 .setClaims(createClaimsByAuthUser(authUser))
                 .setIssuedAt(now)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME))
-                .compact();
-
-        String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME))
+                .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-
-        return TokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
     }
 
     private Map<String, Object> createClaimsByAuthUser(AuthUser authUser) {
@@ -82,6 +76,11 @@ public class JwtProvider implements InitializingBean {
     public String getUserEmail(String token) {
         return getClaims(token)
                 .get(USERNAME, String.class);
+    }
+
+    public long getRemainingMilliSecondsFromToken(String token){
+        Date expiration = getClaims(token).getExpiration();
+        return expiration.getTime() - new Date().getTime();
     }
 
     private Claims getClaims(String token) {

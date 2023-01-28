@@ -1,10 +1,15 @@
 package com.server.cogito.auth.service;
 
-import com.server.cogito.auth.dto.response.LoginResponse;
-import com.server.cogito.auth.dto.response.TokenResponse;
+import com.server.cogito.auth.domain.LogoutAccessToken;
+import com.server.cogito.auth.domain.LogoutRefreshToken;
+import com.server.cogito.auth.domain.RefreshToken;
+import com.server.cogito.auth.dto.response.AccessTokenResponse;
+import com.server.cogito.auth.dto.response.ReissueTokenResponse;
+import com.server.cogito.auth.dto.result.LoginResult;
+import com.server.cogito.auth.repository.TokenRepository;
 import com.server.cogito.common.exception.auth.RefreshTokenInvalidException;
-import com.server.cogito.common.exception.auth.RefreshTokenNotEqualException;
 import com.server.cogito.common.exception.auth.RefreshTokenNotFoundException;
+import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.common.security.jwt.JwtProvider;
 import com.server.cogito.infrastructure.oauth.OauthHandler;
@@ -13,13 +18,8 @@ import com.server.cogito.user.entity.User;
 import com.server.cogito.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
-
-import java.util.concurrent.TimeUnit;
 
 import static com.server.cogito.common.entity.BaseEntity.Status.ACTIVE;
 import static com.server.cogito.user.enums.Provider.toEnum;
@@ -31,17 +31,12 @@ import static com.server.cogito.user.enums.Provider.toEnum;
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
-    private final RedisTemplate redisTemplate;
     private final OauthHandler oauthHandler;
-
-
-    @Value("${jwt.refresh-expiration-time}")
-    private long REFRESH_TOKEN_EXPIRE_TIME;
-
+    private final TokenRepository tokenRepository;
 
     //로그인
     @Transactional
-    public LoginResponse login(String provider, String code){
+    public LoginResult login(String provider, String code){
 
         OauthUserInfo oauthUserInfo = oauthHandler.getUserInfoFromCode(toEnum(provider),code);
         User user = userRepository.findByEmailAndStatus(oauthUserInfo.getEmail(), ACTIVE)
@@ -49,13 +44,14 @@ public class AuthService {
 
         AuthUser authUser = AuthUser.of(user);
 
-        TokenResponse token = jwtProvider.createToken(authUser);
+        String accessToken = jwtProvider.createAccessToken(authUser);
+        String refreshToken = createAndSaveRefreshToken(authUser);
 
-        saveRefreshToken(authUser.getUsername(), token.getRefreshToken(), REFRESH_TOKEN_EXPIRE_TIME);
-        return LoginResponse.builder()
-                .token(token)
-                .registered(user.getNickname()!=null)
-                .build();
+        return LoginResult.of(accessToken,refreshToken, isRegistered(user.getNickname()));
+    }
+
+    private boolean isRegistered(String nickname){
+        return nickname!=null;
     }
 
     private User createOauthUser(OauthUserInfo client){
@@ -66,60 +62,43 @@ public class AuthService {
                 .build());
     }
 
+    private String createAndSaveRefreshToken(AuthUser authUser) {
+        String refreshToken = jwtProvider.createRefreshToken(authUser);
+        tokenRepository.saveRefreshToken(
+                RefreshToken.of(authUser.getUsername(),
+                        refreshToken,
+                        jwtProvider.getRemainingMilliSecondsFromToken(refreshToken)));
+        return refreshToken;
+    }
+
     @Transactional
-    public void logout(AuthUser authUser, String accessToken){
-        if (redisTemplate.opsForValue().get("RT:" + authUser.getUsername()) != null) {
-            redisTemplate.delete("RT:" + authUser.getUsername());
-        }
+    public void logout(String accessToken, String refreshToken){
+        LogoutAccessToken logoutAccessToken =
+                LogoutAccessToken.of(accessToken, jwtProvider.getRemainingMilliSecondsFromToken(accessToken));
+        LogoutRefreshToken logoutRefreshToken =
+                LogoutRefreshToken.of(refreshToken, jwtProvider.getRemainingMilliSecondsFromToken(refreshToken));
 
-        // 기존 accessToken을 blackList로 지정
-        Long expiration = jwtProvider.getExpiration(accessToken);
-        saveAccessTokenInBlackList(accessToken,expiration);
-
+        tokenRepository.saveLogoutAccessToken(logoutAccessToken);
+        tokenRepository.saveLogoutRefreshToken(logoutRefreshToken);
 
     }
     @Transactional
-    public TokenResponse reissue(AuthUser authUser, String refreshToken){
-
+    public ReissueTokenResponse reissue(String refreshToken){
+        String username = jwtProvider.getUserEmail(refreshToken);
+        RefreshToken redisRefreshToken = tokenRepository.findRefreshTokenByUsername(username)
+                        .orElseThrow(RefreshTokenNotFoundException::new);
         validateRefreshToken(refreshToken);
-
-        String redisRefreshToken = (String)redisTemplate.opsForValue().get("RT:" + authUser.getUsername());
-
-        validateRefreshTokenIsAndEqual(refreshToken, redisRefreshToken);
-
-        TokenResponse result = jwtProvider.createToken(authUser);
-        saveRefreshToken(authUser.getUsername(),result.getRefreshToken(),REFRESH_TOKEN_EXPIRE_TIME);
-
-        return result;
-
-    }
-
-    private static void validateRefreshTokenIsAndEqual(String refreshToken, String redisRefreshToken) {
-        if(ObjectUtils.isEmpty(redisRefreshToken)){
-            throw new RefreshTokenNotFoundException();
-        }
-        if(!redisRefreshToken.equals(refreshToken)){
-            throw new RefreshTokenNotEqualException();
-        }
+        User user = userRepository.findByEmailAndStatus(username,ACTIVE)
+                        .orElseThrow(UserNotFoundException::new);
+        AuthUser authUser = AuthUser.of(user);
+        tokenRepository.deleteRefreshToken(redisRefreshToken);
+        return ReissueTokenResponse.of(jwtProvider.createAccessToken(authUser), createAndSaveRefreshToken(authUser));
     }
 
     private void validateRefreshToken(String refreshToken) {
-        if(!jwtProvider.validateToken(refreshToken)){
+        if(!tokenRepository.existsLogoutRefreshTokenById(refreshToken)){
             throw new RefreshTokenInvalidException();
         }
-    }
-
-    private void saveRefreshToken(String key, String value, long expiration) {
-        redisTemplate.opsForValue()
-                .set("RT:" + key,
-                        value,
-                        expiration,
-                        TimeUnit.MILLISECONDS);
-    }
-
-    private void saveAccessTokenInBlackList(String key, long expiration){
-        redisTemplate.opsForValue()
-                .set(key, "logout",expiration, TimeUnit.MILLISECONDS);
     }
 
 

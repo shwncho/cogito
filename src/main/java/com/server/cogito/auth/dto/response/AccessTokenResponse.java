@@ -7,8 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenResponse {
+public class AccessTokenResponse {
     private String accessToken;
 
-    private String refreshToken;
 }

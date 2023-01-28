@@ -1,5 +1,6 @@
 package com.server.cogito.support.security;
 
+import com.server.cogito.auth.repository.TokenRepository;
 import com.server.cogito.common.security.CustomUserDetailsService;
 import com.server.cogito.common.security.jwt.JwtAccessDeniedHandler;
 import com.server.cogito.common.security.jwt.JwtAuthenticationEntryPoint;
@@ -18,5 +19,5 @@ public abstract class SecuritySupport {
     @MockBean
     protected JwtProvider jwtProvider;
     @MockBean
-    protected RedisTemplate redisTemplate;
+    protected TokenRepository tokenRepository;
 }

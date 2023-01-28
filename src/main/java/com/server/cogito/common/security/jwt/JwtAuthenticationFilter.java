@@ -1,5 +1,6 @@
 package com.server.cogito.common.security.jwt;
 
+import com.server.cogito.auth.repository.TokenRepository;
 import com.server.cogito.common.exception.auth.TokenException;
 import com.server.cogito.common.exception.auth.AuthErrorCode;
 import com.server.cogito.common.exception.auth.TokenAuthenticationException;
@@ -30,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final JwtProvider jwtProvider;
-    private final RedisTemplate redisTemplate;
+    private final TokenRepository tokenRepository;
     private final CustomUserDetailsService customUserDetailsService;
 
 
@@ -40,15 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = resolveToken(request);
             if (isValid(jwt)) {
-                String signOutToken = (String) redisTemplate.opsForValue().get(jwt);
-                if (ObjectUtils.isEmpty(signOutToken)) {
-                    // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext 에 저장
-                    String email = jwtProvider.getUserEmail(jwt);
-                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+                String email = jwtProvider.getUserEmail(jwt);
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+
         } catch (TokenException e) {
             log.error(e.getMessage());
             throw e;
@@ -70,6 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isValid(String jwt) {
         return StringUtils.hasText(jwt)
-                && jwtProvider.validateToken(jwt);
+                && jwtProvider.validateToken(jwt)
+                && !tokenRepository.existsLogoutAccessTokenById(jwt);
     }
 }

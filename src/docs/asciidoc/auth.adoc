@@ -35,7 +35,6 @@ include::{snippets}/auth-controller-test/login_fail_github_no_public_email/http-
 
 === 요청
 include::{snippets}/auth-controller-test/logout_success/http-request.adoc[]
-include::{snippets}/auth-controller-test/logout_success/request-headers.adoc[]
 
 === 응답
 include::{snippets}/auth-controller-test/logout_success/http-response.adoc[]
@@ -45,19 +44,11 @@ include::{snippets}/auth-controller-test/logout_success/http-response.adoc[]
 
 === 요청
 include::{snippets}/auth-controller-test/reissue_success/http-request.adoc[]
-include::{snippets}/auth-controller-test/reissue_success/request-headers.adoc[]
 
 === 응답
-include::{snippets}/auth-controller-test/reissue_success/response-fields.adoc[]
+include::{snippets}/auth-controller-test/reissue_success/http-response.adoc[]
 
-=== A011
-include::{snippets}/auth-controller-test/reissue_fail_invalid_refresh-token/http-request.adoc[]
-include::{snippets}/auth-controller-test/reissue_fail_invalid_refresh-token/http-response.adoc[]
 
 === A012
 include::{snippets}/auth-controller-test/reissue_fail_not_found_refresh-token/http-request.adoc[]
 include::{snippets}/auth-controller-test/reissue_fail_not_found_refresh-token/http-response.adoc[]
-
-=== A013
-include::{snippets}/auth-controller-test/reissue_fail_not_equal_refresh-token/http-request.adoc[]
-include::{snippets}/auth-controller-test/reissue_fail_not_equal_refresh-token/http-response.adoc[]

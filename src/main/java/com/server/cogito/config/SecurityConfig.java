@@ -6,6 +6,7 @@ import com.server.cogito.common.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -25,6 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private static final String TEST_SERVER_DOMAIN = "https://dev.cogito.shop";
+    private static final String FRONTEND_LOCALHOST = "http://localhost:3000";
+    private static final String BACKEND_LOCALHOST = "http://localhost:8080";
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -71,8 +77,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
-        config.addAllowedHeader("*");
+        config.setAllowedOrigins(List.of(TEST_SERVER_DOMAIN,FRONTEND_LOCALHOST,BACKEND_LOCALHOST));
+        config.setAllowedHeaders(List.of(HttpHeaders.LOCATION, HttpHeaders.COOKIE));
         config.addAllowedMethod("*");
 
         source.registerCorsConfiguration("/api/**", config);

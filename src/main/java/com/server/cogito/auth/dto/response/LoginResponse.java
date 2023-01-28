@@ -1,5 +1,6 @@
 package com.server.cogito.auth.dto.response;
 
+import com.server.cogito.auth.dto.result.LoginResult;
 import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
@@ -11,14 +12,14 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class LoginResponse {
 
-    private TokenResponse token;
+    private String accessToken;
 
     private boolean registered;
 
-    public static LoginResponse from(TokenResponse token, boolean registered){
+    public static LoginResponse from(LoginResult loginResult){
         return LoginResponse.builder()
-                .token(token)
-                .registered(registered)
+                .accessToken(loginResult.getAccessToken())
+                .registered(loginResult.isRegistered())
                 .build();
     }
 
