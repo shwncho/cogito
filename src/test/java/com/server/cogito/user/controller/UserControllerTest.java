@@ -46,7 +46,7 @@ class UserControllerTest extends RestDocsSupport {
     private UserService userService;
 
     @Test
-    @DisplayName("유저 랭킹 조회 성공")
+    @DisplayName("유저 순위 조회 성공")
     public void get_users_success() throws Exception {
         //given
         User kakaoUser = mockKakaoUser();

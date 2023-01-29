@@ -218,8 +218,7 @@ class AuthControllerTest extends RestDocsSupport{
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .cookie(new Cookie("refreshToken", REFRESH_TOKEN)))
 
-                .andExpect(status().isNoContent())
-                .andExpect(cookie().value("refreshToken",""));
+                .andExpect(status().isOk());
     }
 
     @Test

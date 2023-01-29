@@ -34,15 +34,12 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(
+    public void logout(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken,
             @CookieValue(value=REFRESH_TOKEN, required = false) String refreshToken
     ){
         validateRefreshTokenExists(refreshToken);
         authService.logout(removeType(accessToken),refreshToken);
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookieProvider.createLogoutCookie().toString())
-                .build();
     }
 
     @PostMapping("/reissue")
