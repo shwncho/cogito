@@ -106,6 +106,7 @@ class PostServiceTest {
 
     private User mockUser(){
         return User.builder()
+                .id(1L)
                 .email("kakao@kakao.com")
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
@@ -122,7 +123,7 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("게시물 조회 성공 / 검색 조건 없을 경우")
+    @DisplayName("게시물 리스트 조회 성공 / 검색 조건 없을 경우")
     void get_posts_success_latest() throws Exception {
 
         //given
@@ -143,7 +144,7 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("게시물 조회 성공 / 검색 조건 있을 경우")
+    @DisplayName("게시물 리스트 조회 성공 / 검색 조건 있을 경우")
     void get_posts_success_query() throws Exception {
 
         //given
@@ -167,11 +168,12 @@ class PostServiceTest {
     public void get_post_success() throws Exception {
         //given
         User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
         Post post = Post.of("테스트 제목","테스트 본문",user);
         given(postRepository.findPostByIdAndStatus(1L, BaseEntity.Status.ACTIVE))
                 .willReturn(Optional.of(post));
         //when
-        PostResponse response = postService.getPost(1L);
+        PostResponse response = postService.getPost(authUser,1L);
         //then
         verify(commentRepository).findCommentsByPostId(any());
     }
@@ -180,11 +182,13 @@ class PostServiceTest {
     @DisplayName("게시물 단건 조회 실패 / 존재하지 않는 게시물")
     public void get_post_fail_not_found() throws Exception {
         //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
         given(postRepository.findPostByIdAndStatus(1L, BaseEntity.Status.ACTIVE))
                 .willReturn(Optional.empty());
 
         //expected
-        assertThatThrownBy(()->postService.getPost(1L))
+        assertThatThrownBy(()->postService.getPost(authUser,1L))
                 .isExactlyInstanceOf(PostNotFoundException.class);
     }
 

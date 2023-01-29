@@ -28,7 +28,7 @@ public class CommentController {
         commentService.updateComment(authUser, commentId, updateCommentRequest);
     }
 
-    @PatchMapping("/{commentId}/status")
+    @DeleteMapping("/{commentId}")
     public void deleteComment(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long commentId){
         commentService.deleteComment(authUser,commentId);
     }

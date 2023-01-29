@@ -30,8 +30,7 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -219,7 +218,7 @@ class CommentControllerTest extends RestDocsSupport {
         //given
         willDoNothing().given(commentService).deleteComment(any(),any());
         //when
-        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/status",1L)
+        ResultActions resultActions = mockMvc.perform(delete("/api/comments/{commentId}",1L)
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
                 .contentType(MediaType.APPLICATION_JSON));
         //then
@@ -241,7 +240,7 @@ class CommentControllerTest extends RestDocsSupport {
         //given
         willThrow(new CommentNotFoundException()).given(commentService).deleteComment(any(),any());
         //when
-        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/status",1L)
+        ResultActions resultActions = mockMvc.perform(delete("/api/comments/{commentId}",1L)
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
                 .contentType(MediaType.APPLICATION_JSON));
         //then
@@ -257,7 +256,7 @@ class CommentControllerTest extends RestDocsSupport {
         //given
         willThrow(new UserInvalidException(UserErrorCode.USER_INVALID)).given(commentService).deleteComment(any(),any());
         //when
-        ResultActions resultActions = mockMvc.perform(patch("/api/comments/{commentId}/status",1L)
+        ResultActions resultActions = mockMvc.perform(delete("/api/comments/{commentId}",1L)
                 .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
                 .contentType(MediaType.APPLICATION_JSON));
         //then

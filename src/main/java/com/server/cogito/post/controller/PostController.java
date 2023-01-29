@@ -32,8 +32,8 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public PostResponse getPost(@PathVariable Long postId){
-        return postService.getPost(postId);
+    public PostResponse getPost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
+        return postService.getPost(authUser, postId);
     }
 
     @PatchMapping("/{postId}")
@@ -41,7 +41,7 @@ public class PostController {
         postService.updatePost(postId,updatePostRequest);
     }
 
-    @PatchMapping("/{postId}/status")
+    @DeleteMapping("/{postId}")
     public void deletePost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
         postService.deletePost(authUser, postId);
     }
