@@ -17,6 +17,7 @@ public class PostFile extends BaseEntity {
     @Column(name = "post_file_id")
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String url;
 
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
