@@ -33,9 +33,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String FRONTEND_LOCALHOST = "http://localhost:3000";
     private static final String BACKEND_LOCALHOST = "http://localhost:8080";
 
-    @Value("${spring.front.test}")
-    private String TEST_FRONTEND;
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -81,7 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of(TEST_SERVER_DOMAIN,FRONTEND_LOCALHOST,TEST_FRONTEND,BACKEND_LOCALHOST));
+        config.addAllowedOrigin("*");
         config.setAllowedHeaders(List.of(HttpHeaders.LOCATION, HttpHeaders.COOKIE));
         config.addAllowedMethod("*");
 
