@@ -6,6 +6,7 @@ import com.server.cogito.auth.service.AuthService;
 import com.server.cogito.auth.service.RefreshTokenCookieProvider;
 import com.server.cogito.common.exception.ApplicationException;
 import com.server.cogito.common.exception.auth.AuthErrorCode;
+import com.server.cogito.common.exception.auth.RefreshTokenInvalidException;
 import com.server.cogito.common.exception.auth.RefreshTokenNotFoundException;
 import com.server.cogito.common.exception.infrastructure.InfraErrorCode;
 import com.server.cogito.common.exception.infrastructure.NoPublicEmailOnGithubException;
@@ -208,9 +209,6 @@ class AuthControllerTest extends RestDocsSupport{
 
         //given
         String accessToken = "Bearer testAccessToken";
-        ResponseCookie logoutCookie = createLogoutCookie();
-        given(refreshTokenCookieProvider.createLogoutCookie())
-                .willReturn(logoutCookie);
         willDoNothing().given(authService).logout(any(),any());
 
         //expected, docs
@@ -230,7 +228,7 @@ class AuthControllerTest extends RestDocsSupport{
         ResponseCookie cookie = createCookie(RENEWAL_REFRESH_TOKEN);
         given(refreshTokenCookieProvider.createCookie(RENEWAL_REFRESH_TOKEN))
                 .willReturn(cookie);
-        given(authService.reissue(any()))
+        given(authService.reissue(any(),any()))
                 .willReturn(response);
 
         //expected, docs
@@ -247,8 +245,7 @@ class AuthControllerTest extends RestDocsSupport{
     @DisplayName("토큰 재발급 실패 / 존재하지 않는 refreshToken")
     public void reissue_fail_not_found_refreshToken() throws Exception {
         //given
-        String refreshToken = "Bearer testRefreshToken";
-        willThrow(new RefreshTokenNotFoundException()).given(authService).reissue(any());
+        willThrow(new RefreshTokenNotFoundException()).given(authService).reissue(any(),any());
         //when
         ResultActions resultActions = mockMvc.perform(post("/api/auth/reissue")
                 .cookie(new Cookie("refreshToken", REFRESH_TOKEN)));
@@ -259,22 +256,27 @@ class AuthControllerTest extends RestDocsSupport{
                 .andExpect(jsonPath("$.message",is(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN.getMessage())));
     }
 
+    @Test
+    @DisplayName("토큰 재발급 실패 / 유효하지 않은 refreshToken")
+    public void reissue_fail_invalid_refreshToken() throws Exception {
+        //given
+        willThrow(new RefreshTokenInvalidException()).given(authService).reissue(any(),any());
+        //when
+        ResultActions resultActions = mockMvc.perform(post("/api/auth/reissue")
+                .cookie(new Cookie("refreshToken", REFRESH_TOKEN)));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(AuthErrorCode.INVALID_REFRESH_TOKEN.getCode())))
+                .andExpect(jsonPath("$.message",is(AuthErrorCode.INVALID_REFRESH_TOKEN.getMessage())));
+    }
+
     private ResponseCookie createCookie(String value){
         return ResponseCookie.from("refreshToken",value)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(1000*60*60*4L)
-                .sameSite(org.springframework.boot.web.server.Cookie.SameSite.NONE.attributeValue())
-                .build();
-    }
-
-    private ResponseCookie createLogoutCookie(){
-        return ResponseCookie.from("refreshToken","")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
                 .sameSite(org.springframework.boot.web.server.Cookie.SameSite.NONE.attributeValue())
                 .build();
     }

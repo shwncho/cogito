@@ -7,10 +7,12 @@ import com.server.cogito.auth.dto.result.LoginResult;
 import com.server.cogito.auth.service.AuthService;
 import com.server.cogito.auth.service.RefreshTokenCookieProvider;
 import com.server.cogito.common.exception.auth.RefreshTokenNotFoundException;
+import com.server.cogito.common.security.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.server.cogito.auth.service.RefreshTokenCookieProvider.REFRESH_TOKEN;
@@ -44,10 +46,11 @@ public class AuthController {
 
     @PostMapping("/reissue")
     public ResponseEntity<AccessTokenResponse> reissue(
+            @AuthenticationPrincipal AuthUser authUser,
             @CookieValue(value = REFRESH_TOKEN, required = false) String refreshToken
     ){
         validateRefreshTokenExists(refreshToken);
-        ReissueTokenResponse token = authService.reissue(refreshToken);
+        ReissueTokenResponse token = authService.reissue(authUser, refreshToken);
         ResponseCookie responseCookie = refreshTokenCookieProvider.createCookie(token.getRefreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())

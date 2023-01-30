@@ -171,6 +171,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.posts[0].profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.posts[0].score", is(1)))
                 .andExpect(jsonPath("$.posts[0].commentCnt",is(0)))
+                .andExpect(jsonPath("$.posts[0].likeCnt",is(0)))
                 .andExpect(jsonPath("$.posts[1].postId",is(2)))
                 .andExpect(jsonPath("$.posts[1].title", is("테스트 제목2")))
                 .andExpect(jsonPath("$.posts[1].content", is("테스트 본문2")))
@@ -179,6 +180,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.posts[1].profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.posts[1].score", is(1)))
                 .andExpect(jsonPath("$.posts[1].commentCnt",is(0)))
+                .andExpect(jsonPath("$.posts[1].likeCnt",is(0)))
                 .andExpect(jsonPath("$.total",is(2)))
 
                 .andDo(restDocs.document(
@@ -200,6 +202,7 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
                                 fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수"),
                                 fieldWithPath("posts[].commentCnt").type(JsonFieldType.NUMBER).description("게시물 댓글 개수"),
+                                fieldWithPath("posts[].likeCnt").type(JsonFieldType.NUMBER).description("게시물 좋아요 개수"),
                                 fieldWithPath("total").type(JsonFieldType.NUMBER).description("총 게시물 개수")
 
                         )
@@ -234,6 +237,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.posts[0].profileImgUrl",is("url")))
                 .andExpect(jsonPath("$.posts[0].score", is(1)))
                 .andExpect(jsonPath("$.posts[0].commentCnt",is(0)))
+                .andExpect(jsonPath("$.posts[0].likeCnt",is(0)))
                 .andExpect(jsonPath("$.total",is(1)))
 
                 .andDo(restDocs.document(
@@ -255,6 +259,7 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("posts[].createdAt").type(JsonFieldType.STRING).description("게시물 작성일"),
                                 fieldWithPath("posts[].score").type(JsonFieldType.NUMBER).description("게시물 작성자 점수"),
                                 fieldWithPath("posts[].commentCnt").type(JsonFieldType.NUMBER).description("게시물 댓글 개수"),
+                                fieldWithPath("posts[].likeCnt").type(JsonFieldType.NUMBER).description("게시물 좋아요 개수"),
                                 fieldWithPath("total").type(JsonFieldType.NUMBER).description("총 게시물 개수")
                         )
                 ));
@@ -272,6 +277,7 @@ class PostControllerTest extends RestDocsSupport {
                 .profileImgUrl("url")
                 .score(1)
                 .commentCnt(0)
+                .likeCnt(0)
                 .createdAt(LocalDateTime.now())
                 .build(),
                 PostInfo.builder()
@@ -283,6 +289,7 @@ class PostControllerTest extends RestDocsSupport {
                         .profileImgUrl("url")
                         .score(1)
                         .commentCnt(0)
+                        .likeCnt(0)
                         .createdAt(LocalDateTime.now())
                         .build());
     }
@@ -297,6 +304,7 @@ class PostControllerTest extends RestDocsSupport {
                         .profileImgUrl("url")
                         .score(1)
                         .commentCnt(0)
+                        .likeCnt(0)
                         .createdAt(LocalDateTime.now())
                         .build());
     }
@@ -322,6 +330,7 @@ class PostControllerTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.nickname",is("테스트")))
                 .andExpect(jsonPath("$.profileImgUrl",is("testUrl")))
                 .andExpect(jsonPath("$.score",is(1)))
+                .andExpect(jsonPath("$.likeCnt",is(0)))
                 .andExpect(jsonPath("$.createdAt",is(LocalDateTime.of(2022, 1, 5,0,0,0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))))
                 .andExpect(jsonPath("$.isMe",is(true)))
                 .andExpect(jsonPath("$.commentResponses[0].commentId",is(1)))
@@ -365,6 +374,7 @@ class PostControllerTest extends RestDocsSupport {
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("게시물 작성자 닉네임"),
                                 fieldWithPath("profileImgUrl").type(JsonFieldType.STRING).description("게시물 작성자 프로필 이미지 URL"),
                                 fieldWithPath("score").type(JsonFieldType.NUMBER).description("게시물 작성자 score"),
+                                fieldWithPath("likeCnt").type(JsonFieldType.NUMBER).description("게시물 좋아요 개수"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시물 작성 시간"),
                                 fieldWithPath("isMe").type(JsonFieldType.BOOLEAN).description("본인 여부"),
                                 fieldWithPath("commentResponses[].commentId").type(JsonFieldType.NUMBER).description("댓글 id"),
@@ -405,6 +415,7 @@ class PostControllerTest extends RestDocsSupport {
                 .nickname("테스트")
                 .profileImgUrl("testUrl")
                 .score(1)
+                .likeCnt(0)
                 .createdAt(LocalDateTime.of(2022, 1, 5,0,0,0))
                 .commentResponses(List.of(getCommentResponse()))
                 .isMe(true)

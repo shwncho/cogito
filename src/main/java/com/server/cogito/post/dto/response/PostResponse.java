@@ -39,6 +39,8 @@ public class PostResponse {
 
     private int score;
 
+    private int likeCnt;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
 
@@ -55,6 +57,7 @@ public class PostResponse {
                 .profileImgUrl(post.getUser().getProfileImgUrl())
                 .isMe(Objects.equals(userId, post.getUser().getId()))
                 .score(post.getUser().getScore())
+                .likeCnt(post.getLikeCnt())
                 .commentResponses(commentResponses)
                 .build();
     }

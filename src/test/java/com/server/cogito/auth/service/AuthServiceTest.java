@@ -7,6 +7,8 @@ import com.server.cogito.auth.dto.response.ReissueTokenResponse;
 import com.server.cogito.auth.dto.result.LoginResult;
 import com.server.cogito.auth.repository.TokenRepository;
 import com.server.cogito.common.entity.BaseEntity;
+import com.server.cogito.common.exception.auth.RefreshTokenInvalidException;
+import com.server.cogito.common.exception.auth.RefreshTokenNotFoundException;
 import com.server.cogito.common.exception.infrastructure.UnsupportedOauthProviderException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.common.security.jwt.JwtProvider;
@@ -29,7 +31,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -227,15 +229,13 @@ class AuthServiceTest {
         User user = mockKakaoUser();
         AuthUser authUser = AuthUser.of(user);
         RefreshToken refreshToken = RefreshToken.of(authUser.getUsername(),REFRESH_TOKEN, 1000*60*60*4L);
-        given(userRepository.findByEmailAndStatus(any(),any()))
-                .willReturn(Optional.of(user));
         given(tokenRepository.findRefreshTokenByUsername(any()))
                 .willReturn(Optional.of(refreshToken));
         given(tokenRepository.existsLogoutRefreshTokenById(any()))
-                .willReturn(true);
+                .willReturn(false);
 
         //when
-        ReissueTokenResponse reissue = authService.reissue(REFRESH_TOKEN);
+        ReissueTokenResponse reissue = authService.reissue(authUser,REFRESH_TOKEN);
 
         //then
         assertAll(
@@ -245,6 +245,22 @@ class AuthServiceTest {
                 ()->verify(tokenRepository).saveRefreshToken(any(RefreshToken.class))
         );
 
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 / 유효하지 않은 refreshToken")
+    public void reissue_fail_invalid_refreshToken() throws Exception {
+        //given
+        User user = mockKakaoUser();
+        AuthUser authUser = AuthUser.of(user);
+        RefreshToken refreshToken = RefreshToken.of(authUser.getUsername(),REFRESH_TOKEN, 1000*60*60*4L);
+        given(tokenRepository.findRefreshTokenByUsername(authUser.getUsername()))
+                .willReturn(Optional.of(refreshToken));
+        willThrow(new RefreshTokenInvalidException()).given(tokenRepository)
+                        .existsLogoutRefreshTokenById(any());
+        //expected
+        assertThatThrownBy(() -> authService.reissue(authUser,REFRESH_TOKEN))
+                .isExactlyInstanceOf(RefreshTokenInvalidException.class);
     }
 
 }

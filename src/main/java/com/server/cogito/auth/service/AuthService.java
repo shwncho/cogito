@@ -83,20 +83,16 @@ public class AuthService {
 
     }
     @Transactional
-    public ReissueTokenResponse reissue(String refreshToken){
-        String username = jwtProvider.getUserEmail(refreshToken);
-        RefreshToken redisRefreshToken = tokenRepository.findRefreshTokenByUsername(username)
+    public ReissueTokenResponse reissue(AuthUser authUser, String refreshToken){
+        RefreshToken redisRefreshToken = tokenRepository.findRefreshTokenByUsername(authUser.getUsername())
                         .orElseThrow(RefreshTokenNotFoundException::new);
         validateRefreshToken(refreshToken);
-        User user = userRepository.findByEmailAndStatus(username,ACTIVE)
-                        .orElseThrow(UserNotFoundException::new);
-        AuthUser authUser = AuthUser.of(user);
         tokenRepository.deleteRefreshToken(redisRefreshToken);
         return ReissueTokenResponse.of(jwtProvider.createAccessToken(authUser), createAndSaveRefreshToken(authUser));
     }
 
     private void validateRefreshToken(String refreshToken) {
-        if(!tokenRepository.existsLogoutRefreshTokenById(refreshToken)){
+        if(tokenRepository.existsLogoutRefreshTokenById(refreshToken)){
             throw new RefreshTokenInvalidException();
         }
     }

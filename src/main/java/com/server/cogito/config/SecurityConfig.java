@@ -4,6 +4,7 @@ import com.server.cogito.common.security.jwt.JwtAccessDeniedHandler;
 import com.server.cogito.common.security.jwt.JwtAuthenticationEntryPoint;
 import com.server.cogito.common.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +32,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String TEST_SERVER_DOMAIN = "https://dev.cogito.shop";
     private static final String FRONTEND_LOCALHOST = "http://localhost:3000";
     private static final String BACKEND_LOCALHOST = "http://localhost:8080";
+
+    @Value("${spring.front.test}")
+    private String TEST_FRONTEND;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -64,8 +68,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/posts/**","/api/users/**").permitAll()
-                .antMatchers("/","/api/auth/**","/h2-console/**").permitAll() //로그인 부분
+                .antMatchers(HttpMethod.GET, "/api/auth/**","/api/posts/**","/api/users/**").permitAll()
+                .antMatchers("/","/h2-console/**").permitAll()
                 .antMatchers("/docs/**","/error,", "/favicon.ico").permitAll()
                 .anyRequest().authenticated();
 
@@ -77,7 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of(TEST_SERVER_DOMAIN,FRONTEND_LOCALHOST,BACKEND_LOCALHOST));
+        config.setAllowedOrigins(List.of(TEST_SERVER_DOMAIN,FRONTEND_LOCALHOST,TEST_FRONTEND,BACKEND_LOCALHOST));
         config.setAllowedHeaders(List.of(HttpHeaders.LOCATION, HttpHeaders.COOKIE));
         config.addAllowedMethod("*");
 

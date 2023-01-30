@@ -33,6 +33,8 @@ public class PostInfo {
 
     private int commentCnt;
 
+    private int likeCnt;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
 
@@ -46,6 +48,7 @@ public class PostInfo {
                 .profileImgUrl(post.getUser().getProfileImgUrl())
                 .score(post.getUser().getScore())
                 .commentCnt(post.getComments().size())
+                .likeCnt(post.getLikeCnt())
                 .createdAt(post.getCreatedAt())
                 .build();
     }
