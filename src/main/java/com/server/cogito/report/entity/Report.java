@@ -4,10 +4,7 @@ import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.common.entity.BaseEntity;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -37,4 +34,17 @@ public class Report extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
     private Comment comment;
+
+    @Builder
+    public Report(String reason, int reportCnt, User user, Post post, Comment comment) {
+        this.reason = reason;
+        this.reportCnt = reportCnt;
+        this.user = user;
+        this.post = post;
+        this.comment = comment;
+    }
+
+    public void addReportCnt(){
+        this.reportCnt++;
+    }
 }

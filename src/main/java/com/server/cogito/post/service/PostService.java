@@ -54,7 +54,7 @@ public class PostService {
         return CreatePostResponse.from(postRepository.save(post).getId());
     }
 
-    private static void savePostFilesAndTags(PostRequest request, Post post) {
+    private void savePostFilesAndTags(PostRequest request, Post post) {
         request.getFiles().forEach(s -> {
             PostFile postFile = new PostFile(s);
             postFile.changePost(post);
@@ -72,7 +72,7 @@ public class PostService {
         return getPostPageResponse(postRepository.findWithoutSearchConditions(pageable));
     }
 
-    private static PostPageResponse getPostPageResponse(Page<Post> posts) {
+    private PostPageResponse getPostPageResponse(Page<Post> posts) {
         return PostPageResponse.of(posts.getContent()
                 .stream()
                 .map(PostInfo::from)
@@ -109,7 +109,7 @@ public class PostService {
         post.change(updatePostRequest);
     }
 
-    private static void savePostFilesAndTags(UpdatePostRequest request, Post post) {
+    private void savePostFilesAndTags(UpdatePostRequest request, Post post) {
         request.getFiles().forEach(s -> {
             PostFile postFile = new PostFile(s);
             postFile.changePost(post);
@@ -129,7 +129,7 @@ public class PostService {
         post.deletePost();
     }
 
-    private static void validateUserId(AuthUser authUser, Post post) {
+    private void validateUserId(AuthUser authUser, Post post) {
         if(!Objects.equals(authUser.getUserId(), post.getUser().getId())){
             throw new UserInvalidException(UserErrorCode.USER_INVALID);
         }
@@ -154,10 +154,18 @@ public class PostService {
     }
 
 
-    private static void validateEqualUserId(AuthUser authUser, Post post) {
+    private void validateEqualUserId(AuthUser authUser, Post post) {
         if(Objects.equals(authUser.getUserId(), post.getUser().getId())){
             throw new UserInvalidException(UserErrorCode.USER_INVALID);
         }
+    }
+
+    @Transactional
+    public void reportPost(AuthUser authUser, Long postId){
+        Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
+                .orElseThrow(PostNotFoundException::new);
+
+
     }
 
 }

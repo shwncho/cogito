@@ -36,7 +36,7 @@ public class User extends BaseEntity {
 
     private int score;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Post> posts = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

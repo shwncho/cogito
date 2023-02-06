@@ -88,7 +88,7 @@ public class CommentService {
         comment.getUser().subtractScore(1);
     }
 
-    private static void validateUserId(AuthUser authUser, Comment comment) {
+    private void validateUserId(AuthUser authUser, Comment comment) {
         if(!Objects.equals(authUser.getUserId(), comment.getUser().getId())){
             throw new UserInvalidException(UserErrorCode.USER_INVALID);
         }
@@ -105,7 +105,7 @@ public class CommentService {
 
     }
 
-    private static void validateEqualUserId(AuthUser authUser, Comment comment) {
+    private void validateEqualUserId(AuthUser authUser, Comment comment) {
         if(Objects.equals(authUser.getUserId(), comment.getUser().getId())){
             throw new UserInvalidException(UserErrorCode.USER_INVALID);
         }

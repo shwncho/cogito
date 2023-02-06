@@ -35,7 +35,7 @@ public class UserService {
         return getUserPageResponse(userRepository.findWithoutSearchConditions(pageable));
     }
 
-    private static UserPageResponse getUserPageResponse(Page<User> users){
+    private UserPageResponse getUserPageResponse(Page<User> users){
         return UserPageResponse.of(users.getContent()
                 .stream()
                 .map(UserResponse::from)
