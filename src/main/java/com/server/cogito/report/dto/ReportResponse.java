@@ -10,8 +10,4 @@ import lombok.*;
 public class ReportResponse {
 
     private String result;
-
-    public ReportResponse(String result) {
-        this.result = result;
-    }
 }

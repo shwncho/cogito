@@ -7,7 +7,11 @@ import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report,Long> {
 
-    Optional<Report> findByUserIdAndPostId(Long userId, Long postId);
+    boolean existsByUserIdAndPostId(Long userId, Long postId);
 
-    Optional<Report> findByUserIdAndCommentId(Long userId, Long commentId);
+    boolean existsByUserIdAndCommentId(Long userId, Long commentId);
+
+    Optional<Report> findByPostId(Long postId);
+
+    Optional<Report> findByCommentId(Long commentId);
 }

@@ -1,0 +1,24 @@
+= 신고 API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 게시물 신고
+
+=== 요청
+include::{snippets}/report-controller-test/report_post_success/http-request.adoc[]
+include::{snippets}/report-controller-test/report_post_success/request-headers.adoc[]
+include::{snippets}/report-controller-test/report_post_success/request-fields.adoc[]
+
+=== 응답
+include::{snippets}/report-controller-test/report_post_success/http-response.adoc[]
+include::{snippets}/report-controller-test/report_post_success/response-fields.adoc[]
+
+== 댓글 신고
+
+=== 요청
+
+=== 응답
