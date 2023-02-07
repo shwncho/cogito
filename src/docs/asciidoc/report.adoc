@@ -17,8 +17,22 @@ include::{snippets}/report-controller-test/report_post_success/request-fields.ad
 include::{snippets}/report-controller-test/report_post_success/http-response.adoc[]
 include::{snippets}/report-controller-test/report_post_success/response-fields.adoc[]
 
+
+=== R001
+include::{snippets}/report-controller-test/report_post_fail_duplicated/http-request.adoc[]
+include::{snippets}/report-controller-test/report_post_fail_duplicated/http-response.adoc[]
+
 == 댓글 신고
 
 === 요청
+include::{snippets}/report-controller-test/report_post_success/http-request.adoc[]
+include::{snippets}/report-controller-test/report_post_success/request-headers.adoc[]
+include::{snippets}/report-controller-test/report_post_success/request-fields.adoc[]
 
 === 응답
+include::{snippets}/report-controller-test/report_comment_success/http-response.adoc[]
+include::{snippets}/report-controller-test/report_comment_success/response-fields.adoc[]
+
+=== R002
+include::{snippets}/report-controller-test/report_comment_fail_duplicated/http-request.adoc[]
+include::{snippets}/report-controller-test/report_comment_fail_duplicated/http-response.adoc[]
