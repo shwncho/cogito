@@ -58,6 +58,7 @@ public class PostResponse {
                 .isMe(Objects.equals(userId, post.getUser().getId()))
                 .score(post.getUser().getScore())
                 .likeCnt(post.getLikeCnt())
+                .createdAt(post.getCreatedAt())
                 .commentResponses(commentResponses)
                 .build();
     }

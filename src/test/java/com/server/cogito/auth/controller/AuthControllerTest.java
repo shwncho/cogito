@@ -209,7 +209,7 @@ class AuthControllerTest extends RestDocsSupport{
 
         //given
         String accessToken = "Bearer testAccessToken";
-        willDoNothing().given(authService).logout(any(),any());
+        willDoNothing().given(authService).logout(any(),any(),any());
 
         //expected, docs
         mockMvc.perform(post("/api/auth/logout")

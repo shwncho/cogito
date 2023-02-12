@@ -160,12 +160,4 @@ public class PostService {
         }
     }
 
-    @Transactional
-    public void reportPost(AuthUser authUser, Long postId){
-        Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
-                .orElseThrow(PostNotFoundException::new);
-
-
-    }
-
 }

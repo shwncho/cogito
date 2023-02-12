@@ -1,6 +1,7 @@
 package com.server.cogito.notification.service;
 
 import com.server.cogito.comment.entity.Comment;
+import com.server.cogito.common.exception.notification.NotificationNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.notification.dto.NotificationResponse;
 import com.server.cogito.notification.dto.NotificationsResponse;
@@ -61,7 +62,7 @@ public class NotificationService {
                     .data(data));
         } catch (IOException exception) {
             emitterRepository.deleteById(id);
-            log.error("SSE 연결 오류!", exception);
+            log.error("SSE 연결 오류", exception);
         }
     }
 
@@ -105,7 +106,7 @@ public class NotificationService {
     @Transactional
     public void readNotification(Long id) {
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 알림입니다."));
+                .orElseThrow(NotificationNotFoundException::new);
         notification.read();
     }
 }

@@ -10,6 +10,8 @@ import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.notification.repository.EmitterRepository;
+import com.server.cogito.notification.service.NotificationService;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
 import com.server.cogito.user.entity.User;
@@ -29,8 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,6 +47,9 @@ class CommentServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    NotificationService notificationService;
+
     @InjectMocks
     CommentService commentService;
 
@@ -59,6 +63,7 @@ class CommentServiceTest {
         CommentRequest request = createCommentRequest();
         given(userRepository.findByEmailAndStatus(any(),any())).willReturn(Optional.of(user));
         given(postRepository.findByIdAndStatus(any(),any())).willReturn(Optional.of(post));
+
         //when
         commentService.createComment(authUser,request);
         //then
@@ -66,6 +71,7 @@ class CommentServiceTest {
                 ()->verify(userRepository).findByEmailAndStatus(any(),any()),
                 ()->verify(postRepository).findByIdAndStatus(any(),any()),
                 ()->verify(commentRepository).save(any(Comment.class)),
+                ()->verify(notificationService).send(any(),any(),any(),any()),
                 ()->assertThat(user.getScore()).isEqualTo(2)
         );
 

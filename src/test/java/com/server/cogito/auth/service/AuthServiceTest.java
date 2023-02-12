@@ -15,6 +15,7 @@ import com.server.cogito.common.security.jwt.JwtProvider;
 import com.server.cogito.infrastructure.oauth.GithubRequester;
 import com.server.cogito.infrastructure.oauth.KaKaoRequester;
 import com.server.cogito.infrastructure.oauth.OauthHandler;
+import com.server.cogito.notification.repository.EmitterRepository;
 import com.server.cogito.oauth.OauthUserInfo;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
@@ -57,6 +58,8 @@ class AuthServiceTest {
     GithubRequester githubRequester;
     @Mock
     OauthHandler oauthHandler;
+    @Mock
+    EmitterRepository emitterRepository;
 
     @InjectMocks
     AuthService authService;
@@ -176,6 +179,7 @@ class AuthServiceTest {
 
     private User mockKakaoUser(){
         return User.builder()
+                .id(1L)
                 .email("kakao@kakao.com")
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
@@ -184,6 +188,7 @@ class AuthServiceTest {
 
     private User mockGithubUser(){
         return User.builder()
+                .id(1L)
                 .email("github@github.com")
                 .nickname("github")
                 .provider(Provider.GITHUB)
@@ -207,15 +212,21 @@ class AuthServiceTest {
     @DisplayName("로그아웃 성공")
     void logout_success_existRefreshToken() throws Exception{
 
-        //given, when
-        authService.logout(ACCESS_TOKEN,REFRESH_TOKEN);
+        //given
+        User user = mockKakaoUser();
+        AuthUser authUser = AuthUser.of(user);
+
+        //when
+        authService.logout(authUser,ACCESS_TOKEN,REFRESH_TOKEN);
 
         //then
         assertAll(
                 ()->verify(jwtProvider).getRemainingMilliSecondsFromToken(ACCESS_TOKEN),
                 ()->verify(jwtProvider).getRemainingMilliSecondsFromToken(REFRESH_TOKEN),
                 ()->verify(tokenRepository).saveLogoutAccessToken(any(LogoutAccessToken.class)),
-                ()->verify(tokenRepository).saveLogoutRefreshToken(any(LogoutRefreshToken.class))
+                ()->verify(tokenRepository).saveLogoutRefreshToken(any(LogoutRefreshToken.class)),
+                ()->verify(emitterRepository).deleteAllStartWithId(any()),
+                ()->verify(emitterRepository).deleteAllEventCacheStartWithId(any())
 
         );
     }

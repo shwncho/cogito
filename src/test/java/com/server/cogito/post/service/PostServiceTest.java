@@ -7,6 +7,7 @@ import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.file.repository.PostFileRepository;
+import com.server.cogito.notification.repository.EmitterRepository;
 import com.server.cogito.post.dto.request.PostRequest;
 import com.server.cogito.post.dto.request.UpdatePostRequest;
 import com.server.cogito.post.dto.response.CreatePostResponse;
