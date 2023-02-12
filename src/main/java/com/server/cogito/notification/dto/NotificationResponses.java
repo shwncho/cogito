@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NotificationsResponse {
+public class NotificationResponses {
 
     /**
      * 로그인 한 유저의 모든 알림
@@ -21,8 +21,8 @@ public class NotificationsResponse {
      */
     private long unreadCount;
 
-    public static NotificationsResponse of(List<NotificationResponse> notificationResponses, long count) {
-        return NotificationsResponse.builder()
+    public static NotificationResponses of(List<NotificationResponse> notificationResponses, long count) {
+        return NotificationResponses.builder()
                 .notificationResponses(notificationResponses)
                 .unreadCount(count)
                 .build();

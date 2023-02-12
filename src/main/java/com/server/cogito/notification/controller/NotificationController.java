@@ -1,7 +1,7 @@
 package com.server.cogito.notification.controller;
 
 import com.server.cogito.common.security.AuthUser;
-import com.server.cogito.notification.dto.NotificationsResponse;
+import com.server.cogito.notification.dto.NotificationResponses;
 import com.server.cogito.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +24,7 @@ public class NotificationController {
 
 
     @GetMapping("")
-    public NotificationsResponse getNotifications(@AuthenticationPrincipal AuthUser authUser) {
+    public NotificationResponses getNotifications(@AuthenticationPrincipal AuthUser authUser) {
         return notificationService.getNotifications(authUser);
     }
 

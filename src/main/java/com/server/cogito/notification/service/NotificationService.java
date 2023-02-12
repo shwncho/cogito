@@ -4,7 +4,7 @@ import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.common.exception.notification.NotificationNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.notification.dto.NotificationResponse;
-import com.server.cogito.notification.dto.NotificationsResponse;
+import com.server.cogito.notification.dto.NotificationResponses;
 import com.server.cogito.notification.entity.Notification;
 import com.server.cogito.notification.repository.EmitterRepository;
 import com.server.cogito.notification.repository.NotificationRepository;
@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
@@ -86,13 +85,13 @@ public class NotificationService {
                 .content(content)
                 .post(post)
                 .comment(comment)
-                .url("/api/posts/" + post.getId())
+                .url("/questions/" + post.getId())
                 .isRead(false)
                 .build();
     }
 
     @Transactional
-    public NotificationsResponse getNotifications(AuthUser authUser) {
+    public NotificationResponses getNotifications(AuthUser authUser) {
         List<NotificationResponse> responses = notificationRepository.findAllByReceiverId(authUser.getUserId()).stream()
                 .map(NotificationResponse::from)
                 .collect(Collectors.toList());
@@ -100,7 +99,7 @@ public class NotificationService {
                 .filter(notification -> !notification.isRead())
                 .count();
 
-        return NotificationsResponse.of(responses, unreadCount);
+        return NotificationResponses.of(responses, unreadCount);
     }
 
     @Transactional
