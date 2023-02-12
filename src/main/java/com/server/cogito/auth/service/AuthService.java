@@ -13,6 +13,7 @@ import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.common.security.jwt.JwtProvider;
 import com.server.cogito.infrastructure.oauth.OauthHandler;
+import com.server.cogito.notification.repository.EmitterRepository;
 import com.server.cogito.oauth.OauthUserInfo;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.repository.UserRepository;
@@ -33,6 +34,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final OauthHandler oauthHandler;
     private final TokenRepository tokenRepository;
+    private final EmitterRepository emitterRepository;
 
     //로그인
     @Transactional
@@ -72,7 +74,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String accessToken, String refreshToken){
+    public void logout(AuthUser authUser,String accessToken, String refreshToken){
         LogoutAccessToken logoutAccessToken =
                 LogoutAccessToken.of(accessToken, jwtProvider.getRemainingMilliSecondsFromToken(accessToken));
         LogoutRefreshToken logoutRefreshToken =
@@ -80,6 +82,8 @@ public class AuthService {
 
         tokenRepository.saveLogoutAccessToken(logoutAccessToken);
         tokenRepository.saveLogoutRefreshToken(logoutRefreshToken);
+        emitterRepository.deleteAllStartWithId(String.valueOf(authUser.getUserId()));
+        emitterRepository.deleteAllEventCacheStartWithId(String.valueOf(authUser.getUserId()));
 
     }
     @Transactional

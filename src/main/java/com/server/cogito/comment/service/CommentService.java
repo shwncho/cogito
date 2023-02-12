@@ -13,6 +13,8 @@ import com.server.cogito.common.exception.user.UserErrorCode;
 import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.notification.service.NotificationService;
+import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.repository.UserRepository;
@@ -31,21 +33,24 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public void createComment(AuthUser authUser, CommentRequest commentRequest){
         User user = userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE)
                 .orElseThrow(UserNotFoundException::new);
-        commentRepository.save(
+        Post post = postRepository.findByIdAndStatus(commentRequest.getPostId(), ACTIVE)
+                .orElseThrow(PostNotFoundException::new);
+        Comment comment = commentRepository.save(
                 Comment.builder()
-                        .post(postRepository.findByIdAndStatus(commentRequest.getPostId(), ACTIVE)
-                                .orElseThrow(PostNotFoundException::new))
+                        .post(post)
                         .parent(commentRequest.getParentId() != null ?
                                 getParent(commentRequest.getParentId()) : null)
                         .content(commentRequest.getContent())
                         .user(user)
                         .build()
         );
+        notificationService.send(post.getUser(), post, comment, "새로운 댓글이 달렸습니다.");
         user.addScore(1);
     }
 

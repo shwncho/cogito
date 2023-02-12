@@ -37,11 +37,12 @@ public class AuthController {
 
     @PostMapping("/logout")
     public void logout(
+            @AuthenticationPrincipal AuthUser authUser,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken,
             @CookieValue(value=REFRESH_TOKEN, required = false) String refreshToken
     ){
         validateRefreshTokenExists(refreshToken);
-        authService.logout(removeType(accessToken),refreshToken);
+        authService.logout(authUser,removeType(accessToken),refreshToken);
     }
 
     @PostMapping("/reissue")
