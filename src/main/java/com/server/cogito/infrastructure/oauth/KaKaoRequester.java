@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static com.server.cogito.common.exception.auth.AuthErrorCode.KAKAO_LOGIN;
@@ -57,6 +58,7 @@ public class KaKaoRequester implements OauthRequester {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
                 })
+                .timeout(Duration.ofSeconds(8))
                 .blockOptional()
                 .orElseThrow(()->new ApplicationException(KAKAO_LOGIN));
         validateResponseBody(responseBody);
@@ -77,6 +79,7 @@ public class KaKaoRequester implements OauthRequester {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
                 })
+                .timeout(Duration.ofSeconds(8))
                 .blockOptional()
                 .orElseThrow(()->new ApplicationException(KAKAO_LOGIN));
 
