@@ -1,0 +1,28 @@
+= 알림 API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 알림 연결
+
+=== 요청
+include::{snippets}/notification-controller-test/get_subscribe_success/http-request.adoc[]
+include::{snippets}/notification-controller-test/get_subscribe_success/request-headers.adoc[]
+include::{snippets}/notification-controller-test/get_subscribe_success/request-parameters.adoc[]
+
+=== 응답
+include::{snippets}/notification-controller-test/get_subscribe_success/http-response.adoc[]
+
+
+== 알림 조회
+
+=== 요청
+include::{snippets}/notification-controller-test/get_notifications_success/http-request.adoc[]
+include::{snippets}/notification-controller-test/get_notifications_success/request-headers.adoc[]
+
+=== 응답
+include::{snippets}/notification-controller-test/get_notifications_success/http-response.adoc[]
+include::{snippets}/notification-controller-test/get_notifications_success/response-fields.adoc[]

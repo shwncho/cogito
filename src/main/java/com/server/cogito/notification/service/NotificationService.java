@@ -14,8 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +90,7 @@ public class NotificationService {
                 .build();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public NotificationResponses getNotifications(AuthUser authUser) {
         List<NotificationResponse> responses = notificationRepository.findAllByReceiverId(authUser.getUserId()).stream()
                 .map(NotificationResponse::from)

@@ -1,5 +1,6 @@
 package com.server.cogito.notification.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.server.cogito.notification.entity.Notification;
 import lombok.*;
@@ -30,6 +31,7 @@ public class NotificationResponse {
     /**
      * 알림이 생성된 날짜
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
 
     /**
