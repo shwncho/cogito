@@ -2,7 +2,6 @@ package com.server.cogito.user.controller;
 
 import com.server.cogito.common.exception.user.UserErrorCode;
 import com.server.cogito.common.exception.user.UserNicknameExistException;
-import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
 import com.server.cogito.user.dto.request.UserRequest;

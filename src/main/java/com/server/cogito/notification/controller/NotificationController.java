@@ -32,7 +32,7 @@ public class NotificationController {
     }
 
 
-    @PatchMapping("/notifications/{id}")
+    @PatchMapping("/{id}")
     public void readNotification(@PathVariable Long id) {
         notificationService.readNotification(id);
     }
