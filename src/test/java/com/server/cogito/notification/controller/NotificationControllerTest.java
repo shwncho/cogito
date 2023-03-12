@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -75,7 +76,7 @@ class NotificationControllerTest extends RestDocsSupport {
     }
 
     @Test
-    @DisplayName("알림 전체 조회")
+    @DisplayName("알림 조회")
     public void get_notifications_success() throws Exception {
         //given
         NotificationResponses responses = createNotificationResponses();
@@ -123,6 +124,29 @@ class NotificationControllerTest extends RestDocsSupport {
                         .createdAt(LocalDateTime.now())
                         .build()),2);
 
+    }
+
+    @Test
+    @DisplayName("알림 확인 성공")
+    public void patch_notification_success() throws Exception {
+        //given
+        willDoNothing().given(notificationService).readNotification(any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/notifications/{id}",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Access Token").attributes(field("constraints", "JWT Access Token With Bearer"))
+                        ),
+                        pathParameters(
+                                parameterWithName("id").description("알림 id")
+                        )
+                ));
     }
 
 }

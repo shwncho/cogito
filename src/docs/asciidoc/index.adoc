@@ -19,3 +19,6 @@ include::overview.adoc[]
 
 === Comment
 * link:comment.html[Comment API, window=_blank]
+
+=== Notification
+* link:notification.html[Notification API, window=_blank]

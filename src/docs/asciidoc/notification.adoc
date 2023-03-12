@@ -26,3 +26,13 @@ include::{snippets}/notification-controller-test/get_notifications_success/reque
 === 응답
 include::{snippets}/notification-controller-test/get_notifications_success/http-response.adoc[]
 include::{snippets}/notification-controller-test/get_notifications_success/response-fields.adoc[]
+
+== 알림 확인
+
+=== 요청
+include::{snippets}/notification-controller-test/patch_notification_success/http-request.adoc[]
+include::{snippets}/notification-controller-test/patch_notification_success/request-headers.adoc[]
+include::{snippets}/notification-controller-test/patch_notification_success/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/notification-controller-test/patch_notification_success/http-response.adoc[]
