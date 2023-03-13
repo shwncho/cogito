@@ -128,7 +128,7 @@ class NotificationControllerTest extends RestDocsSupport {
 
     @Test
     @DisplayName("알림 확인 성공")
-    public void patch_notification_success() throws Exception {
+    public void read_notification_success() throws Exception {
         //given
         willDoNothing().given(notificationService).readNotification(any());
         //when
