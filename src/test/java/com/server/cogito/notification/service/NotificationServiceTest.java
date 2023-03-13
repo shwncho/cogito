@@ -1,8 +1,13 @@
 package com.server.cogito.notification.service;
 
+import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.common.security.AuthUser;
+import com.server.cogito.notification.dto.NotificationResponse;
+import com.server.cogito.notification.dto.NotificationResponses;
+import com.server.cogito.notification.entity.Notification;
 import com.server.cogito.notification.repository.EmitterRepository;
 import com.server.cogito.notification.repository.NotificationRepository;
+import com.server.cogito.post.entity.Post;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,6 +64,56 @@ class NotificationServiceTest {
                 .email("kakao@kakao.com")
                 .nickname("kakao")
                 .provider(Provider.KAKAO)
+                .build();
+    }
+
+    @Test
+    @DisplayName("알림 조회")
+    public void get_notifications_success() throws Exception {
+        //given
+        User user = mockUser();
+        AuthUser authUser = AuthUser.of(user);
+        given(notificationRepository.findAllByReceiverId(any()))
+                .willReturn(List.of(createNotification(user)));
+        //when
+        NotificationResponses responses = notificationService.getNotifications(authUser);
+        //then
+        assertAll(
+                ()->assertThat(responses.getUnreadCount()).isEqualTo(1),
+                ()->assertThat(responses.getNotificationResponses().size()).isEqualTo(1)
+        );
+    }
+
+    private Notification createNotification(User receiver) {
+        Post post = createPost(receiver);
+        User githubUser = githubUser();
+        Comment comment = createComment(post,githubUser);
+        return Notification.builder()
+                .receiver(receiver)
+                .content("새로운 댓글이 달렸습니다.")
+                .post(post)
+                .comment(comment)
+                .url("/questions/1")
+                .isRead(false)
+                .build();
+    }
+
+    private Post createPost(User receiver){
+        return Post.of("테스트 제목","테스트 내용",receiver);
+    }
+    private Comment createComment(Post post, User user){
+        return Comment.builder()
+                .post(post)
+                .content("테스트")
+                .user(user).build();
+    }
+
+    private User githubUser(){
+        return User.builder()
+                .id(2L)
+                .email("github@github.com")
+                .nickname("github")
+                .provider(Provider.GITHUB)
                 .build();
     }
 }
