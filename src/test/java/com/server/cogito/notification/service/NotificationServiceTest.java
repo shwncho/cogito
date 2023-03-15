@@ -116,4 +116,18 @@ class NotificationServiceTest {
                 .provider(Provider.GITHUB)
                 .build();
     }
+
+    @Test
+    @DisplayName("알림 확인 성공")
+    public void read_notification_success() throws Exception {
+        //given
+        User user = mockUser();
+        Notification notification = createNotification(user);
+        given(notificationRepository.findById(any()))
+                .willReturn(Optional.of(notification));
+        //when
+        notificationService.readNotification(1L);
+        //then
+        assertThat(notification.isRead()).isEqualTo(true);
+    }
 }
