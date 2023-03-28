@@ -1,6 +1,7 @@
 package com.server.cogito.notification.service;
 
 import com.server.cogito.comment.entity.Comment;
+import com.server.cogito.common.exception.notification.NotificationUnConnectedException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.notification.dto.NotificationResponse;
 import com.server.cogito.notification.dto.NotificationResponses;

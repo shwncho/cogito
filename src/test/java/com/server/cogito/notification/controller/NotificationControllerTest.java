@@ -1,5 +1,7 @@
 package com.server.cogito.notification.controller;
 
+import com.server.cogito.common.exception.notification.NotificationErrorCode;
+import com.server.cogito.common.exception.notification.NotificationUnConnectedException;
 import com.server.cogito.notification.dto.NotificationResponse;
 import com.server.cogito.notification.dto.NotificationResponses;
 import com.server.cogito.notification.service.NotificationService;
@@ -16,6 +18,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -73,6 +76,23 @@ class NotificationControllerTest extends RestDocsSupport {
                         )
                 ));
 
+    }
+
+    @Test
+    @DisplayName("sse 연결 실패 / sse 연결 오류")
+    public void get_subscribe_fail_unconnected() throws Exception {
+        //given
+        willThrow(new NotificationUnConnectedException()).given(notificationService).subscribe(any(),any());
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/api/notifications/subscribe")
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(NotificationErrorCode.NOTIFICATION_UNCONNECTED.getCode())))
+                .andExpect(jsonPath("$.message",is(NotificationErrorCode.NOTIFICATION_UNCONNECTED.getMessage())));
     }
 
     @Test

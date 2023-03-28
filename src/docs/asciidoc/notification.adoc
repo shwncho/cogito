@@ -16,6 +16,9 @@ include::{snippets}/notification-controller-test/get_subscribe_success/request-p
 === 응답
 include::{snippets}/notification-controller-test/get_subscribe_success/http-response.adoc[]
 
+=== N002
+include::{snippets}/notification-controller-test/get_subscribe_fail_unconnected/http-request.adoc[]
+include::{snippets}/notification-controller-test/get_subscribe_fail_unconnected/http-response.adoc[]
 
 == 알림 조회
 
@@ -36,3 +39,4 @@ include::{snippets}/notification-controller-test/read_notification_success/path-
 
 === 응답
 include::{snippets}/notification-controller-test/read_notification_success/http-response.adoc[]
+

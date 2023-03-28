@@ -2,6 +2,7 @@ package com.server.cogito.notification.service;
 
 import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.common.exception.notification.NotificationNotFoundException;
+import com.server.cogito.common.exception.notification.NotificationUnConnectedException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.notification.dto.NotificationResponse;
 import com.server.cogito.notification.dto.NotificationResponses;
@@ -62,6 +63,7 @@ public class NotificationService {
         } catch (IOException exception) {
             emitterRepository.deleteById(id);
             log.error("SSE 연결 오류", exception);
+            throw new NotificationUnConnectedException();
         }
     }
 
