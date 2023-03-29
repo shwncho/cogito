@@ -1,6 +1,7 @@
 package com.server.cogito.notification.controller;
 
 import com.server.cogito.common.exception.notification.NotificationErrorCode;
+import com.server.cogito.common.exception.notification.NotificationNotFoundException;
 import com.server.cogito.common.exception.notification.NotificationUnConnectedException;
 import com.server.cogito.notification.dto.NotificationResponse;
 import com.server.cogito.notification.dto.NotificationResponses;
@@ -167,6 +168,23 @@ class NotificationControllerTest extends RestDocsSupport {
                                 parameterWithName("id").description("알림 id")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("알림 확인 실패 / 존재하지 않는 알림")
+    public void read_notification_fail_not_found() throws Exception {
+        //given
+        willThrow(new NotificationNotFoundException()).given(notificationService).readNotification(any());
+        //when
+        ResultActions resultActions = mockMvc.perform(patch("/api/notifications/{id}",1L)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer testAccessToken")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code",is(NotificationErrorCode.NOTIFICATION_NOT_FOUND.getCode())))
+                .andExpect(jsonPath("$.message",is(NotificationErrorCode.NOTIFICATION_NOT_FOUND.getMessage())));
+
     }
 
 }

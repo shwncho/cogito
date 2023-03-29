@@ -1,6 +1,7 @@
 package com.server.cogito.notification.service;
 
 import com.server.cogito.comment.entity.Comment;
+import com.server.cogito.common.exception.notification.NotificationNotFoundException;
 import com.server.cogito.common.exception.notification.NotificationUnConnectedException;
 import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.notification.dto.NotificationResponse;
@@ -130,5 +131,16 @@ class NotificationServiceTest {
         notificationService.readNotification(1L);
         //then
         assertThat(notification.isRead()).isEqualTo(true);
+    }
+
+    @Test
+    @DisplayName("알림 확인 실패 / 존재하지 않는 알림")
+    public void read_notification_fail_not_found() throws Exception {
+        //given
+        given(notificationRepository.findById(any()))
+                .willReturn(Optional.empty());
+        //expected
+        assertThatThrownBy(()->notificationService.readNotification(any()))
+                .isExactlyInstanceOf(NotificationNotFoundException.class);
     }
 }

@@ -40,3 +40,6 @@ include::{snippets}/notification-controller-test/read_notification_success/path-
 === 응답
 include::{snippets}/notification-controller-test/read_notification_success/http-response.adoc[]
 
+=== N001
+include::{snippets}/notification-controller-test/read_notification_fail_not_found/http-request.adoc[]
+include::{snippets}/notification-controller-test/read_notification_fail_not_found/http-response.adoc[]
