@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -38,11 +39,13 @@ public class PostRepositoryTest {
         CountDownLatch latch = new CountDownLatch(threadCount);
         //given
         User user = mockUser();
+        userRepository.save(user);
+
         User githubUser = githubUser();
+        userRepository.save(githubUser);
+
         AuthUser authUser = AuthUser.of(githubUser);
         Post post = createPost("테스트 제목","테스트 내용",user);
-        userRepository.save(user);
-        userRepository.save(githubUser);
         postRepository.save(post);
 
         //when
