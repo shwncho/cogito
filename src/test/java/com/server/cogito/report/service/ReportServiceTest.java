@@ -23,12 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.willThrow;
 
 @ExtendWith(MockitoExtension.class)
 class ReportServiceTest {
@@ -55,7 +53,7 @@ class ReportServiceTest {
         ReportRequest request = new ReportRequest("게시물 신고 테스트");
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("신고 게시글 제목","신고 게시글 내용",user);
+        Post post = createPost("신고 게시글 제목","신고 게시글 내용",user);
         Report report = createReportPost(user,post,request);
         given(userRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.of(user));
@@ -72,6 +70,14 @@ class ReportServiceTest {
         assertThat(report.getReportCnt()).isEqualTo(1);
     }
 
+    private static Post createPost(String title, String content, User user){
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .user(user)
+                .build();
+    }
+
     @Test
     @DisplayName("게시물 신고 실패 / 중복 신고")
     public void report_post_fail_duplicated() throws Exception {
@@ -79,7 +85,7 @@ class ReportServiceTest {
         ReportRequest request = new ReportRequest("게시물 신고 테스트");
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("신고 게시글 제목","신고 게시글 내용",user);
+        Post post = createPost("신고 게시글 제목","신고 게시글 내용",user);
         Report report = createReportPost(user,post,request);
 
         given(userRepository.findByIdAndStatus(any(),any()))
@@ -122,7 +128,7 @@ class ReportServiceTest {
         ReportRequest request = new ReportRequest("댓글 신고 테스트");
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("게시글 제목","게시글 내용",user);
+        Post post = createPost("게시글 제목","게시글 내용",user);
         Comment comment = createComment(post);
         Report report = createReportComment(user,comment,request);
         given(userRepository.findByIdAndStatus(any(),any()))
@@ -146,7 +152,7 @@ class ReportServiceTest {
         ReportRequest request = new ReportRequest("댓글 신고 테스트");
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("게시글 제목","게시글 내용",user);
+        Post post = createPost("게시글 제목","게시글 내용",user);
         Comment comment = createComment(post);
         Report report = createReportComment(user,comment,request);
         given(userRepository.findByIdAndStatus(any(),any()))

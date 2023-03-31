@@ -10,7 +10,6 @@ import com.server.cogito.common.exception.post.PostNotFoundException;
 import com.server.cogito.common.exception.user.UserInvalidException;
 import com.server.cogito.common.exception.user.UserNotFoundException;
 import com.server.cogito.common.security.AuthUser;
-import com.server.cogito.notification.repository.EmitterRepository;
 import com.server.cogito.notification.service.NotificationService;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
@@ -24,13 +23,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;

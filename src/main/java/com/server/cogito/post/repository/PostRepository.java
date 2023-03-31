@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -28,4 +29,8 @@ public interface PostRepository extends JpaRepository<Post,Long>,PostRepositoryC
             " left join fetch p.files f" +
             " where p.id = :postId and p.status = :status")
     Optional<Post> findPostByIdAndStatus(@Param("postId") Long postId, @Param("status") BaseEntity.Status status);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value="update Post p set p.likeCnt = p.likeCnt + 1 where p.id = :postId")
+    void increaseLikeCount(@Param("postId") Long postId);
 }

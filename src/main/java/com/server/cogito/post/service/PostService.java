@@ -24,6 +24,7 @@ import com.server.cogito.tag.repository.TagRepository;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
 
     private final PostRepository postRepository;
@@ -48,10 +50,18 @@ public class PostService {
     public CreatePostResponse createPost(AuthUser authUser, PostRequest request){
         User user = userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE)
                 .orElseThrow(UserNotFoundException::new);
-        Post post = Post.of(request.getTitle(), request.getContent(), user);
+        Post post = create(request.getTitle(),request.getContent(),user);
         savePostFilesAndTags(request, post);
         user.addScore(2);
         return CreatePostResponse.from(postRepository.save(post).getId());
+    }
+
+    private Post create(String title, String content, User user){
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .user(user)
+                .build();
     }
 
     private void savePostFilesAndTags(PostRequest request, Post post) {
@@ -140,8 +150,7 @@ public class PostService {
         Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
         validateEqualUserId(authUser,post);
-
-        post.addLike();
+       postRepository.increaseLikeCount(postId);
     }
 
     @Transactional

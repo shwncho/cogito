@@ -66,7 +66,7 @@ class PostServiceTest {
         PostRequest request = createPostRequest();
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of(request.getTitle(),request.getContent(),user);
+        Post post = createPost(request.getTitle(),request.getContent(),user);
         given(userRepository.findByEmailAndStatus(any(),any())).willReturn(Optional.of(user));
         given(postRepository.save(any(Post.class))).willReturn(post);
 
@@ -80,7 +80,13 @@ class PostServiceTest {
                 ()->assertThat(user.getScore()).isEqualTo(3)
         );
     }
-
+    private static Post createPost(String title, String content, User user){
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .user(user)
+                .build();
+    }
     @Test
     @DisplayName("게시물 생성 실패 / 존재하지 않는 유저")
     public void create_post_not_found_user() throws Exception {
@@ -129,8 +135,8 @@ class PostServiceTest {
         //given
         User user = mockUser();
         Pageable pageable = PageRequest.of(0,15,Sort.by("createdAt").descending());
-        Page<Post> posts = new PageImpl<>(List.of(Post.of("테스트 제목1","테스트 본문1", user),
-                Post.of("테스트 제목2","테스트 본문2", user)));
+        Page<Post> posts = new PageImpl<>(List.of(createPost("테스트 제목1","테스트 본문1", user),
+                createPost("테스트 제목2","테스트 본문2", user)));
         given(postRepository.findWithoutSearchConditions(pageable)).willReturn(posts);
 
         //when
@@ -150,7 +156,7 @@ class PostServiceTest {
         //given
         User user = mockUser();
         Pageable pageable = PageRequest.of(0,15,Sort.by("createdAt").descending());
-        Page<Post> posts = new PageImpl<>(List.of(Post.of("테스트 제목1","테스트 본문1", user)));
+        Page<Post> posts = new PageImpl<>(List.of(createPost("테스트 제목1","테스트 본문1", user)));
         given(postRepository.findWithSearchConditions(any(),any())).willReturn(posts);
 
         //when
@@ -169,7 +175,7 @@ class PostServiceTest {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findPostByIdAndStatus(1L, BaseEntity.Status.ACTIVE))
                 .willReturn(Optional.of(post));
         //when
@@ -196,7 +202,7 @@ class PostServiceTest {
     @DisplayName("게시물 수정 성공")
     public void update_post_success() throws Exception {
         //given
-        Post post = Post.of("테스트","테스트",mockUser());
+        Post post = createPost("테스트","테스트",mockUser());
         String originalTitle = post.getTitle();
         String originalContent = post.getContent();
         UpdatePostRequest request = createUpdatePostRequest();
@@ -238,7 +244,7 @@ class PostServiceTest {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.of(post));
         //when
@@ -256,7 +262,7 @@ class PostServiceTest {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.empty());
         //expected
@@ -271,7 +277,7 @@ class PostServiceTest {
         User user = mockUser();
         User githubUser = githubUser();
         AuthUser authUser = AuthUser.of(githubUser);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.of(post));
         //expected
@@ -286,13 +292,13 @@ class PostServiceTest {
         User user = mockUser();
         User githubUser = githubUser();
         AuthUser authUser = AuthUser.of(githubUser);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.of(post));
         //when
-        postService.likePost(authUser,post.getId());
+        postService.likePost(authUser,1L);
         //then
-        assertThat(post.getLikeCnt()).isEqualTo(1);
+        verify(postRepository).increaseLikeCount(any());
     }
 
     @Test
@@ -302,7 +308,7 @@ class PostServiceTest {
         User user = mockUser();
         User githubUser = githubUser();
         AuthUser authUser = AuthUser.of(githubUser);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.empty());
         //expected
@@ -316,7 +322,7 @@ class PostServiceTest {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.of(post));
         //expected
@@ -331,7 +337,7 @@ class PostServiceTest {
         User user = mockUser();
         User githubUser = githubUser();
         AuthUser authUser = AuthUser.of(githubUser);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.of(post));
         //when
@@ -347,7 +353,7 @@ class PostServiceTest {
         User user = mockUser();
         User githubUser = githubUser();
         AuthUser authUser = AuthUser.of(githubUser);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.empty());
         //expected
@@ -361,7 +367,7 @@ class PostServiceTest {
         //given
         User user = mockUser();
         AuthUser authUser = AuthUser.of(user);
-        Post post = Post.of("테스트 제목","테스트 본문",user);
+        Post post = createPost("테스트 제목","테스트 본문",user);
         given(postRepository.findByIdAndStatus(any(),any()))
                 .willReturn(Optional.of(post));
         //expected

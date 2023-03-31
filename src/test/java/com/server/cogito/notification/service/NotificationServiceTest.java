@@ -2,9 +2,7 @@ package com.server.cogito.notification.service;
 
 import com.server.cogito.comment.entity.Comment;
 import com.server.cogito.common.exception.notification.NotificationNotFoundException;
-import com.server.cogito.common.exception.notification.NotificationUnConnectedException;
 import com.server.cogito.common.security.AuthUser;
-import com.server.cogito.notification.dto.NotificationResponse;
 import com.server.cogito.notification.dto.NotificationResponses;
 import com.server.cogito.notification.entity.Notification;
 import com.server.cogito.notification.repository.EmitterRepository;
@@ -20,9 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import javax.swing.text.html.Option;
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,8 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
@@ -101,7 +95,11 @@ class NotificationServiceTest {
     }
 
     private Post createPost(User receiver){
-        return Post.of("테스트 제목","테스트 내용",receiver);
+        return Post.builder()
+                .title("테스트 제목")
+                .content("테스트 내용")
+                .user(receiver)
+                .build();
     }
     private Comment createComment(Post post, User user){
         return Comment.builder()

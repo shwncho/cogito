@@ -58,18 +58,11 @@ public class Post extends BaseEntity {
 
 
     @Builder
-    public Post(String title, String content, User user) {
+    public Post(Long id,String title, String content, User user) {
+        this.id = id;
         this.title = title;
         this.content = content;
         this.user = user;
-    }
-
-    public static Post of(String title, String content, User user){
-        return Post.builder()
-                .title(title)
-                .content(content)
-                .user(user)
-                .build();
     }
 
     public void change(UpdatePostRequest updatePostRequest){
