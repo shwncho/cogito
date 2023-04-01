@@ -343,7 +343,8 @@ class PostServiceTest {
         //when
         postService.dislikePost(authUser,post.getId());
         //then
-        assertThat(post.getLikeCnt()).isEqualTo(-1);
+        verify(postRepository).decreaseLikeCount(any());
+
     }
 
     @Test

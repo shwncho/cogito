@@ -33,4 +33,8 @@ public interface PostRepository extends JpaRepository<Post,Long>,PostRepositoryC
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value="update Post p set p.likeCnt = p.likeCnt + 1 where p.id = :postId")
     void increaseLikeCount(@Param("postId") Long postId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update Post p set p.likeCnt = p.likeCnt - 1 where p.id = :postId")
+    void decreaseLikeCount(@Param("postId") Long postId);
 }
