@@ -298,7 +298,8 @@ class PostServiceTest {
         //when
         postService.likePost(authUser,1L);
         //then
-        verify(postRepository).increaseLikeCount(any());
+        //verify(postRepository).increaseLikeCount(any());
+        assertThat(post.getLikeCnt()).isEqualTo(1);
     }
 
     @Test

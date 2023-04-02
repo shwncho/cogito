@@ -4,6 +4,7 @@ import com.server.cogito.common.security.AuthUser;
 import com.server.cogito.post.entity.Post;
 import com.server.cogito.post.repository.PostRepository;
 import com.server.cogito.post.service.PostService;
+import com.server.cogito.post.service.RedissonLockPostFacade;
 import com.server.cogito.user.entity.User;
 import com.server.cogito.user.enums.Provider;
 import com.server.cogito.user.repository.UserRepository;
@@ -28,11 +29,50 @@ public class PostIntegrationTest {
     PostRepository postRepository;
 
     @Autowired
+    RedissonLockPostFacade redissonLockPostFacade;
+
+    @Autowired
     PostService postService;
+
+    @Test
+    @DisplayName("게시물 좋아요 / Redisson")
+    public void like_post() throws Exception {
+        int threadCount = 10000;
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+        //given
+        User user = mockUser();
+        userRepository.save(user);
+
+        User githubUser = githubUser();
+        userRepository.save(githubUser);
+
+        AuthUser authUser = AuthUser.of(githubUser);
+        Post post = createPost("테스트 제목","테스트 내용",user);
+        postRepository.save(post);
+
+        //when
+
+        for(int i=0; i<threadCount; i++){
+            executorService.submit(()->{
+                try{
+                    redissonLockPostFacade.likePost(authUser,1L);
+                }
+                finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
+
+        //then
+        Post result = postRepository.findById(1L).get();
+        assertThat(result.getLikeCnt()).isEqualTo(threadCount);
+    }
 
 
 //    @Test
-//    @DisplayName("게시물 좋아요")
+//    @DisplayName("게시물 좋아요 / JPQL")
 //    public void like_post() throws Exception {
 //        int threadCount = 100;
 //        ExecutorService executorService = Executors.newFixedThreadPool(32);
@@ -68,7 +108,7 @@ public class PostIntegrationTest {
 //    }
 //
 //    @Test
-//    @DisplayName("게시물 싫어요")
+//    @DisplayName("게시물 싫어요 / JPQL")
 //    public void dislike_post() throws Exception {
 //        int threadCount = 100;
 //        ExecutorService executorService = Executors.newFixedThreadPool(32);
