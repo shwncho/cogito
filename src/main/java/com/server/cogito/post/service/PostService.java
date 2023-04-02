@@ -45,7 +45,6 @@ public class PostService {
     private final PostFileRepository postFileRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
-    private final RedissonLockPostFacade redissonLockPostFacade;
 
     @Transactional
     public CreatePostResponse createPost(AuthUser authUser, PostRequest request){
@@ -160,8 +159,8 @@ public class PostService {
         Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
         validateEqualUserId(authUser,post);
-
-        postRepository.decreaseLikeCount(postId);
+        //postRepository.decreaseLikeCount(postId);
+        post.subtractLike();
     }
 
 

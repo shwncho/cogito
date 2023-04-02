@@ -55,6 +55,6 @@ public class PostController {
 
     @PatchMapping("/{postId}/dislike")
     public void dislikePost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
-        postService.dislikePost(authUser, postId);
+        redissonLockPostFacade.dislikePost(authUser, postId);
     }
 }

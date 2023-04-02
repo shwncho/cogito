@@ -36,4 +36,24 @@ public class RedissonLockPostFacade {
             lock.unlock();
         }
     }
+
+    public void dislikePost(AuthUser authUser, Long postId){
+        RLock lock = redissonClient.getLock(postId.toString());
+
+        try {
+            // 획득시도 시간, 락 점유 시간
+            boolean available = lock.tryLock(5, 1, TimeUnit.SECONDS);
+
+            if (!available) {
+                log.info("lock 획득 실패");
+                return;
+            }
+            postService.dislikePost(authUser,postId);
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }finally {
+            lock.unlock();
+        }
+    }
 }
