@@ -13,6 +13,7 @@ import com.server.cogito.post.dto.response.PostInfo;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.dto.response.PostResponse;
 import com.server.cogito.post.service.PostService;
+import com.server.cogito.post.service.RedissonLockPostFacade;
 import com.server.cogito.support.restdocs.RestDocsSupport;
 import com.server.cogito.support.security.WithMockJwt;
 import org.junit.jupiter.api.DisplayName;
@@ -49,6 +50,9 @@ class PostControllerTest extends RestDocsSupport {
 
     @MockBean
     private PostService postService;
+
+//    @MockBean
+//    private RedissonLockPostFacade redissonLockPostFacade;
 
     @Test
     @DisplayName("게시물 생성 성공")

@@ -21,7 +21,7 @@ import javax.validation.Valid;
 public class PostController {
 
     private final PostService postService;
-    private final RedissonLockPostFacade redissonLockPostFacade;
+    //private final RedissonLockPostFacade redissonLockPostFacade;
 
     @PostMapping("")
     public CreatePostResponse createPost(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid PostRequest request){
@@ -50,11 +50,11 @@ public class PostController {
 
     @PatchMapping("/{postId}/like")
     public void likePost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
-        redissonLockPostFacade.likePost(authUser, postId);
+        postService.likePost(authUser, postId);
     }
 
     @PatchMapping("/{postId}/dislike")
     public void dislikePost(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long postId){
-        redissonLockPostFacade.dislikePost(authUser, postId);
+        postService.dislikePost(authUser, postId);
     }
 }

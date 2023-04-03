@@ -150,8 +150,8 @@ public class PostService {
         Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
         validateEqualUserId(authUser,post);
-        //postRepository.increaseLikeCount(postId);
-        post.addLike();
+        postRepository.increaseLikeCount(postId);
+        //post.addLike();
     }
 
     @Transactional
@@ -159,8 +159,8 @@ public class PostService {
         Post post = postRepository.findByIdAndStatus(postId, BaseEntity.Status.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
         validateEqualUserId(authUser,post);
-        //postRepository.decreaseLikeCount(postId);
-        post.subtractLike();
+        postRepository.decreaseLikeCount(postId);
+        //post.subtractLike();
     }
 
 

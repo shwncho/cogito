@@ -298,8 +298,8 @@ class PostServiceTest {
         //when
         postService.likePost(authUser,1L);
         //then
-        //verify(postRepository).increaseLikeCount(any());
-        assertThat(post.getLikeCnt()).isEqualTo(1);
+        verify(postRepository).increaseLikeCount(any());
+        //assertThat(post.getLikeCnt()).isEqualTo(1);
     }
 
     @Test
@@ -344,7 +344,8 @@ class PostServiceTest {
         //when
         postService.dislikePost(authUser,post.getId());
         //then
-        assertThat(post.getLikeCnt()).isEqualTo(-1);
+        //assertThat(post.getLikeCnt()).isEqualTo(-1);
+        verify(postRepository).decreaseLikeCount(any());
 
     }
 
