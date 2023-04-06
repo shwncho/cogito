@@ -28,8 +28,8 @@ public class PostIntegrationTest {
     @Autowired
     PostRepository postRepository;
 
-    @Autowired
-    RedissonLockPostFacade redissonLockPostFacade;
+//    @Autowired
+//    RedissonLockPostFacade redissonLockPostFacade;
 
     @Autowired
     PostService postService;
