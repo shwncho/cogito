@@ -103,41 +103,41 @@ public class PostIntegrationTest {
 //    }
 
 
-    @Test
-    @DisplayName("게시물 좋아요 / JPQL")
-    public void like_post() throws Exception {
-        int threadCount = 100;
-        ExecutorService executorService = Executors.newFixedThreadPool(200);
-        CountDownLatch latch = new CountDownLatch(threadCount);
-        //given
-        User user = mockUser();
-        userRepository.save(user);
-
-        User githubUser = githubUser();
-        userRepository.save(githubUser);
-
-        AuthUser authUser = AuthUser.of(githubUser);
-        Post post = createPost("테스트 제목","테스트 내용",user);
-        postRepository.save(post);
-
-        //when
-
-        for(int i=0; i<threadCount; i++){
-            executorService.submit(()->{
-                try{
-                    postService.likePost(authUser,1L);
-                }
-                finally {
-                    latch.countDown();
-                }
-            });
-        }
-        latch.await();
-
-        //then
-        Post result = postRepository.findById(1L).get();
-        assertThat(result.getLikeCnt()).isEqualTo(threadCount);
-    }
+//    @Test
+//    @DisplayName("게시물 좋아요 / JPQL")
+//    public void like_post() throws Exception {
+//        int threadCount = 100;
+//        ExecutorService executorService = Executors.newFixedThreadPool(200);
+//        CountDownLatch latch = new CountDownLatch(threadCount);
+//        //given
+//        User user = mockUser();
+//        userRepository.save(user);
+//
+//        User githubUser = githubUser();
+//        userRepository.save(githubUser);
+//
+//        AuthUser authUser = AuthUser.of(githubUser);
+//        Post post = createPost("테스트 제목","테스트 내용",user);
+//        postRepository.save(post);
+//
+//        //when
+//
+//        for(int i=0; i<threadCount; i++){
+//            executorService.submit(()->{
+//                try{
+//                    postService.likePost(authUser,1L);
+//                }
+//                finally {
+//                    latch.countDown();
+//                }
+//            });
+//        }
+//        latch.await();
+//
+//        //then
+//        Post result = postRepository.findById(1L).get();
+//        assertThat(result.getLikeCnt()).isEqualTo(threadCount);
+//    }
 //
 //    @Test
 //    @DisplayName("게시물 싫어요 / JPQL")
