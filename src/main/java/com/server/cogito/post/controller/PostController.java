@@ -7,7 +7,6 @@ import com.server.cogito.post.dto.response.CreatePostResponse;
 import com.server.cogito.post.dto.response.PostPageResponse;
 import com.server.cogito.post.dto.response.PostResponse;
 import com.server.cogito.post.service.PostService;
-import com.server.cogito.post.service.RedissonLockPostFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +20,6 @@ import javax.validation.Valid;
 public class PostController {
 
     private final PostService postService;
-    //private final RedissonLockPostFacade redissonLockPostFacade;
 
     @PostMapping("")
     public CreatePostResponse createPost(@AuthenticationPrincipal AuthUser authUser, @RequestBody @Valid PostRequest request){
