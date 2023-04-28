@@ -83,7 +83,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 11
-          distribution: 'zulu'
+          
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:
@@ -96,6 +96,10 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
+          
+      - name: update gradlew access authorized 
+        run: chmod +x gradlew
+        
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
