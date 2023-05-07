@@ -20,12 +20,12 @@ import java.util.*;
 public class JwtProvider implements InitializingBean {
 
     private final String secret;
-    private final String USER_ID = "userId";
-    private final String USER_PROVIDER = "provider";
-    private final String USERNAME = "username";
+    private static final String USER_ID = "userId";
+    private static final String USER_PROVIDER = "provider";
+    private static final String USERNAME = "username";
     private final long ACCESS_TOKEN_EXPIRE_TIME;
     private final long REFRESH_TOKEN_EXPIRE_TIME;
-    private final String BEARER_PREFIX = "Bearer ";
+    private static final String BEARER_PREFIX = "Bearer ";
     private Key key;
 
 
