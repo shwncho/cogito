@@ -151,7 +151,6 @@ public class PostService {
                 .orElseThrow(PostNotFoundException::new);
         validateEqualUserId(authUser,post);
         postRepository.increaseLikeCount(postId);
-        //post.addLike();
     }
 
     @Transactional
@@ -160,7 +159,6 @@ public class PostService {
                 .orElseThrow(PostNotFoundException::new);
         validateEqualUserId(authUser,post);
         postRepository.decreaseLikeCount(postId);
-        //post.subtractLike();
     }
 
 
