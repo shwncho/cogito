@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PostService {
 
     private final PostRepository postRepository;
@@ -50,18 +49,10 @@ public class PostService {
     public CreatePostResponse createPost(AuthUser authUser, PostRequest request){
         User user = userRepository.findByEmailAndStatus(authUser.getUsername(), BaseEntity.Status.ACTIVE)
                 .orElseThrow(UserNotFoundException::new);
-        Post post = create(request.getTitle(),request.getContent(),user);
+        Post post = PostRequest.toEntity(request.getTitle(),request.getContent(),user);
         savePostFilesAndTags(request, post);
         user.addScore(2);
         return CreatePostResponse.from(postRepository.save(post).getId());
-    }
-
-    private Post create(String title, String content, User user){
-        return Post.builder()
-                .title(title)
-                .content(content)
-                .user(user)
-                .build();
     }
 
     private void savePostFilesAndTags(PostRequest request, Post post) {
@@ -77,12 +68,9 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostPageResponse getPosts(String query, Pageable pageable){
-        if(StringUtils.hasText(query))
-            return getPostPageResponse(postRepository.findWithSearchConditions(query, pageable));
-        return getPostPageResponse(postRepository.findWithoutSearchConditions(pageable));
-    }
-
-    private PostPageResponse getPostPageResponse(Page<Post> posts) {
+        Page<Post> posts = StringUtils.hasText(query)
+                ? postRepository.findWithSearchConditions(query, pageable)
+                : postRepository.findWithoutSearchConditions(pageable);
         return PostPageResponse.of(posts.getContent()
                 .stream()
                 .map(PostInfo::from)
