@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,8 +45,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse getMe(AuthUser authUser){
-        if(authUser==null)  return UserResponse.builder().build();
-        return UserResponse.from(authUser.getUser());
+        return Optional.ofNullable(authUser)
+                .map(AuthUser::getUser)
+                .map(UserResponse::from)
+                .orElse(UserResponse.builder().build());
     }
 
     @Transactional(readOnly = true)
