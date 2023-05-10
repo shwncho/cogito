@@ -31,6 +31,8 @@ public class ReportService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
+    private static final int MAX_REPORT_COUNT = 5;
+
     @Transactional
     public ReportResponse reportPost(AuthUser authUser, Long postId, ReportRequest reportRequest){
         User user = userRepository.findByIdAndStatus(authUser.getUserId(), ACTIVE)
@@ -44,9 +46,9 @@ public class ReportService {
         report.addReportCnt();
 
         int reportCnt = report.getReportCnt();
-        if(reportCnt==5){
-            String result = "신고 누적으로인해 게시물이 삭제되었습니다.";
-            return new ReportResponse(result);
+        if(reportCnt == MAX_REPORT_COUNT){
+            post.setStatus(INACTIVE);
+            return new ReportResponse("신고 누적으로인해 게시물이 삭제되었습니다.");
         }
 
         return new ReportResponse("신고 누적 횟수: "+reportCnt);
@@ -81,9 +83,9 @@ public class ReportService {
         report.addReportCnt();
 
         int reportCnt = report.getReportCnt();
-        if(reportCnt==5){
-            String result = "신고 누적으로인해 게시물이 삭제되었습니다.";
-            return new ReportResponse(result);
+        if(reportCnt == MAX_REPORT_COUNT){
+            comment.setStatus(INACTIVE);
+            return new ReportResponse("신고 누적으로인해 댓글이 삭제되었습니다.");
         }
 
         return new ReportResponse("신고 누적 횟수: "+reportCnt);
