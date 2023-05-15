@@ -37,8 +37,7 @@
 ___
 
 ## 📝 Architecture
-<img width="800" alt="architecture" src="https://user-images.githubusercontent.com/88089316/224367078-b3940419-bc55-4935-a73f-e2158b8b5e11.png">
-
+<img width="800" alt="architecture2" src="https://github.com/shwncho/cogito/assets/88089316/5f6cea06-2323-4960-a39f-542b7f1225b3">
 
 
 &nbsp;
